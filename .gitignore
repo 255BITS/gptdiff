@@ -1,0 +1,4 @@
+.git
+build
+gptdiff.egg-info
+*.pyc
