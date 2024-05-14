@@ -8,6 +8,7 @@ from pathlib import Path
 import sys
 import fnmatch
 import argparse
+import pkgutil
 
 def load_gitignore_patterns(gitignore_path):
     with open(gitignore_path, 'r') as f:
@@ -38,10 +39,6 @@ def is_ignored(filepath, gitignore_patterns):
 # Load API key from environment variable
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
-# Load developer persona and instructions
-with open('./developer.json', 'r') as f:
-    developer_persona = json.load(f)
-
 # Function to load project files considering .gitignore
 def load_project_files(project_dir):
     gitignore_path = Path(project_dir) / ".gitignore"
@@ -63,6 +60,14 @@ def load_project_files(project_dir):
     print("")
     return project_files
 
+def load_developer_persona(developer_file):
+    try:
+        with open(developer_file, 'r') as f:
+            developer_persona = json.load(f)
+    except FileNotFoundError:
+        # Load the default developer.json from the pip package if not found
+        developer_persona = json.loads(pkgutil.get_data(__package__, 'developer.json').decode('utf-8'))
+    return developer_persona
 
 # Function to call GPT-4 API and calculate the cost
 def call_gpt4_api(system_prompt, user_prompt, files_content):
@@ -117,6 +122,7 @@ def parse_arguments():
     parser.add_argument('prompt', type=str, help='Prompt that runs on the codebase.')
 
     parser.add_argument('--apply', action='store_true', help='Attempt to apply the generated git diff.')
+    parser.add_argument('--developer', type=str, default='developer.json', help='Path to developer persona JSON file. It can contain any information about the developer that is writing the diff. Such as name, education, code style, etc. Defaults to included https://github.com/255BITS/gptdiff/blob/main/developer.json')
 
     # New flag --prompt that does not call the API but instead writes the full prompt to prompt.txt
     parser.add_argument('--call', action='store_true',
@@ -136,10 +142,11 @@ def main():
         sys.exit(1)
 
     user_prompt = sys.argv[1]
-    project_dir = '.'  # Or specify the project directory
+    project_dir = os.getcwd()
 
     # Load project files
     project_files = load_project_files(project_dir)
+    developer_persona = load_developer_persona(args.developer)
 
     # Prepare system prompt
     system_prompt = f"You are this agent: <json>{json.dumps(developer_persona)}</json>\n\nFollow the user request. Output a git diff into a ``` block. State who you are and what you are trying to do. Do not worry about getting it wrong, just try."

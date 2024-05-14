@@ -6,6 +6,7 @@ setup(
     description='A tool to generate git diffs using GPT-4',
     author='255labs',
     packages=['gptdiff'],
+    package_data={'gptdiff': ['developer.json']},
     install_requires=[
         'argparse',
         'openai',
