@@ -22,11 +22,15 @@ OpenAI will not be called unless you specify `--call` or `--apply`
 
 ## Usage
 
-After installing the package, you can use the `gptdiff` command in your terminal. You need to provide a prompt that runs on the codebase:
+After installing the package, you can use the `gptdiff` command in your terminal. cd into your codebase and run:
 
 ```bash
 gptdiff '<user_prompt>'
 ```
+
+any files that are included in .gitignore are ingnored when generating prompt.txt.
+
+## Autopatch with --apply
 
 You can also call openai and automatically apply the generated git diff with the `--apply` flag:
 
