@@ -28,7 +28,7 @@ After installing the package, you can use the `gptdiff` command in your terminal
 gptdiff '<user_prompt>'
 ```
 
-any files that are included in .gitignore are ingnored when generating prompt.txt.
+any files that are included in .gitignore are ignored when generating prompt.txt.
 
 ## Autopatch with --apply
 
