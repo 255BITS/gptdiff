@@ -1,6 +1,6 @@
 # GPTDiff
 
-GPTDiff uses GPT-4 to generate git diffs. Part of our mission at 255labs.xyz is rapid iteration to find PMF.
+GPTDiff uses GPT-4 to generate git diffs. The codebase in the current working directory is included in a generated prompt.txt file that you can copy and paste into chatgpt. You can also invoke the API and try to directly apply the patch (this often doesn't work).
 
 ## Installation
 
