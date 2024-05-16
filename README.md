@@ -1,6 +1,13 @@
 # GPTDiff
 
-GPTDiff uses GPT-4o to generate git diffs. The codebase in the current working directory is included in a generated prompt.txt file that you can copy and paste into chatgpt to have a conversation with suggested changes. You can also invoke the API and try to directly apply the patch (this often doesn't work).
+Send your entire codebase to gpt and get a changeset.
+
+```bash
+cd myproject
+gptdiff 'add hover effects to the buttons'
+```
+
+Generates a prompt.txt file that you can copy and paste into a large context gpt to have a conversation with suggested changes. You can also invoke the API and try to directly apply the patch (this often doesn't work).
 
 ## Installation
 
