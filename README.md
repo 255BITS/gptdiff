@@ -20,6 +20,8 @@ export OPENAI_API_KEY='your-openai-api-key'
 
 OpenAI will not be called unless you specify --call
 
+Prevent files being appended to the prompt by adding them to `.gitignore` or `.gptignore`
+
 ## Usage
 
 After installing the package, you can use the `gptdiff` command in your terminal. You need to provide a prompt that runs on the codebase:

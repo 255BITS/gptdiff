@@ -41,12 +41,13 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 # Function to load project files considering .gitignore
 def load_project_files(project_dir):
-    gitignore_path = Path(project_dir) / ".gitignore"
-    gitignore_patterns = ["developer.json", ".gitignore", "diff.patch", "prompt.txt"]
+    ignore_paths = [Path(project_dir) / ".gitignore", Path(project_dir) / ".gptignore"]
+    gitignore_patterns = ["developer.json", ".gitignore", "diff.patch", "prompt.txt", ".gitignore", ".gptignore"]
 
-    if gitignore_path.exists():
-        with open(gitignore_path, 'r') as f:
-            gitignore_patterns.extend([line.strip() for line in f if line.strip() and not line.startswith('#')])
+    for p in ignore_paths:
+        if p.exists():
+            with open(p, 'r') as f:
+                gitignore_patterns.extend([line.strip() for line in f if line.strip() and not line.startswith('#')])
 
     project_files = []
     for root, _, files in os.walk(project_dir):
