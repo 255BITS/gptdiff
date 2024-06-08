@@ -39,6 +39,16 @@ gptdiff '<user_prompt>'
 
 any files that are included in .gitignore are ignored when generating prompt.txt.
 
+### Specifying Additional Files or Directories
+
+You can specify additional files or directories to include in the prompt by adding them as arguments to the `gptdiff` command. If no additional files or directories are specified, the tool will default to using the current working directory.
+
+Example usage:
+
+```bash
+gptdiff 'make this change' src test
+```
+
 ## Autopatch with --apply
 
 You can also call openai and automatically apply the generated git diff with the `--apply` flag:

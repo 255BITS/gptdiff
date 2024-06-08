@@ -40,8 +40,8 @@ def is_ignored(filepath, gitignore_patterns):
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 # Function to load project files considering .gitignore
-def load_project_files(project_dir):
-    ignore_paths = [Path(project_dir) / ".gitignore", Path(project_dir) / ".gptignore"]
+def load_project_files(project_dir, cwd):
+    ignore_paths = [Path(cwd) / ".gitignore", Path(cwd) / ".gptignore"]
     gitignore_patterns = ["developer.json", ".gitignore", "diff.patch", "prompt.txt", ".gitignore", ".gptignore"]
 
     for p in ignore_paths:
@@ -128,6 +128,8 @@ def parse_arguments():
     # New flag --prompt that does not call the API but instead writes the full prompt to prompt.txt
     parser.add_argument('--call', action='store_true',
                         help='Call the GPT-4 API. Writes the full prompt to prompt.txt if not specified.')
+    parser.add_argument('files', nargs='*', default=[], help='Specify additional files or directories to include.')
+
 
 
     return parser.parse_args()
@@ -145,8 +147,18 @@ def main():
     user_prompt = sys.argv[1]
     project_dir = os.getcwd()
 
-    # Load project files
-    project_files = load_project_files(project_dir)
+    # Load project files, defaulting to current working directory if no additional paths are specified
+    if not args.files:
+        project_files = load_project_files(project_dir, project_dir)
+    else:
+        project_files = []
+        for additional_path in args.files:
+            if os.path.isfile(additional_path):
+                with open(additional_path, 'r') as f:
+                    project_files.append((additional_path, f.read()))
+            elif os.path.isdir(additional_path):
+                project_files.extend(load_project_files(additional_path, project_dir))
+ 
     developer_persona = load_developer_persona(args.developer)
 
     # Prepare system prompt
