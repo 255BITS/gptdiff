@@ -39,10 +39,33 @@ def is_ignored(filepath, gitignore_patterns):
 # Load API key from environment variable
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
+
+def list_files_and_dirs(path, ignore_list=None):
+    if ignore_list is None:
+        ignore_list = []
+
+    result = []
+
+    # List all items in the current directory
+    for item in os.listdir(path):
+        item_path = os.path.join(path, item)
+
+        if is_ignored(item_path, ignore_list):
+            continue
+
+        # Add the item to the result list
+        result.append(item_path)
+
+        # If it's a directory, recurse into it
+        if os.path.isdir(item_path):
+            result.extend(list_files_and_dirs(item_path, ignore_list))
+
+    return result
+
 # Function to load project files considering .gitignore
 def load_project_files(project_dir, cwd):
     ignore_paths = [Path(cwd) / ".gitignore", Path(cwd) / ".gptignore"]
-    gitignore_patterns = ["developer.json", ".gitignore", "diff.patch", "prompt.txt", ".gitignore", ".gptignore"]
+    gitignore_patterns = ["developer.json", ".gitignore", "diff.patch", "prompt.txt", ".gptignore"]
 
     for p in ignore_paths:
         if p.exists():
@@ -50,14 +73,12 @@ def load_project_files(project_dir, cwd):
                 gitignore_patterns.extend([line.strip() for line in f if line.strip() and not line.startswith('#')])
 
     project_files = []
-    for root, _, files in os.walk(project_dir):
-        for file in files:
-            filepath = os.path.relpath(os.path.join(root, file), project_dir)
-            if not is_ignored(filepath, gitignore_patterns):
-                print("Including", filepath)
-                with open(os.path.join(root, file), 'r') as f:
-                    project_files.append((filepath, f.read()))
-    
+    for file in list_files_and_dirs(project_dir, gitignore_patterns):
+        if os.path.isfile(file):
+            print("Including", file)
+            with open(file, 'r') as f:
+                project_files.append((file, f.read()))
+
     print("")
     return project_files
 
