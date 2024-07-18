@@ -25,10 +25,13 @@ def is_ignored(filepath, gitignore_patterns):
             if fnmatch.fnmatch(str(filepath), negated_pattern) or fnmatch.fnmatch(str(filepath.relative_to(Path.cwd())), negated_pattern):
                 ignored = False
         else:
-            if fnmatch.fnmatch(str(filepath), pattern) or fnmatch.fnmatch(str(filepath.relative_to(Path.cwd())), pattern):
+            relative_path = str(filepath.relative_to(Path.cwd()))
+            if fnmatch.fnmatch(str(filepath), pattern) or fnmatch.fnmatch(relative_path, pattern):
                 ignored = True
-            if pattern.endswith('/') and (str(filepath).startswith(str(Path(pattern[:-1]).resolve()))) or str(filepath.relative_to(Path.cwd())).startswith(pattern[:-1]):
+                break
+            if pattern in relative_path:
                 ignored = True
+                break
 
     # Ensure .gitignore itself is not ignored unless explicitly mentioned
     if filepath.name == ".gitignore" and not any(pattern == ".gitignore" for pattern in gitignore_patterns):
@@ -38,7 +41,6 @@ def is_ignored(filepath, gitignore_patterns):
 
 # Load API key from environment variable
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-
 
 def list_files_and_dirs(path, ignore_list=None):
     if ignore_list is None:
@@ -150,8 +152,6 @@ def parse_arguments():
     parser.add_argument('--call', action='store_true',
                         help='Call the GPT-4 API. Writes the full prompt to prompt.txt if not specified.')
     parser.add_argument('files', nargs='*', default=[], help='Specify additional files or directories to include.')
-
-
 
     return parser.parse_args()
 
