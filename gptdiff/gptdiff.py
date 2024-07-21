@@ -155,6 +155,11 @@ def parse_arguments():
 
     return parser.parse_args()
 
+def absolute_to_relative(absolute_path):
+    cwd = os.getcwd()
+    relative_path = os.path.relpath(absolute_path, cwd)
+    return relative_path
+
 def main():
     # Adding color support for Windows CMD
     if os.name == 'nt':
@@ -186,7 +191,7 @@ def main():
     system_prompt = f"You are this agent: <json>{json.dumps(developer_persona)}</json>\n\nFollow the user request. Output a git diff into a ``` block. State who you are and what you are trying to do. Do not worry about getting it wrong, just try."
 
     # Prepare the prompt for GPT-4
-    files_content = "\n".join([f"File: {file}\nContent:\n{content}" for file, content in project_files])
+    files_content = "\n".join([f"File: {absolute_to_relative(file)}\nContent:\n{content}" for file, content in project_files])
 
     if not args.call and not args.apply:
         with open('prompt.txt', 'w') as f:
