@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import openai
+import tiktoken
+
 import os
 import json
 import subprocess
@@ -77,7 +79,6 @@ def load_project_files(project_dir, cwd):
     project_files = []
     for file in list_files_and_dirs(project_dir, gitignore_patterns):
         if os.path.isfile(file):
-            print("Including", file)
             with open(file, 'r') as f:
                 project_files.append((file, f.read()))
 
@@ -90,7 +91,8 @@ def load_developer_persona(developer_file):
             developer_persona = json.load(f)
     except FileNotFoundError:
         # Load the default developer.json from the pip package if not found
-        developer_persona = json.loads(pkgutil.get_data(__package__, 'developer.json').decode('utf-8'))
+        developer_json = pkgutil.get_data(__package__, 'developer.json').decode('utf-8')
+        developer_persona = json.loads(developer_json)
     return developer_persona
 
 # Function to call GPT-4 API and calculate the cost
@@ -166,12 +168,14 @@ def main():
         os.system('color')
 
     args = parse_arguments()
-    if len(sys.argv) < 2 or len(sys.argv) > 3:
+    if len(sys.argv) < 2:
         print("Usage: python script.py '<user_prompt>' [--apply]")
         sys.exit(1)
 
     user_prompt = sys.argv[1]
     project_dir = os.getcwd()
+    enc = tiktoken.get_encoding("o200k_base")
+
 
     # Load project files, defaulting to current working directory if no additional paths are specified
     if not args.files:
@@ -186,12 +190,17 @@ def main():
                 project_files.extend(load_project_files(additional_path, project_dir))
  
     developer_persona = load_developer_persona(args.developer)
+    print("Including developer.json",len(enc.encode(json.dumps(developer_persona))), "tokens")
 
     # Prepare system prompt
     system_prompt = f"You are this agent: <json>{json.dumps(developer_persona)}</json>\n\nFollow the user request. Output a git diff into a ``` block. State who you are and what you are trying to do. Do not worry about getting it wrong, just try."
 
-    # Prepare the prompt for GPT-4
-    files_content = "\n".join([f"File: {absolute_to_relative(file)}\nContent:\n{content}" for file, content in project_files])
+    files_content = ""
+    for file, content in project_files:
+        print(f"Including {len(enc.encode(content)):5d} tokens", absolute_to_relative(file))
+
+        # Prepare the prompt for GPT-4
+        files_content += f"File: {absolute_to_relative(file)}\nContent:\n{content}"
 
     if not args.call and not args.apply:
         with open('prompt.txt', 'w') as f:

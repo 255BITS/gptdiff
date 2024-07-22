@@ -13,6 +13,12 @@ Generates a prompt.txt file that you can copy and paste into a large context gpt
 
 Requires Python. Clone this repo and run:
 
+It requires tiktoken to count gpt4o tokens.
+```bash
+pip install tiktoken
+```
+
+Development install (no pip package yet)
 ```bash
 python setup.py install
 ```
