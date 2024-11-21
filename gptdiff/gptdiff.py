@@ -69,7 +69,7 @@ def list_files_and_dirs(path, ignore_list=None):
 # Function to load project files considering .gitignore
 def load_project_files(project_dir, cwd):
     ignore_paths = [Path(cwd) / ".gitignore", Path(cwd) / ".gptignore"]
-    gitignore_patterns = ["developer.json", ".gitignore", "diff.patch", "prompt.txt", ".gptignore"]
+    gitignore_patterns = ["developer.json", ".gitignore", "diff.patch", "prompt.txt", ".gptignore", "*.pdf", "*.docx", ".git"]
 
     for p in ignore_paths:
         if p.exists():
@@ -79,8 +79,14 @@ def load_project_files(project_dir, cwd):
     project_files = []
     for file in list_files_and_dirs(project_dir, gitignore_patterns):
         if os.path.isfile(file):
-            with open(file, 'r') as f:
-                project_files.append((file, f.read()))
+                try:
+                    with open(file, 'r') as f:
+                        content = f.read()
+                    print(file)
+                    project_files.append((file, content))
+                except UnicodeDecodeError:
+                    print(f"Skipping file {file} due to UnicodeDecodeError")
+                    continue
 
     print("")
     return project_files
@@ -200,11 +206,13 @@ def main():
         print(f"Including {len(enc.encode(content)):5d} tokens", absolute_to_relative(file))
 
         # Prepare the prompt for GPT-4
-        files_content += f"File: {absolute_to_relative(file)}\nContent:\n{content}"
+        files_content += f"File: {absolute_to_relative(file)}\nContent:\n{content}\n"
 
     if not args.call and not args.apply:
+        full_prompt = system_prompt + '\n\n' + user_prompt + '\n\n' + files_content
         with open('prompt.txt', 'w') as f:
-            f.write(system_prompt + '\n\n' + user_prompt + '\n\n' + files_content)
+            f.write(full_prompt)
+        print(f"Total tokens: {len(enc.encode(full_prompt)):5d}")
         print(f"\033[1;32mNot calling GPT-4.\033[0m")  # Green color for success message
         print('Instead, wrote full prompt to prompt.txt. Use `xclip -selection clipboard < prompt.txt` then paste into chatgpt')
         print(f"Total cost: ${0.0:.4f}")
