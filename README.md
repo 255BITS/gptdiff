@@ -25,10 +25,10 @@ python setup.py install
 
 ## Configuration
 
-To call openai from the command line, you need to set the `OPENAI_API_KEY` environment variable:
+To call openai from the command line, you need to set the `NANOGPT_API_KEY` environment variable:
 
 ```bash
-export OPENAI_API_KEY='your-openai-api-key'
+export NANOGPT_API_KEY='your-openai-api-key'
 ```
 
 The tool now uses the nano-gpt.com API endpoint by default. Supported models can be specified with:

@@ -42,7 +42,7 @@ def is_ignored(filepath, gitignore_patterns):
     return ignored
 
 # Load API key from environment variable
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+NANOGPT_API_KEY = os.getenv('NANOGPT_API_KEY')
 
 def list_files_and_dirs(path, ignore_list=None):
     if ignore_list is None:
@@ -103,7 +103,7 @@ def load_developer_persona(developer_file):
 
 # Function to call GPT-4 API and calculate the cost
 def call_gpt4_api(system_prompt, user_prompt, files_content, model):
-    openai.api_key = OPENAI_API_KEY
+    openai.api_key = NANOGPT_API_KEY
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt + "\n\n"+files_content},
@@ -177,7 +177,7 @@ def main():
 
     args = parse_arguments()
 
-    openai.api_key = OPENAI_API_KEY
+    openai.api_key = NANOGPT_API_KEY
     openai.api_base = "https://nano-gpt.com/api/v1/"
     if len(sys.argv) < 2:
         print("Usage: python script.py '<user_prompt>' [--apply]")
