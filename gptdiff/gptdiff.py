@@ -110,6 +110,7 @@ def call_gpt4_api(system_prompt, user_prompt, files_content, model):
         {"role": "user", "content": user_prompt + "\n\n"+files_content},
     ]
     #print(messages)
+    print("Using", model)
 
     response = openai.ChatCompletion.create(
         model=model,
@@ -330,7 +331,10 @@ def main():
 
     # Output result
     if args.smartapply:
-        print("\nAttempting smart apply:")
+        print("\nAttempting smart apply with the following diff:")
+        print("\n<diff>")
+        print(diff_text)
+        print("\n</diff>")
         parsed_diffs = parse_diff_per_file(diff_text)
         
         total_files = len(parsed_diffs)
