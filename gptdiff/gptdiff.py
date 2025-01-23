@@ -16,6 +16,7 @@ import pkgutil
 import re
 import contextvars
 from ai_agent_toolbox import FlatXMLParser, FlatXMLPromptFormatter, Toolbox
+from pkgutil import get_data
 
 diff_context = contextvars.ContextVar('diffcontent', default="")
 def create_toolbox():
@@ -169,6 +170,67 @@ def call_gpt4_api(system_prompt, user_prompt, files_content, model):
     diff_response = diff_context.get()
 
     return full_response, diff_response, prompt_tokens, completion_tokens, total_tokens, cost
+
+# New API functions
+def parse_environment(environment_str):
+    """Parse environment string into file dictionary"""
+    files = {}
+    current_file = None
+    content = []
+    in_content = False
+    
+    for line in environment_str.split('\n'):
+        if line.startswith('File: '):
+            if current_file:
+                files[current_file] = '\n'.join(content).strip()
+            current_file = line[6:].strip()
+            content = []
+            in_content = False
+        elif line == 'Content:':
+            in_content = True
+        elif in_content:
+            content.append(line)
+    
+    if current_file:
+        files[current_file] = '\n'.join(content).strip()
+        
+    return files
+
+def build_environment(files_dict):
+    """Rebuild environment string from file dictionary"""
+    env = []
+    for path, content in files_dict.items():
+        env.append(f"File: {path}")
+        env.append("Content:")
+        env.append(content)
+    return '\n'.join(env)
+
+def generate_diff(environment, goal, model='deepseek-reasoner'):
+    """API: Generate diff from environment and goal"""
+    # Load default developer persona from package
+    dev_json = get_data(__package__, 'developer.json')
+    developer = json.loads(dev_json.decode('utf-8'))
+    
+    system_prompt = f"You are this agent: <json>{json.dumps(developer)}</json>\nOutput a git diff into a <diff> block."
+    _, diff_text, _, _, _, _ = call_gpt4_api(
+        system_prompt, 
+        goal, 
+        environment, 
+        model
+    )
+    return diff_text
+
+def smartapply(diff_text, environment_str, model='deepseek-reasoner'):
+    """API: Apply diff to environment string"""
+    files = parse_environment(environment_str)
+    parsed_diffs = parse_diff_per_file(diff_text)
+    
+    for path, patch in parsed_diffs:
+        original = files.get(path, '')
+        updated = call_llm_for_apply(path, original, patch, model)
+        files[path] = updated.strip()
+    
+    return build_environment(files)
 
 # Function to apply diff to project files
 def apply_diff(project_dir, diff_text):
