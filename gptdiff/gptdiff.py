@@ -105,6 +105,8 @@ def load_developer_persona(developer_file):
 # Function to call GPT-4 API and calculate the cost
 def call_gpt4_api(system_prompt, user_prompt, files_content, model):
     openai.api_key = NANOGPT_API_KEY
+    if model == "gemini-2.0-flash-thinking-exp-01-21":
+        user_prompt = system_prompt+"\n"+user_prompt
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt + "\n\n"+files_content},
@@ -230,6 +232,8 @@ Diff to apply:
 {file_diff}
 ```"""
 
+    if model == "gemini-2.0-flash-thinking-exp-01-21":
+        user_prompt = system_prompt+"\n"+user_prompt
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt},
