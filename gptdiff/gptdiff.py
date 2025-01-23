@@ -14,6 +14,30 @@ import fnmatch
 import argparse
 import pkgutil
 import re
+import contextvars
+from ai_agent_toolbox import FlatXMLParser, FlatXMLPromptFormatter, Toolbox
+
+diff_context = contextvars.ContextVar('diffcontent', default="")
+def create_toolbox():
+    toolbox = Toolbox()
+    
+    def diff(content: str):
+        diff_context.set(content)
+        return content
+
+    toolbox.add_tool(
+        name="diff",
+        fn=diff,
+        args={
+            "content": {
+                "type": "string",
+                "description": "Complete diff."
+            }
+        },
+        description="Save the calculated diff as used in 'git apply'"
+    )
+    return toolbox
+
 
 def load_gitignore_patterns(gitignore_path):
     with open(gitignore_path, 'r') as f:
@@ -110,11 +134,16 @@ def load_developer_persona(developer_file):
 def call_gpt4_api(system_prompt, user_prompt, files_content, model):
     if model == "gemini-2.0-flash-thinking-exp-01-21":
         user_prompt = system_prompt+"\n"+user_prompt
+
+    parser = FlatXMLParser("diff")
+    formatter = FlatXMLPromptFormatter(tag="diff")
+    toolbox = create_toolbox()
+    tool_prompt = formatter.usage_prompt(toolbox)
+
     messages = [
         {"role": "system", "content": system_prompt},
-        {"role": "user", "content": user_prompt + "\n\n"+files_content},
+        {"role": "user", "content": user_prompt + "\n"+files_content+"\n"+tool_prompt},
     ]
-    #print(messages)
     print("Using", model)
 
     response = client.chat.completions.create(model=model,
@@ -133,21 +162,11 @@ def call_gpt4_api(system_prompt, user_prompt, files_content, model):
 
     full_response = response.choices[0].message.content.strip()
 
-    lines = full_response.split('\n')
-    start_idx = next((i for i, line in enumerate(lines) if line.strip().startswith('<diff>')), -1)
 
-    if start_idx == -1:
-        diff_response = ''
-        return full_response, diff_response, prompt_tokens, completion_tokens, total_tokens, cost
-    end_idx = next((i for i, line in enumerate(lines[start_idx+1:], start_idx+1)
-                   if line.strip() == '</diff>'), -1)
-
-    if end_idx == -1:
-        end_idx = next((i for i, line in enumerate(lines[start_idx+1:], start_idx+1) if '</diff>' in line), -1)
-        diff_response = ''
-    else: 
-        diff_response = '\n'.join(lines[start_idx+1:end_idx])
-
+    events = parser.parse(full_response)
+    for event in events:
+        toolbox.use(event)
+    diff_response = diff_context.get()
 
     return full_response, diff_response, prompt_tokens, completion_tokens, total_tokens, cost
 
