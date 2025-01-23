@@ -71,6 +71,15 @@ gptdiff '<user_prompt>' --apply
 
 This often generates incorrect diffs that need to be manually merged.
 
+
+## Smart Apply
+
+For more reliable patching of complex changes, use `--smartapply` which processes each file's diff individually with the LLM:
+
+```bash
+gptdiff 'refactor authentication system' --smartapply
+```
+
 ## Dependencies
 
 The `gptdiff` package depends on the `argparse` and `openai` packages.

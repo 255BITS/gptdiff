@@ -11,6 +11,7 @@ import sys
 import fnmatch
 import argparse
 import pkgutil
+import re
 
 def load_gitignore_patterns(gitignore_path):
     with open(gitignore_path, 'r') as f:
@@ -152,6 +153,7 @@ def apply_diff(project_dir, diff_text):
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Generate and optionally apply git diffs using GPT-4.')
     parser.add_argument('prompt', type=str, help='Prompt that runs on the codebase.')
+    parser.add_argument('--smartapply', action='store_true', help='Apply diff by having AI rewrite each file individually')
 
     parser.add_argument('--apply', action='store_true', help='Attempt to apply the generated git diff.')
     parser.add_argument('--developer', type=str, default='developer.json', help='Path to developer persona JSON file. It can contain any information about the developer that is writing the diff. Such as name, education, code style, etc. Defaults to included https://github.com/255BITS/gptdiff/blob/main/developer.json')
@@ -169,6 +171,71 @@ def absolute_to_relative(absolute_path):
     cwd = os.getcwd()
     relative_path = os.path.relpath(absolute_path, cwd)
     return relative_path
+
+def parse_diff_per_file(diff_text):
+    diffs = []
+    current_diff = []
+    file_path = None
+
+    for line in diff_text.split('\n'):
+        if line.startswith('diff --git'):
+            if current_diff and file_path:
+                diffs.append((file_path, '\n'.join(current_diff)))
+            current_diff = [line]
+            file_path = None
+        elif line.startswith('+++ '):
+            # Extract target file path from +++ line
+            file_path = line[4:].strip()
+            if file_path.startswith('b/'):
+                file_path = file_path[2:]
+            current_diff.append(line)
+        elif file_path:
+            current_diff.append(line)
+
+    if current_diff and file_path:
+        diffs.append((file_path, '\n'.join(current_diff)))
+
+    return diffs
+
+def call_llm_for_apply(file_path, original_content, file_diff, model):
+    openai.api_key = NANOGPT_API_KEY
+
+    system_prompt = """Please apply the diff to this file. Return the result in a block. Write the entire file.
+
+1. Carefully apply all changes from the diff
+2. Preserve surrounding context that isn't changed
+3. Only return the final file content in a code block"""
+
+    user_prompt = f"""File: {file_path}
+File contents:
+```filecontents
+{original_content}
+```
+
+Diff to apply:
+```isolateddiff
+{file_diff}
+```"""
+
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_prompt},
+    ]
+
+    response = openai.ChatCompletion.create(
+        model=model,
+        messages=messages,
+        temperature=0.0,
+        max_tokens=4000
+    )
+
+    content = response.choices[0].message['content'].strip()
+
+    # Extract code block contents
+    match = re.search(r'```[^\n]*\n(.*?)```', content, re.DOTALL)
+    if match:
+        return match.group(1).strip()
+    return content
 
 def main():
     # Adding color support for Windows CMD
@@ -238,6 +305,34 @@ def main():
         print(full_text)
 
     # Output result
+    if args.smartapply:
+        print("\nAttempting smart apply:")
+        parsed_diffs = parse_diff_per_file(diff_text)
+        
+        total_files = len(parsed_diffs)
+        for i, (file_path, file_diff) in enumerate(parsed_diffs):
+            full_path = Path(project_dir) / file_path
+            print(f"Processing file {i+1}/{total_files}: {file_path}")
+            
+            original_content = ''
+            if full_path.exists():
+                try:
+                    original_content = full_path.read_text()
+                except UnicodeDecodeError:
+                    print(f"Skipping binary file {file_path}")
+                    continue
+
+            try:
+                updated_content = call_llm_for_apply(file_path, original_content, file_diff, args.model)
+                full_path.parent.mkdir(parents=True, exist_ok=True)
+                full_path.write_text(updated_content)
+                print(f"Successfully updated {file_path}")
+            except Exception as e:
+                print(f"Failed to process {file_path}: {str(e)}")
+                if original_content:
+                    full_path.write_text(original_content)  # Restore original content
+        
+        print("Smart apply completed")
     print(f"Prompt tokens: {prompt_tokens}")
     print(f"Completion tokens: {completion_tokens}")
     print(f"Total tokens: {total_tokens}")
