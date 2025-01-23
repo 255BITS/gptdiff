@@ -128,14 +128,17 @@ def call_gpt4_api(system_prompt, user_prompt, files_content, model):
     cost = (prompt_tokens / 1_000_000 * cost_per_million_prompt_tokens) + (completion_tokens / 1_000_000 * cost_per_million_completion_tokens)
 
     full_response = response.choices[0].message['content'].strip()
-    git_diff_start = full_response.find('```')
+    # Handle code blocks with potential internal triple backticks
+    lines = full_response.split('\n')
+    start_idx = next((i for i, line in enumerate(lines) if line.strip() == '```'), -1)
+    end_idx = next((i for i, line in reversed(list(enumerate(lines))) if line.strip() == '```'), -1)
+    if start_idx == -1 or end_idx == -1 or start_idx >= end_idx:
+        diff_response = ''
 
-    if git_diff_start == -1:
-        diff_response = ''
-    git_diff_end = full_response.rfind('```')
-    if git_diff_end == -1 or git_diff_end <= git_diff_start:
-        diff_response = ''
-    diff_response = full_response[git_diff_start+6:git_diff_end]
+    else:
+        # Skip the opening ``` line and take until before closing ```
+        diff_lines = lines[start_idx+1:end_idx]
+        diff_response = '\n'.join(diff_lines)
     return full_response, diff_response, prompt_tokens, completion_tokens, total_tokens, cost
 
 # Function to apply diff to project files
