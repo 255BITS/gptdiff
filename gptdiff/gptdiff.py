@@ -216,7 +216,7 @@ def call_llm_for_apply(file_path, original_content, file_diff, model):
 
 1. Carefully apply all changes from the diff
 2. Preserve surrounding context that isn't changed
-3. Only return the final file content, no additional markup"""
+3. Only return the final file content, do not add any additional markup and do not add a code block"""
 
     user_prompt = f"""File: {file_path}
 File contents:
@@ -243,22 +243,7 @@ Diff to apply:
         max_tokens=4000
     )
 
-    content = response.choices[0].message['content'].strip()
-
-    lines = content.split('\n')
-    start_idx = next((i for i, line in enumerate(lines) if line.strip().startswith('<diff>')), -1)
-
-    if start_idx != -1:
-        end_idx = next((i for i, line in enumerate(lines[start_idx+1:], start_idx+1)
-                       if line.strip() == '</diff>'), -1)
-
-        if end_idx == -1:
-            end_idx = next((i for i, line in enumerate(lines[start_idx+1:], start_idx+1) if '</diff>' in line), -1)
-
-        if end_idx != -1:
-            return '\n'.join(lines[start_idx+1:end_idx]).strip()
-
-    return content
+    return response.choices[0].message['content'].strip()
 
 def main():
     # Adding color support for Windows CMD
@@ -294,7 +279,7 @@ def main():
     print("Including developer.json",len(enc.encode(json.dumps(developer_persona))), "tokens")
 
     # Prepare system prompt
-    system_prompt = f"You are this agent: <json>{json.dumps(developer_persona)}</json>\n\nOutput a git diff into a <diff> block."
+    system_prompt = f"You are this agent: <json>{json.dumps(developer_persona)}</json>\nOutput a git diff into a <diff> block."
 
     files_content = ""
     for file, content in project_files:
