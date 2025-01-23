@@ -243,10 +243,22 @@ Diff to apply:
 
     content = response.choices[0].message['content'].strip()
 
-    # Extract code block contents
-    match = re.search(r'```[^\n]*\n(.*?)```', content, re.DOTALL)
-    if match:
-        return match.group(1).strip()
+    # Find first code block start (```)
+    lines = content.split('\n')
+    start_idx = next((i for i, line in enumerate(lines) if line.strip().startswith('```')), -1)
+
+    if start_idx != -1:
+        # Look for closing ``` that's on its own line
+        end_idx = next((i for i, line in enumerate(lines[start_idx+1:], start_idx+1)
+                       if line.strip() == '```'), -1)
+
+        if end_idx == -1:
+            # Try looking for any closing backticks as fallback
+            end_idx = next((i for i, line in enumerate(lines[start_idx+1:], start_idx+1) if '```' in line), -1)
+
+        if end_idx != -1:
+            return '\n'.join(lines[start_idx+1:end_idx]).strip()
+
     return content
 
 def main():
