@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import openai
+from openai import OpenAI
+
 import tiktoken
 
 import os
@@ -44,6 +46,8 @@ def is_ignored(filepath, gitignore_patterns):
 
 # Load API key from environment variable
 NANOGPT_API_KEY = os.getenv('NANOGPT_API_KEY')
+client = OpenAI(api_key=NANOGPT_API_KEY,
+                base_url="https://nano-gpt.com/api/v1/")
 
 def list_files_and_dirs(path, ignore_list=None):
     if ignore_list is None:
@@ -104,7 +108,6 @@ def load_developer_persona(developer_file):
 
 # Function to call GPT-4 API and calculate the cost
 def call_gpt4_api(system_prompt, user_prompt, files_content, model):
-    openai.api_key = NANOGPT_API_KEY
     if model == "gemini-2.0-flash-thinking-exp-01-21":
         user_prompt = system_prompt+"\n"+user_prompt
     messages = [
@@ -114,23 +117,21 @@ def call_gpt4_api(system_prompt, user_prompt, files_content, model):
     #print(messages)
     print("Using", model)
 
-    response = openai.ChatCompletion.create(
-        model=model,
+    response = client.chat.completions.create(model=model,
         messages=messages,
-        max_tokens=1500,  # Adjust as necessary
-        temperature=0.7
-    )
+        max_tokens=2500,  # Adjust as necessary
+        temperature=0.7)
 
-    prompt_tokens = response.usage['prompt_tokens']
-    completion_tokens = response.usage['completion_tokens']
-    total_tokens = response.usage['total_tokens']
+    prompt_tokens = response.usage.prompt_tokens
+    completion_tokens = response.usage.completion_tokens
+    total_tokens = response.usage.total_tokens
 
     # Now, these rates are updated to per million tokens
     cost_per_million_prompt_tokens = 30
     cost_per_million_completion_tokens = 60
     cost = (prompt_tokens / 1_000_000 * cost_per_million_prompt_tokens) + (completion_tokens / 1_000_000 * cost_per_million_completion_tokens)
 
-    full_response = response.choices[0].message['content'].strip()
+    full_response = response.choices[0].message.content.strip()
 
     lines = full_response.split('\n')
     start_idx = next((i for i, line in enumerate(lines) if line.strip().startswith('<diff>')), -1)
@@ -146,7 +147,7 @@ def call_gpt4_api(system_prompt, user_prompt, files_content, model):
         diff_response = ''
     else: 
         diff_response = '\n'.join(lines[start_idx+1:end_idx])
-     
+
 
     return full_response, diff_response, prompt_tokens, completion_tokens, total_tokens, cost
 
@@ -155,7 +156,7 @@ def apply_diff(project_dir, diff_text):
     diff_file = Path(project_dir) / "diff.patch"
     with open(diff_file, 'w') as f:
         f.write(diff_text)
-    
+
     result = subprocess.run(["git", "apply", str(diff_file)], cwd=project_dir, capture_output=True, text=True)
     if result.returncode != 0:
         return False
@@ -210,7 +211,6 @@ def parse_diff_per_file(diff_text):
     return diffs
 
 def call_llm_for_apply(file_path, original_content, file_diff, model):
-    openai.api_key = NANOGPT_API_KEY
 
     system_prompt = """Please apply the diff to this file. Return the result in a block. Write the entire file.
 
@@ -236,14 +236,12 @@ Diff to apply:
         {"role": "user", "content": user_prompt},
     ]
 
-    response = openai.ChatCompletion.create(
-        model=model,
-        messages=messages,
-        temperature=0.0,
-        max_tokens=4000
-    )
+    response = client.chat.completions.create(model=model,
+    messages=messages,
+    temperature=0.0,
+    max_tokens=4000)
 
-    return response.choices[0].message['content'].strip()
+    return response.choices[0].message.content.strip()
 
 def main():
     # Adding color support for Windows CMD
@@ -252,8 +250,8 @@ def main():
 
     args = parse_arguments()
 
-    openai.api_key = NANOGPT_API_KEY
-    openai.api_base = "https://nano-gpt.com/api/v1/"
+    # TODO: The 'openai.api_base' option isn't read in the client API. You will need to pass it when you instantiate the client, e.g. 'OpenAI(base_url="https://nano-gpt.com/api/v1/")'
+    # openai.api_base = "https://nano-gpt.com/api/v1/"
     if len(sys.argv) < 2:
         print("Usage: python script.py '<user_prompt>' [--apply]")
         sys.exit(1)
@@ -274,7 +272,7 @@ def main():
                     project_files.append((additional_path, f.read()))
             elif os.path.isdir(additional_path):
                 project_files.extend(load_project_files(additional_path, project_dir))
- 
+
     developer_persona = load_developer_persona(args.developer)
     print("Including developer.json",len(enc.encode(json.dumps(developer_persona))), "tokens")
 
@@ -331,12 +329,12 @@ def main():
             print(f"\033[1;32mPatch applied successfully with 'git apply'.\033[0m")  # Green color for success message
         else:
             parsed_diffs = parse_diff_per_file(diff_text)
-            
+
             total_files = len(parsed_diffs)
             for i, (file_path, file_diff) in enumerate(parsed_diffs):
                 full_path = Path(project_dir) / file_path
                 print(f"Processing file {i+1}/{total_files}: {file_path}")
-                
+
                 original_content = ''
                 if full_path.exists():
                     try:
@@ -354,7 +352,7 @@ def main():
                     print(f"\033[1;31mFailed to process {file_path}: {str(e)}\033[0m")  # Red color for error message
                     if original_content:
                         full_path.write_text(original_content)  # Restore original content
-            
+
             print("Smart apply completed")
     else:
         print(f"\033[1;32mFull response.\033[0m")  # Green color for success message
