@@ -31,6 +31,12 @@ To call openai from the command line, you need to set the `OPENAI_API_KEY` envir
 export OPENAI_API_KEY='your-openai-api-key'
 ```
 
+The tool now uses the nano-gpt.com API endpoint by default. Supported models can be specified with:
+
+```bash
+gptdiff 'your prompt' --model deepseek-reasoner
+```
+
 OpenAI will not be called unless you specify `--call` or `--apply`
 
 Prevent files being appended to the prompt by adding them to `.gitignore` or `.gptignore`

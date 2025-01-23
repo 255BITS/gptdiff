@@ -102,7 +102,7 @@ def load_developer_persona(developer_file):
     return developer_persona
 
 # Function to call GPT-4 API and calculate the cost
-def call_gpt4_api(system_prompt, user_prompt, files_content):
+def call_gpt4_api(system_prompt, user_prompt, files_content, model):
     openai.api_key = OPENAI_API_KEY
     messages = [
         {"role": "system", "content": system_prompt},
@@ -111,7 +111,7 @@ def call_gpt4_api(system_prompt, user_prompt, files_content):
     #print(messages)
 
     response = openai.ChatCompletion.create(
-        model="gpt-4",
+        model=model,
         messages=messages,
         max_tokens=1500,  # Adjust as necessary
         temperature=0.7
@@ -160,6 +160,8 @@ def parse_arguments():
     parser.add_argument('--call', action='store_true',
                         help='Call the GPT-4 API. Writes the full prompt to prompt.txt if not specified.')
     parser.add_argument('files', nargs='*', default=[], help='Specify additional files or directories to include.')
+    parser.add_argument('--model', type=str, default='deepseek-reasoner', help='Model to use for the API call.')
+
 
     return parser.parse_args()
 
@@ -174,6 +176,9 @@ def main():
         os.system('color')
 
     args = parse_arguments()
+
+    openai.api_key = OPENAI_API_KEY
+    openai.api_base = "https://nano-gpt.com/api/v1/"
     if len(sys.argv) < 2:
         print("Usage: python script.py '<user_prompt>' [--apply]")
         sys.exit(1)
@@ -218,7 +223,7 @@ def main():
         print(f"Total cost: ${0.0:.4f}")
         exit(0)
     else:
-        full_text, diff_text, prompt_tokens, completion_tokens, total_tokens, cost = call_gpt4_api(system_prompt, user_prompt, files_content)
+        full_text, diff_text, prompt_tokens, completion_tokens, total_tokens, cost = call_gpt4_api(system_prompt, user_prompt, files_content, args.model)
 
 
     if args.apply:
