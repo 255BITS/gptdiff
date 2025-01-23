@@ -132,20 +132,17 @@ def call_gpt4_api(system_prompt, user_prompt, files_content, model):
 
     full_response = response.choices[0].message['content'].strip()
 
-    # Find first code block start (```diff or ```)
     lines = full_response.split('\n')
-    start_idx = next((i for i, line in enumerate(lines) if line.strip().startswith('```')), -1)
- 
+    start_idx = next((i for i, line in enumerate(lines) if line.strip().startswith('<diff>')), -1)
+
     if start_idx == -1:
         diff_response = ''
         return full_response, diff_response, prompt_tokens, completion_tokens, total_tokens, cost
-    # Look for closing ``` that's on its own line
     end_idx = next((i for i, line in enumerate(lines[start_idx+1:], start_idx+1)
-                   if line.strip() == '```'), -1)
+                   if line.strip() == '</diff>'), -1)
 
     if end_idx == -1:
-        # Try looking for any closing backticks as fallback
-        end_idx = next((i for i, line in enumerate(lines[start_idx+1:], start_idx+1) if '```' in line), -1)
+        end_idx = next((i for i, line in enumerate(lines[start_idx+1:], start_idx+1) if '</diff>' in line), -1)
         diff_response = ''
     else: 
         diff_response = '\n'.join(lines[start_idx+1:end_idx])
@@ -161,9 +158,9 @@ def apply_diff(project_dir, diff_text):
     
     result = subprocess.run(["git", "apply", str(diff_file)], cwd=project_dir, capture_output=True, text=True)
     if result.returncode != 0:
-        print(f"\033[1;31mError running 'git apply diff.patch': {result.stderr}\033[0m")  # Red color for error message
+        return False
     else:
-        print(f"\033[1;32mPatch applied successfully.\033[0m")  # Green color for success message
+        return True
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Generate and optionally apply git diffs using GPT-4.')
@@ -223,14 +220,14 @@ def call_llm_for_apply(file_path, original_content, file_diff, model):
 
     user_prompt = f"""File: {file_path}
 File contents:
-```filecontents
+<filecontents>
 {original_content}
-```
+</filecontents>
 
 Diff to apply:
-```isolateddiff
+<diff>
 {file_diff}
-```"""
+</diff>"""
 
     if model == "gemini-2.0-flash-thinking-exp-01-21":
         user_prompt = system_prompt+"\n"+user_prompt
@@ -248,18 +245,15 @@ Diff to apply:
 
     content = response.choices[0].message['content'].strip()
 
-    # Find first code block start (```)
     lines = content.split('\n')
-    start_idx = next((i for i, line in enumerate(lines) if line.strip().startswith('```')), -1)
+    start_idx = next((i for i, line in enumerate(lines) if line.strip().startswith('<diff>')), -1)
 
     if start_idx != -1:
-        # Look for closing ``` that's on its own line
         end_idx = next((i for i, line in enumerate(lines[start_idx+1:], start_idx+1)
-                       if line.strip() == '```'), -1)
+                       if line.strip() == '</diff>'), -1)
 
         if end_idx == -1:
-            # Try looking for any closing backticks as fallback
-            end_idx = next((i for i, line in enumerate(lines[start_idx+1:], start_idx+1) if '```' in line), -1)
+            end_idx = next((i for i, line in enumerate(lines[start_idx+1:], start_idx+1) if '</diff>' in line), -1)
 
         if end_idx != -1:
             return '\n'.join(lines[start_idx+1:end_idx]).strip()
@@ -300,7 +294,7 @@ def main():
     print("Including developer.json",len(enc.encode(json.dumps(developer_persona))), "tokens")
 
     # Prepare system prompt
-    system_prompt = f"You are this agent: <json>{json.dumps(developer_persona)}</json>\n\nFollow the user request. Output a git diff into a ``` block. State who you are and what you are trying to do. Do not worry about getting it wrong, just try."
+    system_prompt = f"You are this agent: <json>{json.dumps(developer_persona)}</json>\n\nOutput a git diff into a <diff> block."
 
     files_content = ""
     for file, content in project_files:
@@ -309,66 +303,82 @@ def main():
         # Prepare the prompt for GPT-4
         files_content += f"File: {absolute_to_relative(file)}\nContent:\n{content}\n"
 
-    if not args.call and not args.apply:
-        full_prompt = system_prompt + '\n\n' + user_prompt + '\n\n' + files_content
+    full_prompt = f"{system_prompt}\n\n{user_prompt}\n\n{files_content}"
+    token_count = len(enc.encode(full_prompt))
+
+    if not args.call and not args.apply and not args.smartapply:
         with open('prompt.txt', 'w') as f:
             f.write(full_prompt)
-        print(f"Total tokens: {len(enc.encode(full_prompt)):5d}")
+        print(f"Total tokens: {token_count:5d}")
         print(f"\033[1;32mNot calling GPT-4.\033[0m")  # Green color for success message
         print('Instead, wrote full prompt to prompt.txt. Use `xclip -selection clipboard < prompt.txt` then paste into chatgpt')
         print(f"Total cost: ${0.0:.4f}")
         exit(0)
     else:
+        # Confirm large requests without specified files
+        if not args.files and token_count > 10000 and (args.call or args.apply or args.smartapply):
+            print(f"\033[1;33mThis is a larger request ({token_count} tokens). Are you sure you want to send it? [y/N]\033[0m")
+            confirmation = input().strip().lower()
+            if confirmation != 'y':
+                print("Request canceled")
+                sys.exit(0)
         full_text, diff_text, prompt_tokens, completion_tokens, total_tokens, cost = call_gpt4_api(system_prompt, user_prompt, files_content, args.model)
 
 
     if args.apply:
         print("Attempting changes:")
-        print("```")
+        print("<diff>")
         print(diff_text)
-        print("```")
+        print("</diff>")
         # Apply the diff
-        apply_diff(project_dir, diff_text)
-    else:
-        print(f"\033[1;32mFull response.\033[0m")  # Green color for success message
-        print(full_text)
+        if apply_diff(project_dir, diff_text):
+            print(f"\033[1;32mPatch applied successfully.\033[0m")  # Green color for success message
+        else:
+            print(f"\033[1;31mError running 'git apply diff.patch': {result.stderr}\033[0m")  # Red color for error message
 
     # Output result
-    if args.smartapply:
+    elif args.smartapply:
         print("\nAttempting smart apply with the following diff:")
         print("\n<diff>")
         print(diff_text)
         print("\n</diff>")
-        parsed_diffs = parse_diff_per_file(diff_text)
-        
-        total_files = len(parsed_diffs)
-        for i, (file_path, file_diff) in enumerate(parsed_diffs):
-            full_path = Path(project_dir) / file_path
-            print(f"Processing file {i+1}/{total_files}: {file_path}")
+        if apply_diff(project_dir, diff_text):
+            print(f"\033[1;32mPatch applied successfully with 'git apply'.\033[0m")  # Green color for success message
+        else:
+            parsed_diffs = parse_diff_per_file(diff_text)
             
-            original_content = ''
-            if full_path.exists():
-                try:
-                    original_content = full_path.read_text()
-                except UnicodeDecodeError:
-                    print(f"Skipping binary file {file_path}")
-                    continue
+            total_files = len(parsed_diffs)
+            for i, (file_path, file_diff) in enumerate(parsed_diffs):
+                full_path = Path(project_dir) / file_path
+                print(f"Processing file {i+1}/{total_files}: {file_path}")
+                
+                original_content = ''
+                if full_path.exists():
+                    try:
+                        original_content = full_path.read_text()
+                    except UnicodeDecodeError:
+                        print(f"Skipping binary file {file_path}")
+                        continue
 
-            try:
-                updated_content = call_llm_for_apply(file_path, original_content, file_diff, args.model)
-                full_path.parent.mkdir(parents=True, exist_ok=True)
-                full_path.write_text(updated_content)
-                print(f"Successfully updated {file_path}")
-            except Exception as e:
-                print(f"Failed to process {file_path}: {str(e)}")
-                if original_content:
-                    full_path.write_text(original_content)  # Restore original content
-        
-        print("Smart apply completed")
+                try:
+                    updated_content = call_llm_for_apply(file_path, original_content, file_diff, args.model)
+                    full_path.parent.mkdir(parents=True, exist_ok=True)
+                    full_path.write_text(updated_content)
+                    print(f"\033[1;32mSuccessful 'smartapply' update {file_path}.\033[0m")  # Green color for success message
+                except Exception as e:
+                    print(f"\033[1;31mFailed to process {file_path}: {str(e)}\033[0m")  # Red color for error message
+                    if original_content:
+                        full_path.write_text(original_content)  # Restore original content
+            
+            print("Smart apply completed")
+    else:
+        print(f"\033[1;32mFull response.\033[0m")  # Green color for success message
+        print(full_text)
+
     print(f"Prompt tokens: {prompt_tokens}")
     print(f"Completion tokens: {completion_tokens}")
     print(f"Total tokens: {total_tokens}")
-    print(f"Total cost: ${cost:.4f}")
+    #print(f"Total cost: ${cost:.4f}")
 
 if __name__ == "__main__":
     main()
