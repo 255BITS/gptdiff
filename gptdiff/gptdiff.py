@@ -352,8 +352,6 @@ def main():
                     print(f"\033[1;31mFailed to process {file_path}: {str(e)}\033[0m")  # Red color for error message
                     if original_content:
                         full_path.write_text(original_content)  # Restore original content
-
-            print("Smart apply completed")
     else:
         print(f"\033[1;32mFull response.\033[0m")  # Green color for success message
         print(full_text)
