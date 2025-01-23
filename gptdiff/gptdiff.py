@@ -216,7 +216,7 @@ def call_llm_for_apply(file_path, original_content, file_diff, model):
 
 1. Carefully apply all changes from the diff
 2. Preserve surrounding context that isn't changed
-3. Only return the final file content in a code block"""
+3. Only return the final file content, no additional markup"""
 
     user_prompt = f"""File: {file_path}
 File contents:
