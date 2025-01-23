@@ -307,6 +307,9 @@ def main():
                 sys.exit(0)
         full_text, diff_text, prompt_tokens, completion_tokens, total_tokens, cost = call_gpt4_api(system_prompt, user_prompt, files_content, args.model)
 
+    if(diff_text.strip() == ""):
+        print("Unable to parse diff text. Full response:", full_text)
+        return
 
     if args.apply:
         print("Attempting changes:")
