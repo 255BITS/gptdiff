@@ -136,15 +136,13 @@ def call_gpt4_api(system_prompt, user_prompt, files_content, model):
     if start_idx == -1:
         diff_response = ''
         return full_response, diff_response, prompt_tokens, completion_tokens, total_tokens, cost
+    # Look for closing ``` that's on its own line
+    end_idx = next((i for i, line in enumerate(lines[start_idx+1:], start_idx+1)
+                   if line.strip() == '```'), -1)
 
-    # Find matching end ``` after the start
-    end_idx = -1
-    for i, line in enumerate(lines[start_idx+1:], start=start_idx+1):
-        if line.strip().startswith('```'):
-            end_idx = i
-            break
-
-    if end_idx == -1:  # No closing found
+    if end_idx == -1:
+        # Try looking for any closing backticks as fallback
+        end_idx = next((i for i, line in enumerate(lines[start_idx+1:], start_idx+1) if '```' in line), -1)
         diff_response = ''
     else: 
         diff_response = '\n'.join(lines[start_idx+1:end_idx])
