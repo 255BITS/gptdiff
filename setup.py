@@ -8,7 +8,6 @@ setup(
     packages=['gptdiff'],
     package_data={'gptdiff': ['developer.json']},
     install_requires=[
-        'argparse',
         'openai',
     ],
     entry_points={
