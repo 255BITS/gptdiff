@@ -27,13 +27,23 @@ python setup.py install
 
 ### Configuration
 
-To call openai from the command line, you need to set the `NANOGPT_API_KEY` environment variable:
+First sign up for an API key at https://nano-gpt.com/api and generate your key. Then configure your environment:
 
+#### Linux/MacOS
 ```bash
-export NANOGPT_API_KEY='your-openai-api-key'
+export NANOGPT_API_KEY='your-api-key'
+# Optional: For switching API providers
+export NANOGPT_BASE_URL='https://nano-gpt.com/api/v1/'
 ```
 
-The tool now uses the nano-gpt.com API endpoint by default. Supported models can be specified with:
+#### Windows
+```cmd
+set NANOGPT_API_KEY=your-api-key
+rem Optional: For switching API providers
+set NANOGPT_BASE_URL=https://nano-gpt.com/api/v1/
+```
+
+The default base URL points to nano-gpt.com's API. Supported models can be specified with:
 
 ```bash
 gptdiff 'your prompt' --model deepseek-reasoner

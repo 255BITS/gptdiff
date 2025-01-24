@@ -72,8 +72,9 @@ def is_ignored(filepath, gitignore_patterns):
 
 # Load API key from environment variable
 NANOGPT_API_KEY = os.getenv('NANOGPT_API_KEY')
+NANOGPT_BASE_URL = os.getenv('NANOGPT_BASE_URL', "https://nano-gpt.com/api/v1/")
 client = OpenAI(api_key=NANOGPT_API_KEY,
-                base_url="https://nano-gpt.com/api/v1/")
+                base_url=NANOGPT_BASE_URL)
 
 def list_files_and_dirs(path, ignore_list=None):
     if ignore_list is None:
