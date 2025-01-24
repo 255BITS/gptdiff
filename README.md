@@ -12,7 +12,7 @@ Generates a prompt.txt file that you can copy and paste into a large context gpt
 ## Value Proposition
 
 ```bash
-gptdiff "Update the readme with an api section" --smartapply
+gptdiff "Update the readme with an api section" --apply
 ```
 <span style="color: #00ff00;">Patch applied successfully.</span>
 
@@ -20,7 +20,7 @@ gptdiff "Update the readme with an api section" --smartapply
 
 - **Semantic Code Changes** - Make architectural changes through natural language
 - **Precision Patches** - Context-aware diffs that preserve code health
-- **Smart Recovery** - `--smartapply` fixes imperfect diffs using AI context
+- **Smart Recovery** - `--apply` fixes imperfect diffs using AI context
 - **Zero Configuration** - Respects .gitignore out of the box
 - **Full Codebase Awareness** - Processes multiple files in single request
 
@@ -114,10 +114,10 @@ This often generates incorrect diffs that need to be manually merged.
 
 #### Smart Apply
 
-For more reliable patching of complex changes, use `--smartapply` which processes each file's diff individually with the LLM:
+For more reliable patching of complex changes, use `smartapply` which processes each file's diff individually with the LLM:
 
 ```bash
-gptdiff 'refactor authentication system' --smartapply
+gptdiff 'refactor authentication system' --apply
 ```
 
 ### Completion Notification

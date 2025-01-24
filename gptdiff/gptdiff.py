@@ -254,9 +254,7 @@ def apply_diff(project_dir, diff_text):
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Generate and optionally apply git diffs using GPT-4.')
     parser.add_argument('prompt', type=str, help='Prompt that runs on the codebase.')
-    parser.add_argument('--smartapply', action='store_true', help='Apply diff by having AI rewrite each file individually')
-
-    parser.add_argument('--apply', action='store_true', help='Attempt to apply the generated git diff.')
+    parser.add_argument('--apply', action='store_true', help='Attempt to apply the generated git diff. Uses smartapply if applying the patch fails.')
     parser.add_argument('--developer', type=str, default='developer.json', help='Path to developer persona JSON file. It can contain any information about the developer that is writing the diff. Such as name, education, code style, etc. Defaults to included https://github.com/255BITS/gptdiff/blob/main/developer.json')
 
     parser.add_argument('--beep', action='store_true', help='Play a system beep when the process completes')
@@ -393,7 +391,7 @@ def main():
     full_prompt = f"{system_prompt}\n\n{user_prompt}\n\n{files_content}"
     token_count = len(enc.encode(full_prompt))
 
-    if not args.call and not args.apply and not args.smartapply:
+    if not args.call and not args.apply:
         with open('prompt.txt', 'w') as f:
             f.write(full_prompt)
         print(f"Total tokens: {token_count:5d}")
@@ -409,7 +407,7 @@ def main():
             sys.exit(1)
 
         # Confirm large requests without specified files
-        if not args.files and token_count > 10000 and (args.call or args.apply or args.smartapply):
+        if not args.files and token_count > 10000 and (args.call or args.apply):
             print(f"\033[1;33mThis is a larger request ({token_count} tokens). Are you sure you want to send it? [y/N]\033[0m")
             confirmation = input().strip().lower()
             if confirmation != 'y':
@@ -425,26 +423,16 @@ def main():
         print("Unable to parse diff text. Full response:", full_text)
         return
 
-    if args.apply:
-        print("Attempting changes:")
-        print("<diff>")
-        print(diff_text)
-        print("</diff>")
-        # Apply the diff
-        if apply_diff(project_dir, diff_text):
-            print(f"\033[1;32mPatch applied successfully.\033[0m")  # Green color for success message
-        else:
-            print(f"\033[1;31mError running 'git apply diff.patch', try to rerun with smartapply\033[0m")  # Red color for error message
-
     # Output result
-    elif args.smartapply:
-        print("\nAttempting smart apply with the following diff:")
+    elif args.apply:
+        print("\nAttempting apply with the following diff:")
         print("\n<diff>")
         print(diff_text)
         print("\n</diff>")
         if apply_diff(project_dir, diff_text):
             print(f"\033[1;32mPatch applied successfully with 'git apply'.\033[0m")  # Green color for success message
         else:
+            print("Apply failed, attempting smart apply.")
             parsed_diffs = parse_diff_per_file(diff_text)
 
             threads = []
