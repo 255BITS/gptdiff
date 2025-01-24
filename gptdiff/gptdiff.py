@@ -424,7 +424,7 @@ def main():
         if apply_diff(project_dir, diff_text):
             print(f"\033[1;32mPatch applied successfully.\033[0m")  # Green color for success message
         else:
-            print(f"\033[1;31mError running 'git apply diff.patch': {result.stderr}\033[0m")  # Red color for error message
+            print(f"\033[1;31mError running 'git apply diff.patch', try to rerun with smartapply\033[0m")  # Red color for error message
 
     # Output result
     elif args.smartapply:
