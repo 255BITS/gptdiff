@@ -1,0 +1,8 @@
+title: GPTDiff
+baseurl: /
+url: "https://255labs.github.io/gptdiff"
+repository: 255BITS/gptdiff
+plugins:
+  - jekyll-feed
+  - jekyll-remote-theme
+remote_theme: pages-themes/minimal@v0.2.0

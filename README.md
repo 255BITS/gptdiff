@@ -1,14 +1,42 @@
 # GPTDiff
 
-## AI-Powered Code Transformations
+🚀 **AI-Powered Code Evolution** - Transform your codebase with natural language instructions
 
 ```bash
 cd myproject
 gptdiff 'add hover effects to the buttons'
 ```
 
-Generates a prompt.txt file that you can copy and paste into a large context gpt to have a conversation with suggested changes. You can also invoke the API and try to directly apply the patch (this often doesn't work).
-  
+Generates a prompt.txt file that you can copy and paste into a large context gpt to have a conversation with suggested changes. You can also invoke the API and try to directly apply the patch using a smartapply if the git apply fails.
+
+## Value Proposition
+
+```bash
+gptdiff "Update the readme with an api section" --smartapply
+```
+<span style="color: #00ff00;">Patch applied successfully.</span>
+
+### Why GPTDiff?
+
+- **Semantic Code Changes** - Make architectural changes through natural language
+- **Precision Patches** - Context-aware diffs that preserve code health
+- **Smart Recovery** - `--smartapply` fixes imperfect diffs using AI context
+- **Zero Configuration** - Respects .gitignore out of the box
+- **Full Codebase Awareness** - Processes multiple files in single request
+
+## Core Capabilities
+
+### ✨ Magic Diff Generation
+```bash
+gptdiff "Convert class components to React hooks" --model deepseek-reasoner
+```
+- Full project context awareness
+- Cross-file refactoring support
+- Automatic conflict prevention
+
+### 🧠 Smart Apply System
+```bash
+
 ## Get Started
 
 ### Installation
@@ -153,6 +181,22 @@ Content:
 Repeat for each file in your codebase snapshot
 
 ## Testing
+
+## GitHub Pages Setup
+
+This site is powered by Jekyll and published via GitHub Pages. To maintain the site:
+
+1. Install Jekyll requirements:
+```bash
+bundle install
+```
+
+2. Serve locally:
+```bash
+bundle exec jekyll serve --watch --source docs
+```
+
+3. Commit changes to `docs/` and push - GitHub Pages will automatically rebuild
 
 To run the test suite:
 

@@ -4,3 +4,5 @@ build
 gptdiff.egg-info
 LICENSE
 *.pyc
+.jekyll-cache
+_site
