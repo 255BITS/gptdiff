@@ -144,3 +144,13 @@ Content:
 ```
 Repeat for each file in your codebase snapshot
 
+## Testing
+
+To run the test suite:
+
+```bash
+pip install -e .[test]
+pytest tests/
+```
+
+This will execute all unit tests verifying core diff generation and application logic.
