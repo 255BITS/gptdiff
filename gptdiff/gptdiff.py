@@ -281,15 +281,23 @@ def parse_diff_per_file(diff_text):
 
     for line in diff_text.split('\n'):
         if line.startswith('diff --git'):
+            # Commit previous diff
             if current_diff and file_path:
                 diffs.append((file_path, '\n'.join(current_diff)))
+            
+            # Start new diff section
             current_diff = [line]
             file_path = None
+            
+            # Extract potential file path from diff --git line
+            parts = line.split()
+            if len(parts) >= 4:
+                b_path = parts[3]  # Format: "b/file"
+                file_path = b_path[2:] if b_path.startswith('b/') else b_path
         elif line.startswith('+++ '):
-            # Extract target file path from +++ line
-            file_path = line[4:].strip()
-            if file_path.startswith('b/'):
-                file_path = file_path[2:]
+            # Use +++ line path if available
+            file_path_line = line[4:].strip()
+            file_path = file_path_line[2:] if file_path_line.startswith('b/') else file_path_line
             current_diff.append(line)
         elif file_path:
             current_diff.append(line)
