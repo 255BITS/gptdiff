@@ -16,6 +16,7 @@ import pkgutil
 import re
 import contextvars
 from ai_agent_toolbox import FlatXMLParser, FlatXMLPromptFormatter, Toolbox
+import threading
 from pkgutil import get_data
 
 diff_context = contextvars.ContextVar('diffcontent', default="")
@@ -225,10 +226,22 @@ def smartapply(diff_text, environment_str, model='deepseek-reasoner'):
     files = parse_environment(environment_str)
     parsed_diffs = parse_diff_per_file(diff_text)
     
-    for path, patch in parsed_diffs:
+    threads = []
+
+    def process_file(path, patch):
         original = files.get(path, '')
         updated = call_llm_for_apply(path, original, patch, model)
         files[path] = updated.strip()
+
+    for path, patch in parsed_diffs:
+        thread = threading.Thread(
+            target=process_file,
+            args=(path, patch)
+        )
+        thread.start()
+        threads.append(thread)
+    for thread in threads:
+        thread.join()
     
     return build_environment(files)
 
@@ -414,10 +427,11 @@ def main():
         else:
             parsed_diffs = parse_diff_per_file(diff_text)
 
-            total_files = len(parsed_diffs)
-            for i, (file_path, file_diff) in enumerate(parsed_diffs):
+            threads = []
+
+            def process_file(file_path, file_diff):
                 full_path = Path(project_dir) / file_path
-                print(f"Processing file {i+1}/{total_files}: {file_path}")
+                print(f"Processing file: {file_path}")
 
                 original_content = ''
                 if full_path.exists():
@@ -425,26 +439,23 @@ def main():
                         original_content = full_path.read_text()
                     except UnicodeDecodeError:
                         print(f"Skipping binary file {file_path}")
-                        continue
+                        return
 
                 try:
                     updated_content = call_llm_for_apply(file_path, original_content, file_diff, args.model)
                     full_path.parent.mkdir(parents=True, exist_ok=True)
                     full_path.write_text(updated_content)
-                    print(f"\033[1;32mSuccessful 'smartapply' update {file_path}.\033[0m")  # Green color for success message
+                    print(f"\033[1;32mSuccessful 'smartapply' update {file_path}.\033[0m")
                 except Exception as e:
-                    print(f"\033[1;31mFailed to process {file_path}: {str(e)}\033[0m")  # Red color for error message
-                    if original_content:
-                        full_path.write_text(original_content)  # Restore original content
-    else:
-        print(f"\033[1;32mFull response.\033[0m")  # Green color for success message
-        print(full_text)
+                    print(f"\033[1;31mFailed to process {file_path}: {str(e)}\033[0m")
 
+            for file_path, file_diff in parsed_diffs:
+                thread = threading.Thread(
+                    target=process_file,
+                    args=(file_path, file_diff)
+                )
+                thread.start()
     print(f"Prompt tokens: {prompt_tokens}")
     print(f"Completion tokens: {completion_tokens}")
     print(f"Total tokens: {total_tokens}")
     #print(f"Total cost: ${cost:.4f}")
-
-if __name__ == "__main__":
-    main()
-
