@@ -92,6 +92,14 @@ For more reliable patching of complex changes, use `--smartapply` which processe
 gptdiff 'refactor authentication system' --smartapply
 ```
 
+### Completion Notification
+
+Use the `--beep` option to play a system beep when the process completes:
+
+```bash
+gptdiff '<user_prompt>' --beep
+```
+
 ## Python API
 
 Integrate GPTDiff directly into your Python workflows:
