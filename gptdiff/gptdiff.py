@@ -133,7 +133,7 @@ def load_developer_persona(developer_file):
     return developer_persona
 
 # Function to call GPT-4 API and calculate the cost
-def call_gpt4_api(system_prompt, user_prompt, files_content, model, temperature=0.7):
+def call_gpt4_api(system_prompt, user_prompt, files_content, model, temperature=0.7, max_tokens=2500):
     if model == "gemini-2.0-flash-thinking-exp-01-21":
         user_prompt = system_prompt+"\n"+user_prompt
 
@@ -150,7 +150,7 @@ def call_gpt4_api(system_prompt, user_prompt, files_content, model, temperature=
 
     response = client.chat.completions.create(model=model,
         messages=messages,
-        max_tokens=2500,
+        max_tokens=max_tokens,
         temperature=temperature)
 
     prompt_tokens = response.usage.prompt_tokens
@@ -206,7 +206,7 @@ def build_environment(files_dict):
         env.append(content)
     return '\n'.join(env)
 
-def generate_diff(environment, goal, model='deepseek-reasoner', temperature=0.7):
+def generate_diff(environment, goal, model='deepseek-reasoner', temperature=0.7, max_tokens=32000):
     """API: Generate diff from environment and goal"""
     # Load default developer persona from package
     dev_json = get_data(__package__, 'developer.json')
@@ -217,7 +217,8 @@ def generate_diff(environment, goal, model='deepseek-reasoner', temperature=0.7)
         system_prompt, 
         goal, 
         environment, 
-        model,
+        model=model,
+        max_tokens=max_tokens,
         temperature=temperature
     )
     return diff_text
