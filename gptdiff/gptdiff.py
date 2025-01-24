@@ -225,9 +225,8 @@ def generate_diff(environment, goal, model='deepseek-reasoner', temperature=0.7,
     )
     return diff_text
 
-def smartapply(diff_text, environment_str, model='deepseek-reasoner', api_key=None, base_url=None):
-    """API: Apply diff to environment string"""
-    files = parse_environment(environment_str)
+def smartapply(diff_text, files, model='deepseek-reasoner', api_key=None, base_url=None):
+    """API: Apply diff to environment files dictionary"""
     parsed_diffs = parse_diff_per_file(diff_text)    
 
     def process_file(path, patch):
@@ -238,7 +237,7 @@ def smartapply(diff_text, environment_str, model='deepseek-reasoner', api_key=No
     for path, patch in parsed_diffs:
         process_file(path, patch)
     
-    return build_environment(files)
+    return files
 
 # Function to apply diff to project files
 def apply_diff(project_dir, diff_text):
