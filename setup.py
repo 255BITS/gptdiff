@@ -10,6 +10,9 @@ setup(
     install_requires=[
         'openai',
     ],
+    extras_require={
+        'test': ['pytest', 'pytest-mock'],
+    },
     entry_points={
         'console_scripts': ['gptdiff=gptdiff.gptdiff:main'],
     }
