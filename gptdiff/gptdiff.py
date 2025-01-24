@@ -138,8 +138,8 @@ def call_gpt4_api(system_prompt, user_prompt, files_content, model, temperature=
     tool_prompt = formatter.usage_prompt(toolbox)
 
     messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": user_prompt + "\n"+files_content+"\n"+tool_prompt},
+        {"role": "system", "content": system_prompt+"\n"+tool_prompt},
+        {"role": "user", "content": user_prompt + "\n"+files_content},
     ]
     print("Using", model)
 
