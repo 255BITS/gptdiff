@@ -463,6 +463,10 @@ def main():
                     args=(file_path, file_diff)
                 )
                 thread.start()
+    
+    if args.beep:
+        print("\a")  # Terminal bell for completion notification
+
     print(f"Prompt tokens: {prompt_tokens}")
     print(f"Completion tokens: {completion_tokens}")
     print(f"Total tokens: {total_tokens}")
