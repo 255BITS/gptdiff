@@ -133,7 +133,7 @@ def load_developer_persona(developer_file):
     return developer_persona
 
 # Function to call GPT-4 API and calculate the cost
-def call_gpt4_api(system_prompt, user_prompt, files_content, model):
+def call_gpt4_api(system_prompt, user_prompt, files_content, model, temperature=0.7):
     if model == "gemini-2.0-flash-thinking-exp-01-21":
         user_prompt = system_prompt+"\n"+user_prompt
 
@@ -150,8 +150,8 @@ def call_gpt4_api(system_prompt, user_prompt, files_content, model):
 
     response = client.chat.completions.create(model=model,
         messages=messages,
-        max_tokens=2500,  # Adjust as necessary
-        temperature=0.7)
+        max_tokens=2500,
+        temperature=temperature)
 
     prompt_tokens = response.usage.prompt_tokens
     completion_tokens = response.usage.completion_tokens
@@ -206,7 +206,7 @@ def build_environment(files_dict):
         env.append(content)
     return '\n'.join(env)
 
-def generate_diff(environment, goal, model='deepseek-reasoner'):
+def generate_diff(environment, goal, model='deepseek-reasoner', temperature=0.7):
     """API: Generate diff from environment and goal"""
     # Load default developer persona from package
     dev_json = get_data(__package__, 'developer.json')
@@ -217,7 +217,8 @@ def generate_diff(environment, goal, model='deepseek-reasoner'):
         system_prompt, 
         goal, 
         environment, 
-        model
+        model,
+        temperature=temperature
     )
     return diff_text
 
@@ -269,6 +270,7 @@ def parse_arguments():
     parser.add_argument('--call', action='store_true',
                         help='Call the GPT-4 API. Writes the full prompt to prompt.txt if not specified.')
     parser.add_argument('files', nargs='*', default=[], help='Specify additional files or directories to include.')
+    parser.add_argument('--temperature', type=float, default=0.7, help='Temperature parameter for model creativity (0.0 to 2.0)')
     parser.add_argument('--model', type=str, default='deepseek-reasoner', help='Model to use for the API call.')
 
 
@@ -399,7 +401,7 @@ def main():
             if confirmation != 'y':
                 print("Request canceled")
                 sys.exit(0)
-        full_text, diff_text, prompt_tokens, completion_tokens, total_tokens, cost = call_gpt4_api(system_prompt, user_prompt, files_content, args.model)
+        full_text, diff_text, prompt_tokens, completion_tokens, total_tokens, cost = call_gpt4_api(system_prompt, user_prompt, files_content, args.model, temperature=args.temperature)
 
     if(diff_text.strip() == ""):
         print("Unable to parse diff text. Full response:", full_text)
