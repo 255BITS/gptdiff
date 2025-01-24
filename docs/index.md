@@ -15,7 +15,7 @@ layout: home
 
 🚀 **Make impactful changes with one command**  
 - <code>--apply</code> AI-powered patch recovery  
-- <code>--beep</code> Completion notifications  
+- <code>--nobeep</code> Disable completion notifications  
 - <code>--temperature</code> Control creativity (0-2)  
 - <code>--model</code> Switch between LLM providers  
 

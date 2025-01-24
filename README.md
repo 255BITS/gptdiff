@@ -122,7 +122,7 @@ gptdiff 'refactor authentication system' --apply
 
 ### Completion Notification
 
-Use the `--beep` option to play a system beep when the process completes:
+Use the `--nobeep` option to disable the default completion beep:
 
 ```bash
 gptdiff '<user_prompt>' --beep
