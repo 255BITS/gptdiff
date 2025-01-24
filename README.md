@@ -36,6 +36,9 @@ gptdiff "Convert class components to React hooks" --model deepseek-reasoner
 
 ### 🧠 Smart Apply System
 ```bash
+gptdiff "Refactor authentication to use OAuth 2.0" --apply
+```
+<span style="color: #00ff00;">✅ Successfully applied complex changes across 5 files</span>
 
 ## Get Started
 
@@ -110,7 +113,6 @@ gptdiff '<user_prompt>' --apply
 ```
 
 This often generates incorrect diffs that need to be manually merged.
-
 
 #### Smart Apply
 
