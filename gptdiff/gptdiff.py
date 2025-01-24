@@ -183,7 +183,7 @@ def parse_environment(environment_str):
     for line in environment_str.split('\n'):
         if line.startswith('File: '):
             if current_file:
-                files[current_file] = '\n'.join(content).strip()
+                files[current_file] = '\n'.join(content)
             current_file = line[6:].strip()
             content = []
             in_content = False
@@ -193,7 +193,7 @@ def parse_environment(environment_str):
             content.append(line)
     
     if current_file:
-        files[current_file] = '\n'.join(content).strip()
+        files[current_file] = '\n'.join(content)
         
     return files
 
@@ -228,9 +228,7 @@ def generate_diff(environment, goal, model='deepseek-reasoner', temperature=0.7,
 def smartapply(diff_text, environment_str, model='deepseek-reasoner', api_key=None, base_url=None):
     """API: Apply diff to environment string"""
     files = parse_environment(environment_str)
-    parsed_diffs = parse_diff_per_file(diff_text)
-    
-    threads = []
+    parsed_diffs = parse_diff_per_file(diff_text)    
 
     def process_file(path, patch):
         original = files.get(path, '')
@@ -238,14 +236,7 @@ def smartapply(diff_text, environment_str, model='deepseek-reasoner', api_key=No
         files[path] = updated.strip()
 
     for path, patch in parsed_diffs:
-        thread = threading.Thread(
-            target=process_file,
-            args=(path, patch)
-        )
-        thread.start()
-        threads.append(thread)
-    for thread in threads:
-        thread.join()
+        process_file(path, patch)
     
     return build_environment(files)
 
@@ -345,7 +336,7 @@ Diff to apply:
     temperature=0.0,
     max_tokens=4000)
 
-    return response.choices[0].message.content.strip()
+    return response.choices[0].message.content
 
 def main():
     # Adding color support for Windows CMD
