@@ -245,7 +245,7 @@ def apply_diff(project_dir, diff_text):
     with open(diff_file, 'w') as f:
         f.write(diff_text)
 
-    result = subprocess.run(["git", "apply", str(diff_file)], cwd=project_dir, capture_output=True, text=True)
+    result = subprocess.run(["git", "apply", "-p1", str(diff_file)], cwd=project_dir, capture_output=True, text=True)
     if result.returncode != 0:
         return False
     else:
