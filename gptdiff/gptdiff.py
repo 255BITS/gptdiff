@@ -70,12 +70,6 @@ def is_ignored(filepath, gitignore_patterns):
 
     return ignored
 
-# Load API key from environment variable
-NANOGPT_API_KEY = os.getenv('NANOGPT_API_KEY')
-NANOGPT_BASE_URL = os.getenv('NANOGPT_BASE_URL', "https://nano-gpt.com/api/v1/")
-client = OpenAI(api_key=NANOGPT_API_KEY,
-                base_url=NANOGPT_BASE_URL)
-
 def list_files_and_dirs(path, ignore_list=None):
     if ignore_list is None:
         ignore_list = []
@@ -134,7 +128,7 @@ def load_developer_persona(developer_file):
     return developer_persona
 
 # Function to call GPT-4 API and calculate the cost
-def call_gpt4_api(system_prompt, user_prompt, files_content, model, temperature=0.7, max_tokens=2500):
+def call_gpt4_api(system_prompt, user_prompt, files_content, model, temperature=0.7, max_tokens=2500, api_key=None, base_url=None):
     if model == "gemini-2.0-flash-thinking-exp-01-21":
         user_prompt = system_prompt+"\n"+user_prompt
 
@@ -149,6 +143,11 @@ def call_gpt4_api(system_prompt, user_prompt, files_content, model, temperature=
     ]
     print("Using", model)
 
+    if api_key is None:
+        api_key = os.getenv('NANOGPT_API_KEY')
+    if base_url is None:
+        base_url = os.getenv('NANOGPT_BASE_URL', "https://nano-gpt.com/api/v1/")
+    client = OpenAI(api_key=api_key, base_url=base_url)
     response = client.chat.completions.create(model=model,
         messages=messages,
         max_tokens=max_tokens,
@@ -207,7 +206,7 @@ def build_environment(files_dict):
         env.append(content)
     return '\n'.join(env)
 
-def generate_diff(environment, goal, model='deepseek-reasoner', temperature=0.7, max_tokens=32000):
+def generate_diff(environment, goal, model='deepseek-reasoner', temperature=0.7, max_tokens=32000, api_key=None, base_url=None):
     """API: Generate diff from environment and goal"""
     # Load default developer persona from package
     dev_json = get_data(__package__, 'developer.json')
@@ -219,12 +218,14 @@ def generate_diff(environment, goal, model='deepseek-reasoner', temperature=0.7,
         goal, 
         environment, 
         model=model,
+        api_key=api_key,
+        base_url=base_url,
         max_tokens=max_tokens,
         temperature=temperature
     )
     return diff_text
 
-def smartapply(diff_text, environment_str, model='deepseek-reasoner'):
+def smartapply(diff_text, environment_str, model='deepseek-reasoner', api_key=None, base_url=None):
     """API: Apply diff to environment string"""
     files = parse_environment(environment_str)
     parsed_diffs = parse_diff_per_file(diff_text)
@@ -233,7 +234,7 @@ def smartapply(diff_text, environment_str, model='deepseek-reasoner'):
 
     def process_file(path, patch):
         original = files.get(path, '')
-        updated = call_llm_for_apply(path, original, patch, model)
+        updated = call_llm_for_apply(path, original, patch, model, api_key=api_key, base_url=base_url)
         files[path] = updated.strip()
 
     for path, patch in parsed_diffs:
@@ -308,7 +309,7 @@ def parse_diff_per_file(diff_text):
 
     return diffs
 
-def call_llm_for_apply(file_path, original_content, file_diff, model):
+def call_llm_for_apply(file_path, original_content, file_diff, model, api_key=None, base_url=None):
 
     system_prompt = """Please apply the diff to this file. Return the result in a block. Write the entire file.
 
@@ -334,6 +335,11 @@ Diff to apply:
         {"role": "user", "content": user_prompt},
     ]
 
+    if api_key is None:
+        api_key = os.getenv('NANOGPT_API_KEY')
+    if base_url is None:
+        base_url = os.getenv('NANOGPT_BASE_URL', "https://nano-gpt.com/api/v1/")
+    client = OpenAI(api_key=api_key, base_url=base_url)
     response = client.chat.completions.create(model=model,
     messages=messages,
     temperature=0.0,
@@ -397,7 +403,7 @@ def main():
         exit(0)
     else:
         # Validate API key presence before any API operations
-        if not NANOGPT_API_KEY:
+        if not os.getenv('NANOGPT_API_KEY'):
             print("\033[1;31mError: NANOGPT_API_KEY environment variable required\033[0m")
             print("Set it with: export NANOGPT_API_KEY='your-key'")
             sys.exit(1)
@@ -409,7 +415,11 @@ def main():
             if confirmation != 'y':
                 print("Request canceled")
                 sys.exit(0)
-        full_text, diff_text, prompt_tokens, completion_tokens, total_tokens, cost = call_gpt4_api(system_prompt, user_prompt, files_content, args.model, temperature=args.temperature)
+        full_text, diff_text, prompt_tokens, completion_tokens, total_tokens, cost = call_gpt4_api(system_prompt, user_prompt, files_content, args.model, 
+                                                                                                    temperature=args.temperature,
+                                                                                                    api_key=os.getenv('NANOGPT_API_KEY'),
+                                                                                                    base_url=os.getenv('NANOGPT_BASE_URL', "https://nano-gpt.com/api/v1/")
+                                                                                                    )
 
     if(diff_text.strip() == ""):
         print("Unable to parse diff text. Full response:", full_text)
