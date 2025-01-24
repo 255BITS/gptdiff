@@ -395,6 +395,12 @@ def main():
         print(f"Total cost: ${0.0:.4f}")
         exit(0)
     else:
+        # Validate API key presence before any API operations
+        if not NANOGPT_API_KEY:
+            print("\033[1;31mError: NANOGPT_API_KEY environment variable required\033[0m")
+            print("Set it with: export NANOGPT_API_KEY='your-key'")
+            sys.exit(1)
+
         # Confirm large requests without specified files
         if not args.files and token_count > 10000 and (args.call or args.apply or args.smartapply):
             print(f"\033[1;33mThis is a larger request ({token_count} tokens). Are you sure you want to send it? [y/N]\033[0m")
