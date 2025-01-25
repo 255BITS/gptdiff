@@ -450,6 +450,15 @@ def main():
             def process_file(file_path, file_diff):
                 full_path = Path(project_dir) / file_path
                 print(f"Processing file: {file_path}")
+                
+                # Handle file deletions from diff
+                if '+++ /dev/null' in file_diff:
+                    if full_path.exists():
+                        full_path.unlink()
+                        print(f"\033[1;32mDeleted file {file_path}.\033[0m")
+                    else:
+                        print(f"\033[1;33mFile {file_path} not found - skipping deletion\033[0m")
+                    return
 
                 original_content = ''
                 if full_path.exists():
