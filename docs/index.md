@@ -2,6 +2,8 @@
 layout: home
 ---
 
+<div class="toolbox-note">🔧 Part of the <a href="https://github.com/255BITS/ai-agent-toolbox">AI Agent Toolbox</a> ecosystem - simplifying AI tool usage across models and frameworks</div>
+
 <h1>Transform Your Codebase with AI</h1>
 <p class="lead">Semantic code modifications through natural language</p>
 

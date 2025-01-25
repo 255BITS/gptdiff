@@ -180,6 +180,8 @@ print("Transformed codebase:")
 print(updated_environment)
 ```
 
+**Integration Note:** GPTDiff leverages the [AI Agent Toolbox](https://github.com/255BITS/ai-agent-toolbox) for seamless tool usage across AI models and frameworks, making it ideal for both single responses and complex agent workflows.
+
 ### Core Functions
 
 - `generate_diff(environment: str, goal: str, model: str) -> str`  
