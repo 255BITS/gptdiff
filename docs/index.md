@@ -14,41 +14,51 @@ layout: home
 </div>
 
 <div class="example">
-<pre><code class="console">gptdiff "Update config validation" --call
+<pre><code class="console">gptdiff "Add API documentation" --call
 </code></pre>
-<div class="info">🔍 Dry-run: Validate changes in diff preview</div>
+<div class="info">🔧 Patch written to diff.patch</div>
 </div>
 
+<div class="example">
+<pre><code class="console">gptdiff "Improve error messages"
+</code></pre>
+<div class="info">📄 LLM not called, written to prompt.txt</div>
+</div>
 
 ---
 
-🚀 **Make impactful changes with one command**  
-- <code>--apply</code> AI-powered patch recovery  
-- <code>--nobeep</code> Disable completion notifications  
-- <code>--temperature</code> Control creativity (0-2)  
-- <code>--model</code> Switch between LLM providers  
+<div class="feature command-feature">
+  <h3>🚀 Make impactful changes with one command</h3>
+  <ul class="feature-list" style="width: 100%">
+    <li><code>--apply</code> AI-powered patch recovery</li>
+    <li><code>--nobeep</code> Disable completion notifications</li>
+    <li><code>--temperature</code> Control creativity (0-2)</li>
+    <li><code>--model</code> Switch between LLM providers</li>
+  </ul>
+</div>
 
 ## Features
 
-<div class="features">
-<div class="feature">
-🔥 **Cross-File Refactoring** - Make coordinated changes across multiple files in a single operation
-</div>
-
-<div class="feature">
-🛠 **Smart Conflict Resolution**  
-Automatically resolves patch conflicts using AI context understanding while maintaining code integrity
-</div>
-
-<div class="feature">
-⚡ **CLI Excellence**  
-- Surgical file targeting  
-- Real-time progress tracking  
-- Token usage & cost transparency
-- Dry-run validation mode  
-</div>
-
-</div>
+<ul class="features">
+  <li class="feature">
+    <strong>🔥 Cross-File Refactoring</strong> - Make coordinated changes across multiple files in a single operation
+  </li>
+  
+  <li class="feature">
+    <strong>🛠 Smart Conflict Resolution</strong><br>
+    Automatically resolves patch conflicts using AI context understanding while maintaining code integrity
+  </li>
+  
+  <li class="feature">
+    <strong>⚡ CLI Excellence</strong>
+    <ul>
+      <li>Surgical file targeting</li>
+      <li>Real-time progress tracking</li>
+      <li>Token usage & cost transparency</li>
+      <li>Dry-run validation mode</li>
+    </ul>
+  </li>
+</ul>
 
 ## Getting Started
 <pre><code class="console">
