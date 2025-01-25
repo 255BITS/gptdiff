@@ -3,40 +3,71 @@ layout: default
 ---
 
 <style>
+:root {
+  --bg-color: #0a0e14;
+  --text-color: #c9d1d9;
+  --accent-color: #ff7edb;
+  --code-bg: #1a1f29;
+  --border-color: #2d333b;
+  --glow: radial-gradient(circle at 50% 0%, rgba(255,126,219,0.15) 0%, transparent 70%);
+}
+
+body {
+  margin: 0;
+}
 .hero {
     padding: 4rem 1rem;
-    background: linear-gradient(150deg, #f8f9fa 0%, #e9ecef 100%);
-    border-bottom: 1px solid #dee2e6;
-    margin-bottom: 2rem;
+    height: 100%;
+    background: var(--bg-color);
     text-align: center;
+    color: var(--text-color);
+    background-image: var(--glow);
+    border-bottom: 3px solid #6d28d9;
 }
 .hero h1 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
+    font-size: 3rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 .hero p.lead {
-    font-size: 1.25rem;
-    color: #495057;
+    font-size: 1.4rem;
+    color: var(--text-color);
+    letter-spacing: 0.8px;
 }
 .example {
     text-align: left;
     margin: 2rem auto;
     padding: 1.5rem;
-    background: #f6fff6;
-    border: 1px solid #d1ffd1;
+    background: var(--code-bg);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
+    border: 1px solid rgba(255,126,219,0.2);
     max-width: 680px;
+    box-shadow: 0 8px 32px rgba(255,126,219,0.1);
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+    backdrop-filter: blur(12px);
+}
+.example:hover {
+    transform: translateY(-2px);
 }
 .example .success {
-    color: #22863a;
+    color: #2ea043;
     margin-top: 0.5rem;
     font-weight: 500;
 }
+.example .info {
+    color: var(--accent-color);
+}
+
+.example pre {
+    background: var(--code-bg);
+    border-radius: 6px;
+    color: var(--text-color);
+}
 .value-prop {
     padding: 1.5rem;
-    background: #f8f9fa;
+    background: var(--code-bg);
     border-radius: 8px;
-    margin: 2rem 0;
+    margin: 3rem 0;
 }
 .features {
     display: grid;
@@ -45,15 +76,32 @@ layout: default
 }
 .feature {
     padding: 1.5rem;
-    background: white;
-    border: 1px solid #e1e4e8;
+    background: var(--code-bg);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
+    border: 1px solid rgba(255,126,219,0.15);
+    color: var(--text-color);
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+.feature::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: -150%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(88,166,255,0.1), transparent);
+    transition: 0.4s;
+}
+.feature:hover::before {
+    left: 100%;
 }
 .feature pre {
     margin: 1rem 0;
-    padding: 1rem;
-    background: #f6f8fa;
     border-radius: 6px;
+    border: 1px solid var(--border-color);
 }
 </style>
 
