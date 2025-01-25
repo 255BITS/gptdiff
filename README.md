@@ -26,6 +26,14 @@ gptdiff "Update the readme with an api section" --apply
 
 ## Core Capabilities
 
+### ⚡ CLI Excellence
+- **Surgical Edits** - Target specific files with `gptdiff "transform" path/to/file`
+- **Real-time Feedback** - Streaming diff generation with progress tracking
+- **Safe Preview** - Dry-run mode validates changes before application
+- **Cost Transparency** - Token usage and cost estimation for every operation
+- **Diff Preview** - View proposed changes without application using `--call`
+- **Smart Recovery** - Automatic conflict resolution when applying complex changes
+
 ### ✨ Magic Diff Generation
 ```bash
 gptdiff "Convert class components to React hooks" --model deepseek-reasoner
@@ -112,6 +120,13 @@ You can also call openai and automatically apply the generated git diff with the
 gptdiff '<user_prompt>' --apply
 ```
 
+### Dry-Run Validation
+Preview changes without applying them by omitting the `--apply` flag when using `--call`:
+```bash
+gptdiff "Modernize database queries" --call
+```
+<span style="color: #0066cc;">ℹ️ Diff preview generated - review changes before applying</span>
+
 This often generates incorrect diffs that need to be manually merged.
 
 #### Smart Apply
@@ -172,15 +187,6 @@ print(updated_environment)
   
 - `smartapply(diff_text: str, environment_str: str, model: str) -> str`  
   Applies complex diffs while preserving file context
-
-### Environment Format
-
-```text
-File: [path]
-Content:
-[file contents]
-```
-Repeat for each file in your codebase snapshot
 
 ## Testing
 
