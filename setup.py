@@ -8,7 +8,9 @@ setup(
     packages=['gptdiff'],
     package_data={'gptdiff': ['developer.json']},
     install_requires=[
-        'openai',
+        'openai>=1.0.0',
+        'tiktoken>=0.5.0',
+        'ai_agent_toolbox>=0.1.0'
     ],
     extras_require={
         'test': ['pytest', 'pytest-mock'],
