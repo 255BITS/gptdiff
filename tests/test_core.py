@@ -20,6 +20,13 @@ UPDATED_ENVIRONMENT = {"test_file.py": '''\
 def greet():
     print("Hola Mundo")'''}
 
+RM_EXAMPLE="""index 2345678..0000000
+--- a/instructions/2.txt
++++ /dev/null
+@@ -1,1 +0,0 @@
+- hello world
+"""
+
 @pytest.fixture
 def complex_diff():
     return """\
@@ -109,3 +116,13 @@ def test_smartapply_with_new_files(mock_call_llm, complex_diff):
     original_files = {}
     updated = smartapply(complex_diff, original_files)
     assert len(updated.keys()) == 2
+
+@patch('gptdiff.gptdiff.call_llm_for_apply')
+def test_rm_file(mock_call_llm):
+    original_files = {"instructions/2.txt": "hello world\n"}
+    
+    # Shouldn't call LLM for deletions
+    mock_call_llm.side_effect = AssertionError("LLM should not be called for file deletion")
+
+    updated = smartapply(RM_EXAMPLE, original_files)
+    assert "instructions/2.txt" not in updated.keys()
