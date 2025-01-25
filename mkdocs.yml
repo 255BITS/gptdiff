@@ -1,0 +1,12 @@
+site_name: GPTDiff
+docs_dir: docs
+site_dir: site
+strict: true
+
+theme:
+  name: material
+  features:
+    - content.code.annotate
+
+nav:
+  - API Reference: api.md
