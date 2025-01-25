@@ -95,7 +95,7 @@ def list_files_and_dirs(path, ignore_list=None):
 # Function to load project files considering .gitignore
 def load_project_files(project_dir, cwd):
     ignore_paths = [Path(cwd) / ".gitignore", Path(cwd) / ".gptignore"]
-    gitignore_patterns = ["developer.json", ".gitignore", "diff.patch", "prompt.txt", ".gptignore", "*.pdf", "*.docx", ".git"]
+    gitignore_patterns = ["developer.json", ".gitignore", "diff.patch", "prompt.txt", ".gptignore", "*.pdf", "*.docx", ".git", "*.orig", "*.rej"]
 
     for p in ignore_paths:
         if p.exists():
