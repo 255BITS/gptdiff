@@ -271,6 +271,7 @@ def parse_arguments():
     parser.add_argument('--temperature', type=float, default=0.7, help='Temperature parameter for model creativity (0.0 to 2.0)')
     parser.add_argument('--model', type=str, default='deepseek-reasoner', help='Model to use for the API call.')
 
+    parser.add_argument('--nowarn', action='store_true', help='Disable large token warning')
 
     return parser.parse_args()
 
@@ -416,7 +417,7 @@ def main():
             sys.exit(1)
 
         # Confirm large requests without specified files
-        if not args.files and token_count > 10000 and (args.call or args.apply):
+        if (not args.nowarn) and (not args.files) and token_count > 10000 and (args.call or args.apply):
             print(f"\033[1;33mThis is a larger request ({token_count} tokens). Are you sure you want to send it? [y/N]\033[0m")
             confirmation = input().strip().lower()
             if confirmation != 'y':
