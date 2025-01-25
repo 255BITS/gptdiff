@@ -228,12 +228,18 @@ def generate_diff(environment, goal, model='deepseek-reasoner', temperature=0.7,
 def smartapply(diff_text, files, model='deepseek-reasoner', api_key=None, base_url=None):
     """API: Apply diff to environment files dictionary"""
     parsed_diffs = parse_diff_per_file(diff_text)    
+    print("SMARTAPPLY", diff_text)
 
     def process_file(path, patch):
         original = files.get(path, '')
-        updated = call_llm_for_apply(path, original, patch, model, api_key=api_key, base_url=base_url)
-        files[path] = updated.strip()
-
+        # Handle file deletions
+        if '+++ /dev/null' in patch:
+            if path in files:
+                del files[path]
+        else:
+            updated = call_llm_for_apply(path, original, patch, model, api_key=api_key, base_url=base_url)
+            files[path] = updated.strip()
+            
     for path, patch in parsed_diffs:
         process_file(path, patch)
     
@@ -275,34 +281,37 @@ def absolute_to_relative(absolute_path):
 
 def parse_diff_per_file(diff_text):
     diffs = []
-    current_diff = []
     file_path = None
+    current_diff = []
+    from_path = None
 
     for line in diff_text.split('\n'):
         if line.startswith('diff --git'):
-            # Commit previous diff
-            if current_diff:
+            if current_diff and file_path is not None:
                 diffs.append((file_path, '\n'.join(current_diff)))
-            
-            # Start new diff section
-            current_diff = []
+            current_diff = [line]
             file_path = None
-            
-            # Extract potential file path from diff --git line
+            from_path = None
             parts = line.split()
             if len(parts) >= 4:
-                b_path = parts[3]  # Format: "b/file"
+                b_path = parts[3]
                 file_path = b_path[2:] if b_path.startswith('b/') else b_path
+        else:
             current_diff.append(line)
-        elif line.startswith('+++ '):
-            # Use +++ line path if available
-            file_path_line = line[4:].strip()
-            file_path = file_path_line[2:] if file_path_line.startswith('b/') else file_path_line
-            current_diff.append(line)
-        elif file_path:
-            current_diff.append(line)
-    
-    if current_diff and file_path:
+            if line.startswith('--- '):
+                from_path = line[4:].strip()
+            elif line.startswith('+++ '):
+                to_path = line[4:].strip()
+                if to_path == '/dev/null':
+                    if from_path:
+                        # For deletions, use from_path after stripping 'a/' prefix
+                        file_path = from_path[2:] if from_path.startswith('a/') else from_path
+                else:
+                    # For normal cases, use to_path after stripping 'b/' prefix
+                    file_path = to_path[2:] if to_path.startswith('b/') else to_path
+
+    # Handle remaining diff content after loop
+    if current_diff and file_path is not None:
         diffs.append((file_path, '\n'.join(current_diff)))
 
     return diffs
