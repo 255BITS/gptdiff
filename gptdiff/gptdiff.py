@@ -439,12 +439,13 @@ def main():
         print("\n<diff>")
         print(diff_text)
         print("\n</diff>")
+        print("Saved to patch.diff")
         if apply_diff(project_dir, diff_text):
             print(f"\033[1;32mPatch applied successfully with 'git apply'.\033[0m")  # Green color for success message
         else:
             print("Apply failed, attempting smart apply.")
             parsed_diffs = parse_diff_per_file(diff_text)
-            print("Found", len(parsed_diffs), "in diff, calling smartdiff for each file concurrently:")
+            print("Found", len(parsed_diffs), " files in diff, calling smartdiff for each file concurrently:")
 
             if(len(parsed_diffs) == 0):
                 print(f"\033[1;33mThere were no entries in this diff. The LLM may have returned something invalid.\033[0m")
