@@ -6,3 +6,5 @@ LICENSE
 *.pyc
 .jekyll-cache
 _site
+*.orig
+*.rej
