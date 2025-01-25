@@ -444,6 +444,11 @@ def main():
         else:
             print("Apply failed, attempting smart apply.")
             parsed_diffs = parse_diff_per_file(diff_text)
+            print("Found", len(parsed_diffs), "in diff, calling smartdiff for each file concurrently:")
+
+            if(len(parsed_diffs) == 0):
+                print(f"\033[1;33mThere were no entries in this diff. The LLM may have returned something invalid.\033[0m")
+                return
 
             threads = []
 
@@ -476,12 +481,17 @@ def main():
                 except Exception as e:
                     print(f"\033[1;31mFailed to process {file_path}: {str(e)}\033[0m")
 
+            threads = []
             for file_path, file_diff in parsed_diffs:
                 thread = threading.Thread(
                     target=process_file,
                     args=(file_path, file_diff)
                 )
                 thread.start()
+                threads.append(thread)
+            for thread in threads:
+                thread.join()
+
     
     if args.beep:
         print("\a")  # Terminal bell for completion notification
