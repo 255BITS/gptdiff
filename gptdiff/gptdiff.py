@@ -111,7 +111,7 @@ def load_project_files(project_dir, cwd):
         Prints skipped files to stdout for visibility
     """
     ignore_paths = [Path(cwd) / ".gitignore", Path(cwd) / ".gptignore"]
-    gitignore_patterns = ["developer.json", ".gitignore", "diff.patch", "prompt.txt", ".gptignore", "*.pdf", "*.docx", ".git", "*.orig", "*.rej"]
+    gitignore_patterns = [".gitignore", "diff.patch", "prompt.txt", ".gptignore", "*.pdf", "*.docx", ".git", "*.orig", "*.rej"]
 
     for p in ignore_paths:
         if p.exists():
@@ -133,15 +133,9 @@ def load_project_files(project_dir, cwd):
     print("")
     return project_files
 
-def load_prepend_content(developer_file):
-    try:
-        with open(developer_file, 'r') as f:
-            return f.read()
-    except FileNotFoundError:
-        # Load the default developer.json from the pip package if not found
-        developer_json = pkgutil.get_data(__package__, 'developer.json').decode('utf-8')
-        return developer_json
-    return ""
+def load_prepend_file(file):
+    with open(file, 'r') as f:
+        return f.read()
 
 # Function to call GPT-4 API and calculate the cost
 def call_gpt4_api(system_prompt, user_prompt, files_content, model, temperature=0.7, max_tokens=2500, api_key=None, base_url=None):
@@ -198,13 +192,15 @@ def build_environment(files_dict):
         env.append(content)
     return '\n'.join(env)
 
-def generate_diff(environment, goal, model='deepseek-reasoner', temperature=0.7, max_tokens=32000, api_key=None, base_url=None):
+def generate_diff(environment, goal, model='deepseek-reasoner', temperature=0.7, max_tokens=32000, api_key=None, base_url=None, prepend=None):
     """API: Generate diff from environment and goal"""
-    # Load default developer persona from package
-    dev_json = get_data(__package__, 'developer.json')
-    developer = json.loads(dev_json.decode('utf-8'))
+    if prepend:
+        prepend = load_prepend_file(args.prepend)
+        print("Including prepend",len(enc.encode(json.dumps(prepend))), "tokens")
+    else:
+        prepend = ""
     
-    system_prompt = f"You are this agent: <json>{json.dumps(developer)}</json>\nOutput a git diff into a <diff> block."
+    system_prompt = f"Output a git diff into a <diff> block."
     _, diff_text, _, _, _, _ = call_gpt4_api(
         system_prompt, 
         goal, 
@@ -286,7 +282,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='Generate and optionally apply git diffs using GPT-4.')
     parser.add_argument('prompt', type=str, help='Prompt that runs on the codebase.')
     parser.add_argument('--apply', action='store_true', help='Attempt to apply the generated git diff. Uses smartapply if applying the patch fails.')
-    parser.add_argument('--prepend', type=str, default='developer.json', help='Path to content prepended to system prompt')
+    parser.add_argument('--prepend', type=str, default=None, help='Path to content prepended to system prompt')
 
     parser.add_argument('--nobeep', action='store_false', dest='beep', default=True, help='Disable completion notification beep')
     # New flag --prompt that does not call the API but instead writes the full prompt to prompt.txt
@@ -475,11 +471,14 @@ def main():
             elif os.path.isdir(additional_path):
                 project_files.extend(load_project_files(additional_path, project_dir))
 
-    developer_persona = load_developer_persona(args.developer)
-    print("Including developer.json",len(enc.encode(json.dumps(developer_persona))), "tokens")
+    if args.prepend:
+        prepend = load_prepend_file(args.prepend)
+        print("Including prepend",len(enc.encode(json.dumps(prepend))), "tokens")
+    else:
+        prepend = ""
 
     # Prepare system prompt
-    system_prompt = f"You are this agent: <json>{json.dumps(developer_persona)}</json>\nOutput a git diff into a <diff> block."
+    system_prompt = prepend + f"Output a git diff into a <diff> block."
 
     files_content = ""
     for file, content in project_files:
