@@ -14,6 +14,7 @@ setup(
     ],
     extras_require={
         'test': ['pytest', 'pytest-mock'],
+        'docs': ['mkdocs', 'mkdocs-material']
     },
     entry_points={
         'console_scripts': ['gptdiff=gptdiff.gptdiff:main'],

@@ -159,6 +159,16 @@ Use the `--nobeep` option to disable the default completion beep:
 gptdiff '<user_prompt>' --beep
 ```
 
+## Local API Documentation
+
+Preview API docs locally using MkDocs:
+
+```bash
+pip install .[docs]
+mkdocs serve
+```
+Open http://localhost:8000 to view the documentation
+
 ## Python API
 
 Integrate GPTDiff directly into your Python workflows:
