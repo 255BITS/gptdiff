@@ -133,15 +133,15 @@ def load_project_files(project_dir, cwd):
     print("")
     return project_files
 
-def load_developer_persona(developer_file):
+def load_prepend_content(developer_file):
     try:
         with open(developer_file, 'r') as f:
-            developer_persona = json.load(f)
+            return f.read()
     except FileNotFoundError:
         # Load the default developer.json from the pip package if not found
         developer_json = pkgutil.get_data(__package__, 'developer.json').decode('utf-8')
-        developer_persona = json.loads(developer_json)
-    return developer_persona
+        return developer_json
+    return ""
 
 # Function to call GPT-4 API and calculate the cost
 def call_gpt4_api(system_prompt, user_prompt, files_content, model, temperature=0.7, max_tokens=2500, api_key=None, base_url=None):
@@ -286,7 +286,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='Generate and optionally apply git diffs using GPT-4.')
     parser.add_argument('prompt', type=str, help='Prompt that runs on the codebase.')
     parser.add_argument('--apply', action='store_true', help='Attempt to apply the generated git diff. Uses smartapply if applying the patch fails.')
-    parser.add_argument('--prepend', type=str, default='developer.json', help='Path to content to prepend to system prompt. Defaults to developer.json')
+    parser.add_argument('--prepend', type=str, default='developer.json', help='Path to content prepended to system prompt')
 
     parser.add_argument('--nobeep', action='store_false', dest='beep', default=True, help='Disable completion notification beep')
     # New flag --prompt that does not call the API but instead writes the full prompt to prompt.txt
