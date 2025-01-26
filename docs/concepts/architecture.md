@@ -85,9 +85,8 @@ graph TD
 
 **Key Architectural Decisions:**
 1. **Separation of Concerns** - Clear division between analysis/generation/application
-2. **Idempotent Core** - Repeatable operations through content hashing
-3. **Contextual Safety** - File isolation during patching
-4. **Pluggable LLMs** - Model-agnostic through AI Agent Toolbox
+2. **Contextual Safety** - File isolation during patching
+3. **Pluggable LLMs** - Model-agnostic through AI Agent Toolbox
 
 ## Core Components
 

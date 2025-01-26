@@ -93,7 +93,23 @@ def list_files_and_dirs(path, ignore_list=None):
     return result
 
 # Function to load project files considering .gitignore
-def load_project_files(project_dir, cwd):
+def load_project_files(project_dir, cwd): 
+    """Load project files while respecting .gitignore and .gptignore rules.
+    
+    Recursively scans directories, skipping:
+    - Files/directories matching patterns in .gitignore/.gptignore
+    - Binary files that can't be decoded as UTF-8 text
+    
+    Args:
+        project_dir: Root directory to scan for files
+        cwd: Base directory for resolving ignore files
+    
+    Returns:
+        List of (absolute_path, file_content) tuples
+    
+    Note:
+        Prints skipped files to stdout for visibility
+    """
     ignore_paths = [Path(cwd) / ".gitignore", Path(cwd) / ".gptignore"]
     gitignore_patterns = ["developer.json", ".gitignore", "diff.patch", "prompt.txt", ".gptignore", "*.pdf", "*.docx", ".git", "*.orig", "*.rej"]
 
