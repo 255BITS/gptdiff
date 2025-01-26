@@ -95,6 +95,7 @@ layout: home
 </div>
 
 ## Getting Started
+For a step-by-step guide on how to install and configure `gptdiff`, check out the [Installation Guide](installation.md).
 <pre><code class="console">
 $ pip install gptdiff
 </code></pre>

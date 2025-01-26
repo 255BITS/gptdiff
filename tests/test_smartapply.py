@@ -118,7 +118,23 @@ def test_smartapply_modify_nonexistent_file():
         assert "other.py" in result
 
 def test_smartapply_multi_file_modification(mocker):
-    """Test that smartapply correctly handles diffs modifying multiple files"""
+    """Test smartapply handles concurrent modifications across multiple files.
+    
+    Verifies:
+    - Correct processing of diffs affecting multiple files in single patch
+    - Mocked LLM responses properly update each target file's content  
+    - Non-targeted files remain unmodified
+    - Changes are idempotent when reapplying same diff
+    
+    Setup:
+    - Original files include two target files and unrelated file  
+    - Mock LLM to return modified content based on file path
+    - Apply diff modifying both target files
+    
+    Assertions:
+    - Both target files show expected modifications
+    - Unrelated file content remains unchanged
+    - Reapplied diff produces identical results"""
     diff_text = '''diff --git a/file1.py b/file1.py
 --- a/file1.py
 +++ b/file1.py

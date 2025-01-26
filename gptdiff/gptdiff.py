@@ -365,9 +365,16 @@ def call_llm_for_apply(file_path, original_content, file_diff, model, api_key=No
         APIError: If LLM processing fails
 
     Example:
-        >>> updated = call_llm_for_apply('utils.py', 'def old(): pass', 
-        ...                             '@@ -1 +1 @@\n-def old()\n+def new()', 'deepseek-reasoner')
-    """
+        >>> updated = call_llm_for_apply(
+        ...     file_path='utils.py',
+        ...     original_content='def old(): pass',
+        ...     file_diff='''@@ -1 +1 @@
+        ...                  -def old()
+        ...                  +def new()''',
+        ...     model='deepseek-reasoner'
+        ... )
+        >>> print(updated)
+        def new(): pass"""
 
     system_prompt = """Please apply the diff to this file. Return the result in a block. Write the entire file.
 
