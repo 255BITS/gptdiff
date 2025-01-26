@@ -23,6 +23,7 @@ nav:
   - Examples:
       - Basic Usage: examples/basic.md
       - Advanced Refactoring: examples/advanced.md
+      - Automation with While Loops: examples/automation.md
       - Common Recipes: examples/recipes.md
   - Development:
       - Testing Guide: development/testing.md
