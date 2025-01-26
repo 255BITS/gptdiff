@@ -18,21 +18,21 @@ gptdiff "Update the readme with an api section" --apply
 
 ### Why GPTDiff?
 
-- **Semantic Code Changes** - Make architectural changes through natural language
-- **Precision Patches** - Context-aware diffs that preserve code health
-- **Smart Recovery** - `--apply` fixes imperfect diffs using AI context
-- **Zero Configuration** - Respects .gitignore out of the box
-- **Full Codebase Awareness** - Processes multiple files in single request
+- **Understands Your Code** - Describe changes in plain English
+- **Safe Modifications** - Keeps existing code working
+- **Auto-Fix** - `--apply` fixes mistakes in generated changes
+- **Works Instantly** - No complex setup needed
+- **Whole Project View** - Handles multiple files together
 
 ## Core Capabilities
 
 ### ⚡ CLI Excellence
-- **Surgical Edits** - Target specific files with `gptdiff "transform" path/to/file`
-- **Real-time Feedback** - Streaming diff generation with progress tracking
-- **Safe Preview** - Dry-run mode validates changes before application
-- **Cost Transparency** - Token usage and cost estimation for every operation
-- **Diff Preview** - View proposed changes without application using `--call`
-- **Smart Recovery** - Automatic conflict resolution when applying complex changes
+- **Target Specific Files** - Change just what you need
+- **Live Updates** - See changes as they're made
+- **Try Before Applying** - Test changes safely first
+- **Clear Pricing** - Know costs upfront
+- **Preview Changes** - See what will change with `--call`
+- **Fix Mistakes** - Automatic error correction
 
 ### ✨ Magic Diff Generation
 ```bash

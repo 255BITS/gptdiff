@@ -2,8 +2,6 @@
 layout: home
 ---
 
-<div class="toolbox-note">🔧 Part of the <a href="https://github.com/255BITS/ai-agent-toolbox">AI Agent Toolbox</a> ecosystem - simplifying AI tool usage across models and frameworks</div>
-
 <h1>Transform Your Codebase with AI</h1>
 <p class="lead">Semantic code modifications through natural language</p>
 
@@ -25,11 +23,12 @@ layout: home
 <div class="info">📄 LLM not called, written to prompt.txt</div>
 </div>
 
+<div class="toolbox-note">🔧 Part of the <a href="https://github.com/255BITS/ai-agent-toolbox">AI Agent Toolbox</a> ecosystem - simplifying AI tool usage across models and frameworks</div>
 ---
 
 <div class="feature command-feature">
   <h3>🚀 Make impactful changes with one command</h3>
-  <ul class="feature-list" style="width: 100%">
+  <ul class="feature-list">
     <li><code>--apply</code> AI-powered patch recovery</li>
     <li><code>--nobeep</code> Disable completion notifications</li>
     <li><code>--temperature</code> Control creativity (0-2)</li>
@@ -41,21 +40,21 @@ layout: home
 
 <ul class="features">
   <li class="feature">
-    <strong>🔥 Cross-File Refactoring</strong> - Make coordinated changes across multiple files in a single operation
+    <strong>🔥 Multi-File Changes</strong> - Update related files together in one step
   </li>
   
   <li class="feature">
-    <strong>🛠 Smart Conflict Resolution</strong><br>
-    Automatically resolves patch conflicts using AI context understanding while maintaining code integrity
+    <strong>🛠 Auto-Fix Conflicts</strong><br>
+    Fixes conflicting changes using AI understanding of your code's purpose
   </li>
   
   <li class="feature">
-    <strong>⚡ CLI Excellence</strong>
+    <strong>⚡ Simple Commands</strong>
     <ul>
-      <li>Surgical file targeting</li>
-      <li>Real-time progress tracking</li>
-      <li>Token usage & cost transparency</li>
-      <li>Dry-run validation mode</li>
+      <li>Change specific files</li>
+      <li>See progress updates</li>
+      <li>Clear cost tracking</li>
+      <li>Test changes first</li>
     </ul>
   </li>
 </ul>

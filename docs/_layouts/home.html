@@ -10,10 +10,13 @@ layout: default
   --code-bg: #1a1f29;
   --border-color: #2d333b;
   --glow: radial-gradient(circle at 50% 0%, rgba(255,126,219,0.15) 0%, transparent 70%);
+  --link-color: #58a6ff;
+  --link-visited-color: #8a63d2;
 }
 
 body {
   margin: 0;
+  background-color: var(--bg-color);
 }
 .hero {
     padding: 4rem 1rem;
@@ -90,7 +93,6 @@ body {
     position: relative;
     overflow: hidden;
     margin: 0 auto;
-    width: 100%;
     min-width: unset;
 }
 .feature ul {
@@ -104,7 +106,6 @@ body {
     position: absolute;
     top: -100%;
     left: -150%;
-    width: 100%;
     height: 100%;
     background: linear-gradient(90deg, transparent, rgba(88,166,255,0.1), transparent);
     transition: 0.4s;
@@ -128,16 +129,17 @@ body {
 .command-feature .feature-list {
     max-width: 680px;
     margin: 1rem auto;
-    padding-left: 2rem;
+    padding-left: 0;
     text-align: left;
-    list-style-position: outside;
+    list-style: none;
 }
+
 .command-feature .feature-list li {
     margin: 0.5rem 0;
-    padding-left: 0;
-    text-indent: -1.5em;
-    margin-left: 1.5em;
+    padding-left: 1.5rem;
     padding: 0.25rem 0;
+    text-indent: -1.5rem;
+    margin-left: 0;
 }
 
 .features {
@@ -149,6 +151,15 @@ body {
     margin: 1rem 0;
     border-radius: 6px;
     border: 1px solid var(--border-color);
+}
+
+a {
+    color: var(--link-color);
+    text-decoration: none;
+}
+
+a:visited {
+    color: var(--link-visited-color);
 }
 </style>
 
