@@ -331,6 +331,23 @@ Diff to apply:
 
     return response.choices[0].message.content
 
+def build_environment_from_filelist(file_list, cwd):
+    """Build environment string from list of file paths"""
+    files_dict = {}
+    for file_path in file_list:
+        relative_path = os.path.relpath(file_path, cwd)
+        try:
+            with open(file_path, 'r') as f:
+                content = f.read()
+            files_dict[relative_path] = content
+        except UnicodeDecodeError:
+            print(f"Skipping file {file_path} due to UnicodeDecodeError")
+            continue
+        except IOError as e:
+            print(f"Error reading {file_path}: {e}")
+            continue
+    return build_environment(files_dict)
+
 def main():
     # Adding color support for Windows CMD
     if os.name == 'nt':
