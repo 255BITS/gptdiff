@@ -14,18 +14,17 @@ def generate_diff(
     base_url: Optional[str] = None
 ) -> str
 ```
-**Note:** Built with the [AI Agent Toolbox](https://github.com/255BITS/ai-agent-toolbox) for reliable tool parsing across models and frameworks - perfect for single responses or complex agent workflows.
-*New in v0.2*: Environment construction helpers available via `build_environment()`
+**Note:** Built with the [AI Agent Toolbox](https://github.com/255BITS/ai-agent-toolbox) for reliable tool parsing across models and frameworks
 
 **Transforms codebase through natural language instructions**
 
 - `environment`: Multi-file codebase representation using `File: [path]` headers
 - `goal`: Natural language instruction for desired code changes
-- Returns unified diff string compatible with git/patches
+- Returns unified diff string compatible with git apply
 
 **Example:**
 ```python
-from gptdiff import generate_diff, build_environment
+from gptdiff import generate_diff
 
 files = {"main.py": "def greet():\n    print('Hello World')"}
 env = build_environment(files)
@@ -59,26 +58,34 @@ original_files = {"main.py": "def greet():\n    print('Hello World')"}
 updated_files = smartapply(diff, original_files)  # Returns new dict
 ```
 
-**Advanced Example (Multi-file):**
+**Advanced Example (Multi-file Modification):**
 ```python
-complex_diff = '''diff --git a/utils.py b/utils.py
-@@ -0,0 +1,5 @@
-+def calculate_stats(data):
-+    mean = sum(data)/len(data)
-+    variance = sum((x-mean)**2 for x in data)/len(data)
-+    return {'mean': mean, 'variance': variance}
-diff --git a/test_utils.py b/test_utils.py
-@@ -0,0 +1,12 @@
-+import pytest
-+from utils import calculate_stats
+original_files = {
+    "file1.py": "def func1():\n    print('Old func1')",
+    "file2.py": "def func2():\n    print('Old func2')",
+    "unrelated.py": "def unrelated():\n    pass"
+}
 
-+def test_calculate_stats():
-+    result = calculate_stats([1,2,3,4,5])
-+    assert result['mean'] == 3.0'''
+diff = '''diff --git a/file1.py b/file1.py
+--- a/file1.py
++++ b/file1.py
+@@ -1,2 +1,2 @@
+ def func1():
+-    print("Old func1")
++    print("New func1")
+diff --git a/file2.py b/file2.py
+--- a/file2.py
++++ b/file2.py
+@@ -1,2 +1,2 @@
+ def func2():
+-    print("Old func2")
++    print("New func2")'''
 
-original_files = {}
-updated = smartapply(complex_diff, original_files)
-print(updated.keys())  # ['utils.py', 'test_utils.py']
+updated_files = smartapply(diff, original_files)
+
+print(updated_files["file1.py"])  # Contains 'print("New func1")'
+print(updated_files["file2.py"])  # Contains 'print("New func2")'
+print(updated_files["unrelated.py"])  # Remains unchanged
 ```
 
 **Conflict Resolution & Error Handling:**

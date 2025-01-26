@@ -173,30 +173,6 @@ def call_gpt4_api(system_prompt, user_prompt, files_content, model, temperature=
     return full_response, diff_response, prompt_tokens, completion_tokens, total_tokens, cost
 
 # New API functions
-def parse_environment(environment_str):
-    """Parse environment string into file dictionary"""
-    files = {}
-    current_file = None
-    content = []
-    in_content = False
-    
-    for line in environment_str.split('\n'):
-        if line.startswith('File: '):
-            if current_file:
-                files[current_file] = '\n'.join(content)
-            current_file = line[6:].strip()
-            content = []
-            in_content = False
-        elif line == 'Content:':
-            in_content = True
-        elif in_content:
-            content.append(line)
-    
-    if current_file:
-        files[current_file] = '\n'.join(content)
-        
-    return files
-
 def build_environment(files_dict):
     """Rebuild environment string from file dictionary"""
     env = []
