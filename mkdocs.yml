@@ -21,6 +21,7 @@ nav:
   - CLI Reference: cli.md
   - API Reference: api.md
   - Core Concepts: concepts.md
+  - Architecture: concepts/architecture.md
   - Design Philosophy: concepts/design-philosophy.md
   - Examples:
       - Basic Usage: examples/basic.md
@@ -28,4 +29,7 @@ nav:
       - Automation with While Loops: examples/automation.md
       - Common Recipes: examples/recipes.md
   - Development:
-      - Testing Guide: development/testing.md
+      - Testing Practices: development/testing.md
+      - Contributing Guide: development/contributing.md
+
+plugins:
