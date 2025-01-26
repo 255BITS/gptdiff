@@ -202,7 +202,40 @@ def generate_diff(environment, goal, model='deepseek-reasoner', temperature=0.7,
     return diff_text
 
 def smartapply(diff_text, files, model='deepseek-reasoner', api_key=None, base_url=None):
-    """API: Apply diff to environment files dictionary"""
+    """Applies unified diffs to file contents with AI-powered conflict resolution.
+    
+    Key features:
+    - Handles file creations, modifications, and deletions
+    - Maintains idempotency - reapplying same diff produces same result
+    - Uses LLM to resolve ambiguous changes while preserving context
+    - Returns new files dictionary without modifying input
+
+    Args:
+        diff_text: Unified diff string compatible with git apply
+        files: Dictionary of {file_path: content} to modify
+        model: LLM to use for conflict resolution (default: deepseek-reasoner)
+        api_key: Optional API key override
+        base_url: Optional API base URL override
+
+    Returns:
+        New dictionary with updated file contents. Deleted files are omitted.
+
+    Raises:
+        APIError: If LLM API calls fail
+
+    Example:
+        >>> original = {"file.py": "def old():\n    pass"}
+        >>> diff = '''diff --git a/file.py b/file.py
+        ... --- a/file.py
+        ... +++ b/file.py
+        ... @@ -1,2 +1,2 @@
+        ... -def old():
+        ... +def new():'''
+        >>> updated = smartapply(diff, original)
+        >>> print(updated["file.py"])
+        def new():
+            pass
+    """
     parsed_diffs = parse_diff_per_file(diff_text)    
     print("SMARTAPPLY", diff_text)
 
@@ -294,6 +327,29 @@ def parse_diff_per_file(diff_text):
     return diffs
 
 def call_llm_for_apply(file_path, original_content, file_diff, model, api_key=None, base_url=None):
+    """AI-powered diff application with conflict resolution.
+    
+    Internal workhorse for smartapply that handles individual file patches.
+    Uses LLM to reconcile diffs while preserving code structure and context.
+
+    Args:
+        file_path: Target file path (used for context/error messages)
+        original_content: Current file content as string
+        file_diff: Unified diff snippet to apply
+        model: LLM identifier for processing
+        api_key: Optional override for LLM API credentials
+        base_url: Optional override for LLM API endpoint
+
+    Returns:
+        Updated file content as string with diff applied
+
+    Raises:
+        APIError: If LLM processing fails
+
+    Example:
+        >>> updated = call_llm_for_apply('utils.py', 'def old(): pass', 
+        ...                             '@@ -1 +1 @@\n-def old()\n+def new()', 'deepseek-reasoner')
+    """
 
     system_prompt = """Please apply the diff to this file. Return the result in a block. Write the entire file.
 
