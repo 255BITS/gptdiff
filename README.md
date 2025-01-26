@@ -43,6 +43,20 @@ gptdiff "Convert class components to React hooks" --model deepseek-reasoner
 - Automatic conflict prevention
 
 ### 🧠 Smart Apply System
+
+**Git-native Workflow:**
+```bash
+# 1. Apply AI-generated changes
+gptdiff "Improve error handling" --apply
+
+# 2. Review each change interactively
+git add -p
+
+# 3. Commit or discard
+git commit -m "Enhanced error handling"
+git reset --hard  # To undo all changes
+```
+
 ```bash
 gptdiff "Refactor authentication to use OAuth 2.0" --apply
 ```

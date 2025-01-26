@@ -24,7 +24,6 @@ layout: home
 </div>
 
 <div class="toolbox-note">🔧 Part of the <a href="https://github.com/255BITS/ai-agent-toolbox">AI Agent Toolbox</a> ecosystem - simplifying AI tool usage across models and frameworks</div>
----
 
 <div class="feature command-feature">
   <h3>🚀 Make impactful changes with one command</h3>
@@ -58,6 +57,42 @@ layout: home
     </ul>
   </li>
 </ul>
+
+## How to develop with gptdiff
+
+<div class="git-workflow">
+  <h3 class="workflow-title">🚀 The new dev cycle</h3>
+  
+  <ol class="workflow-steps">
+    <li class="workflow-step">
+      <h4 class="step-heading">Generate Changes</h4>
+      <div class="code-block">
+        <pre><code class="console">gptdiff "Add type safety" --apply</code></pre>
+      </div>
+    </li>
+
+    <li class="workflow-step">
+      <h4 class="step-heading">Review Modifications</h4>
+      <div class="code-block">
+        <pre><code class="console">git add -p</code></pre>
+      </div>
+    </li>
+
+    <li class="workflow-step">
+      <h4 class="step-heading">Finalize Changes</h4>
+      <div class="code-block">
+        <pre><code class="console">git commit -m 'AI improvements'</code></pre>
+      </div>
+    </li>
+
+    <li class="workflow-step">
+      <h4 class="step-heading">Stash Uncommitted Changes</h4>
+      <div class="code-block">
+        <pre><code class="console">git stash</code></pre>
+      </div>
+    </li>
+  </ol>
+</div>
 
 ## Getting Started
 <pre><code class="console">
