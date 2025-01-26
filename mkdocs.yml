@@ -16,4 +16,13 @@ theme:
     accent: blue
 
 nav:
+  - Home: index.md
+  - CLI Reference: cli.md
   - API Reference: api.md
+  - Core Concepts: concepts.md
+  - Examples:
+      - Basic Usage: examples/basic.md
+      - Advanced Refactoring: examples/advanced.md
+      - Common Recipes: examples/recipes.md
+  - Development:
+      - Testing Guide: development/testing.md
