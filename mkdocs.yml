@@ -17,9 +17,11 @@ theme:
 
 nav:
   - Home: index.md
+  - Quickstart: quickstart.md
   - CLI Reference: cli.md
   - API Reference: api.md
   - Core Concepts: concepts.md
+  - Design Philosophy: concepts/design-philosophy.md
   - Examples:
       - Basic Usage: examples/basic.md
       - Advanced Refactoring: examples/advanced.md
