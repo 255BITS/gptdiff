@@ -13,8 +13,7 @@ graph TD
 
 **Key Principles:**
 1. **Radical Simplicity** - Single-purpose components with clean interfaces
-2. **Idempotent Operations** - Repeatable diffs produce same result on reapplication
-3. **Context Preservation** - Maintain surrounding code integrity during patches
+2. **Context Preservation** - Maintain surrounding code integrity during patches
 
 ## SmartApply Mechanics
 
