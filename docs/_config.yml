@@ -4,11 +4,11 @@ url: "https://255labs.github.io/gptdiff"
 repository: 255BITS/gptdiff
 plugins:
   - jekyll-feed  
-remote_theme: pmarsceill/just-the-docs
-color_scheme: dracula
- 
+
 markdown: kramdown
 kramdown:
   syntax_highlighter: "rouge"
   syntax_highlighter_opts:
-    theme: "nord"
+    theme: "monokai"
+remote_theme: pmarsceill/just-the-docs
+color_scheme: dark
