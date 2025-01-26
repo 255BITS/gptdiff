@@ -204,6 +204,22 @@ print("Transformed codebase:")
 print(updated_environment)
 ```
 
+**Batch Processing Example:**
+```python
+from gptdiff import generate_diff, smartapply
+
+files = load_your_codebase()  # Dict of {path: content}
+
+transformations = [
+    "Add python type annotations",
+    "Convert string formatting to f-strings",
+    "Update deprecated API calls"
+]
+
+for task in transformations:
+    files = smartapply(generate_diff(build_environment(files), task), files)
+```
+
 **Integration Note:** GPTDiff leverages the [AI Agent Toolbox](https://github.com/255BITS/ai-agent-toolbox) for seamless tool usage across AI models and frameworks, making it ideal for both single responses and complex agent workflows.
 
 ### Core Functions

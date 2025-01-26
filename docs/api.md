@@ -24,7 +24,19 @@ def generate_diff(
 
 **Example:**
 ```python
-from gptdiff import generate_diff
+from gptdiff import generate_diff, build_environment  # Uses AI Agent Toolbox for reliable parsing
+
+# Multi-file environment example
+files = {
+    "main.py": "def greet():\n    print('Hello World')",
+    "tests/test_main.py": "def test_greet():\n    pass" 
+}
+env = build_environment(files)
+
+# Coordinated change across implementation and tests
+diff = generate_diff(env, 
+    "Add return type hints and update tests to match"
+)
 
 files = {"main.py": "def greet():\n    print('Hello World')"}
 env = build_environment(files)
@@ -86,6 +98,23 @@ updated_files = smartapply(diff, original_files)
 print(updated_files["file1.py"])  # Contains 'print("New func1")'
 print(updated_files["file2.py"])  # Contains 'print("New func2")'
 print(updated_files["unrelated.py"])  # Remains unchanged
+```
+
+**Real-World Refactor Example:**
+```python
+# Coordinated database schema and ORM update
+original_files = {
+    "models.py": "class User:\n    name = CharField()",
+    "migrations/0001_initial.py": "# Existing migration",
+    "tests/test_models.py": "def test_user_creation():\n    User(name='Test').save()"
+}
+
+diff = generate_diff(
+    build_environment(original_files),
+    "Rename 'name' field to 'username' across all layers"
+)
+
+updated_files = smartapply(diff, original_files)
 ```
 
 **Conflict Resolution & Error Handling:**
@@ -192,6 +221,9 @@ deleted file mode 100644
 original = {"old.py": "def deprecated():\n    print('Remove me')"}
 updated = smartapply(diff, original)
 assert "old.py" not in updated
+
+# Verify unrelated files preserved
+assert all(f not in updated for f in ["utils.py", "config.ini"])
 ```
 *Note:* Deleted files are omitted from the returned dictionary
 
