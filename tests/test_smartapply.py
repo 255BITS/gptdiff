@@ -189,7 +189,18 @@ diff --git a/file2.py b/file2.py
     assert same_files["unrelated.py"] == updated_files["unrelated.py"]
 
 def test_smartapply_complex_single_hunk(mocker):
-    """Test smartapply handles single hunk with multiple change types"""
+    """Test complex single hunk with multiple change types
+    
+    Validates proper handling of:
+    - Line deletions (# Old processing logic, temp = data * 2)
+    - Additions with new control flow (# Optimized pipeline, if not data check)
+    - Context preservation (results list initialization)
+    
+    Setup:
+    - Original function contains legacy processing logic
+    - Diff removes temporary variable and adds guard clause
+    - Mock LLM to return optimized version matching diff
+    """
     diff_text = '''diff --git a/complex.py b/complex.py
 --- a/complex.py
 +++ b/complex.py
