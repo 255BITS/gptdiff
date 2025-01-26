@@ -286,7 +286,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='Generate and optionally apply git diffs using GPT-4.')
     parser.add_argument('prompt', type=str, help='Prompt that runs on the codebase.')
     parser.add_argument('--apply', action='store_true', help='Attempt to apply the generated git diff. Uses smartapply if applying the patch fails.')
-    parser.add_argument('--developer', type=str, default='developer.json', help='Path to developer persona JSON file. It can contain any information about the developer that is writing the diff. Such as name, education, code style, etc. Defaults to included https://github.com/255BITS/gptdiff/blob/main/developer.json')
+    parser.add_argument('--prepend', type=str, default='developer.json', help='Path to content to prepend to system prompt. Defaults to developer.json')
 
     parser.add_argument('--nobeep', action='store_false', dest='beep', default=True, help='Disable completion notification beep')
     # New flag --prompt that does not call the API but instead writes the full prompt to prompt.txt
