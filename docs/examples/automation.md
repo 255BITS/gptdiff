@@ -1,13 +1,16 @@
 # Continuous Improvement Automation
 
 ## AI-Powered Feedback Loops
+
+### **Note that agent loops don't work very well yet**
+
 ```mermaid
 graph LR
     A[Codebase] --> B(GPTDiff Analysis)
     B --> C{Identify Improvement}
     C --> D[Generate Patch]
     D --> E[Apply Changes]
-    E --> F[Verify/Sleep]
+    E --> F[Verify]
     F --> A
 ```
 
@@ -15,7 +18,6 @@ graph LR
 ```bash
 while true; do
   gptdiff "<improvement-prompt>" --apply
-  sleep 300  # 5 minute cooldown
 done
 ```
 
@@ -30,11 +32,10 @@ do
     --files tests/ \
     --apply \
     --temperature 0.3
-  sleep 600  # Check every 10 minutes
 done
 ```
 
-**Improvements Per Cycle:**
+### **Improvements Per Cycle:**
 1. Null input handling tests
 2. Boundary value validations
 3. Error state simulations
@@ -42,7 +43,7 @@ done
 
 ### Flaky Test Remediation
 ```bash
-while sleep 120; do
+while true; do
   gptdiff "Find and fix intermittent test failures by adding retries/cleanup" \
     --model deepseek-reasoner \
     --apply
@@ -59,7 +60,6 @@ do
   gptdiff "Refactor functions with high complexity scores" \
     --apply \
     --temperature 0.1
-  sleep 900  # 15 minute intervals
 done
 ```
 
@@ -70,7 +70,6 @@ while :; do
     --files src/ \
     --apply \
     --model deepseek-reasoner
-  sleep 1800  # Scan every 30 minutes
 done
 ```
 
@@ -78,7 +77,7 @@ done
 
 ### Code-Docs Alignment
 ```bash
-while sleep 300
+while true;
 do
   gptdiff "Update documentation to match current implementation" \
     --files src/ docs/ \
@@ -91,4 +90,5 @@ done
 ```bash
 while true; do
   gptdiff "Identify and optimize slow database queries" --apply
-  sleep 7200  # 2 hour cycles
+done
+```

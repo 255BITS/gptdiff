@@ -2,17 +2,7 @@
 
 ## Core Testing Principles
 
-```mermaid
-graph TD
-    A[Test Cases] --> B{Atomic Operations}
-    A --> C{Idempotence}
-    A --> D{Edge Coverage}
-    B --> E[Single-file scenarios]
-    C --> F[Repeated application safety]
-    D --> G[Missing files, Invalid diffs]
-```
-
-**Guarantees Across All Tests:**
+### **Attributes of a good test**
 - Zero cross-test contamination
 - Pure functions with no side effects
 - Deterministic results across runs
@@ -36,7 +26,18 @@ def test_smartapply_new_file_creation():
 def test_smartapply_complex_single_hunk(mocker):
     """Test multi-line changes with context preservation"""
     # Validates LLM mock integration and structural understanding
+
+**Example Mock Setup:**
+```python
+# Mock LLM response for predictable testing
+mocker.patch('gptdiff.gptdiff.call_llm_for_apply',
+    return_value="def new():\n    print('Updated')")
+
+# Verify transformation
+updated = smartapply(diff, original_files)
+assert "Updated" in updated["file.py"]
 ```
+
 
 ## Running the Test Suite
 
@@ -55,5 +56,4 @@ pytest tests/test_smartapply.py -k "test_smartapply_file_modification"
 
 1. **Isolate Scenarios**: One logical case per test
 2. **Mock LLM Responses**: Use `@patch` for deterministic outcomes
-3. **Verify Idempotence**: Reapply same diff multiple times
-4. **Check Boundaries**: Empty files, invalid paths, encoding issues
+3. **Check Boundaries**: Empty files, invalid paths, encoding issues

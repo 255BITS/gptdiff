@@ -2,20 +2,10 @@
 
 ## Development Philosophy
 
-```mermaid
-graph TD
-    A[Simplicity] --> B[Minimal Changes]
-    A --> C[Idempotent Operations]
-    A --> D[Clear Boundaries]
-    B --> E[Single-Purpose Components]
-    C --> F[Repeatable Results]
-    D --> G[Isolated Test Cases]
-```
-
 **Core Principles:**
-1. Every change must reduce complexity
-2. Preserve backward compatibility in diffs
-3. Maintain strict test coverage
+1. Changes should be utility driven
+2. Command line and API usage resist change
+3. Test where possible
 
 ## Development Setup
 
@@ -41,24 +31,15 @@ graph TD
    ```bash
    git checkout -b feat/new-feature
    ```
-
 2. **Add Tests**:
-   - Unit tests for core logic
-   - Integration tests for CLI operations
-   - Edge case validation
-
 3. **Update Documentation**:
    - Keep API reference current
    - Add examples for new features
-   - Maintain conceptual diagrams
-
 4. **Submit Pull Request**:
    - Reference related issues
    - Include test coverage report
    - Document breaking changes
 
 ## Code Standards
-- **Simplicity First**: Maximum 3 levels of indentation
-- **Type Annotated**: 100% type coverage in public APIs
-- **Docstrings**: Google-style with examples
-- **Testing**: 90%+ line coverage maintained
+- Try to get the LLMs to bootstrap the change.
+- Don't hyperfocus on what the LLMs will soon be able to do.

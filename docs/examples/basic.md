@@ -28,14 +28,6 @@ gptdiff "Rename UserController to AccountController" \
     docs/api.md --apply
 ```
 
-**SmartApply Handles:**
-- Class name in implementation
-- Test class references
-- Documentation mentions
-- Import statements
-
-# Advanced Examples
-
 ## Full-Stack Type Safety
 
 ```bash
@@ -45,14 +37,8 @@ gptdiff "Add Python type hints throughout codebase" \
     --apply
 ```
 
-**Coordinated Changes:**
-1. Function signatures in implementation
-2. Test parameter types
-3. API documentation
-4. Serialization/validation layers
-
 ## Legacy Modernization
 
 ```bash
-gptdiff "Convert string formatting to f-strings" --apply src/
+gptdiff "Convert string formatting to f-strings" src/ --apply
 ```

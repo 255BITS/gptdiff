@@ -1,5 +1,4 @@
 ---
-layout: home
 ---
 
 <h1>Transform Your Codebase with AI</h1>
@@ -7,23 +6,18 @@ layout: home
 
 <div class="example">
 <pre><code class="console">gptdiff "Add type hints to functions" --apply
-</code></pre>
-<div class="success">✅ Successfully applied patch</div>
+<div class="success">✅ Successfully applied patch</div></code></pre>
 </div>
 
 <div class="example">
 <pre><code class="console">gptdiff "Add API documentation" --call
-</code></pre>
-<div class="info">🔧 Patch written to diff.patch</div>
+<div class="info">🔧 Patch written to diff.patch</div></code></pre>
 </div>
 
 <div class="example">
 <pre><code class="console">gptdiff "Improve error messages"
-</code></pre>
-<div class="info">📄 LLM not called, written to prompt.txt</div>
+<div class="info">📄 LLM not called, written to prompt.txt</div></code></pre>
 </div>
-
-<div class="toolbox-note">🔧 Part of the <a href="https://github.com/255BITS/ai-agent-toolbox">AI Agent Toolbox</a> ecosystem - simplifying AI tool usage across models and frameworks</div>
 
 <div class="feature command-feature">
   <h3>🚀 Make impactful changes with one command</h3>
@@ -53,7 +47,6 @@ layout: home
       <li>Change specific files</li>
       <li>See progress updates</li>
       <li>Clear cost tracking</li>
-      <li>Test changes first</li>
     </ul>
   </li>
 </ul>
@@ -99,3 +92,5 @@ For a step-by-step guide on how to install and configure `gptdiff`, check out th
 <pre><code class="console">
 $ pip install gptdiff
 </code></pre>
+
+<div class="toolbox-note">🔧 Part of the <a href="https://github.com/255BITS/ai-agent-toolbox">AI Agent Toolbox</a> ecosystem - simplifying AI tool usage across models and frameworks</div>

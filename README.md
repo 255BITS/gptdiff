@@ -232,22 +232,6 @@ for task in transformations:
 
 ## Testing
 
-## GitHub Pages Setup
-
-This site is powered by Jekyll and published via GitHub Pages. To maintain the site:
-
-1. Install Jekyll requirements:
-```bash
-bundle install
-```
-
-2. Serve locally:
-```bash
-bundle exec jekyll serve --watch --source docs
-```
-
-3. Commit changes to `docs/` and push - GitHub Pages will automatically rebuild
-
 To run the test suite:
 
 ```bash

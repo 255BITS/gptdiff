@@ -47,5 +47,3 @@ The default base URL points to `nano-gpt.com`'s API. Supported models can be spe
 ```bash
 gptdiff 'your prompt' --model deepseek-reasoner
 ```
-
-## Verification

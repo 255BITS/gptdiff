@@ -2,15 +2,20 @@
 
 ## Core Command Structure
 ```bash
-gptdiff "<transformation-prompt>" [OPTIONS] [FILES...]
+gptdiff "<transformation-prompt>" [FILES...] [OPTIONS]
 ```
 
 ## Key Options
+
+### .gitignore and .gptignore
+
+Files matching .gitignore pattern or <b>.gptignore</b> patterns are ignored when no files are specified.
 
 ### Transformation Control
 `--apply`  
 **AI-powered patch application**  
 *Example:*  
+⚠️ Processes files concurrently for performance
 ```bash
 gptdiff "Add null safety checks" --apply src/
 ```
@@ -61,22 +66,3 @@ gptdiff "Update config system" config/ utils/config_loader.py
 gptdiff "Remove deprecated features" --nobeep
 ```
 
-## Common Workflows
-
-### Atomic Code Review
-```bash
-gptdiff "Improve test coverage" tests/ --call > review.patch
-git apply --check review.patch
-```
-
-### Emergency Hotfix
-```bash
-gptdiff "Fix login regression" --apply --model deepseek-reasoner
-```
-
-### Legacy Modernization
-```bash
-gptdiff "Convert Python 2 syntax to 3" --apply \
-  --temperature 0.1 \
-  src/legacy/
-```

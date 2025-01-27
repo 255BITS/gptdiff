@@ -4,14 +4,13 @@
 
 ```mermaid
 graph TD
-    A[Natural Language Prompt] --> B(GPTDiff Engine)
-    B --> C{Structural Analysis}
-    C --> D[Generate Unified Diff]
+    A[Natural Language Prompt] --> B(Call LLM to get diff)
+    B --> D[Generate Unified Diff]
     D --> E[SmartApply Resolution]
     E --> F[Updated Codebase]
 ```
 
-**Key Principles:**
+### Key Principles:
 1. **Radical Simplicity** - Single-purpose components with clean interfaces
 2. **Context Preservation** - Maintain surrounding code integrity during patches
 
@@ -24,14 +23,15 @@ def smartapply(diff, files):
             remove_file(file)
         else:
             original = files.get(file, '')
-            # AI-powered conflict resolution
+            # AI-powered conflict resolution, done in parallel
             updated = llm_reconcile(original, file_diff)  
             files[file] = updated
     return files
 ```
 
-**Failure Recovery Flow:**
+### **Failure Recovery Flow:**
 1. Attempt standard `git apply`
+   - Uses native git patching first for speed
 2. If conflicts detected:
    - Split diff into per-file patches
    - Process each file independently with LLM context

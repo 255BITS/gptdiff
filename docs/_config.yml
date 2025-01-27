@@ -5,7 +5,6 @@ nav:
   - Home: index.md
   - Concepts:
     - Overview: concepts.md
-    - Design Philosophy: concepts/design-philosophy.md
     - Architecture: concepts/architecture.md
   - Installation: installation.md
   - Quickstart: quickstart.md
@@ -21,8 +20,6 @@ nav:
     - Contributing: development/contributing.md
     - Testing: development/testing.md
 repository: 255BITS/gptdiff
-plugins:
-  - jekyll-feed  
 
 markdown: kramdown
 kramdown:

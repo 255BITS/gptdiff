@@ -1,18 +1,12 @@
-# Advanced Refactoring
+# Advanced Examples
 
 ## Database Layer Migration
 
 ```bash
 gptdiff "Replace raw SQL with SQLAlchemy ORM" \
-    --files models/ queries/ \
+    models/ queries/ \
     --apply
 ```
-
-**Transformations Applied:**
-- SQL injection protection
-- Session management
-- Type-safe query building
-- Transaction handling
 
 ## API Versioning
 
@@ -33,6 +27,7 @@ gptdiff "Add v2 API endpoints with backward compatibility" \
 ```bash
 gptdiff "Extract all UI strings to translation files" \
     --files templates/ static/js/ \
-    --call > i18n.patch
+    --call
 ```
-**Preserved:** String context comments for translators
+
+Saved in patch.diff
