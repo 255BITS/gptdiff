@@ -139,19 +139,24 @@ def load_prepend_file(file):
 
 # Function to call GPT-4 API and calculate the cost
 def call_gpt4_api(system_prompt, user_prompt, files_content, model, temperature=0.7, max_tokens=2500, api_key=None, base_url=None):
-    if model == "gemini-2.0-flash-thinking-exp-01-21":
-        user_prompt = system_prompt+"\n"+user_prompt
 
     parser = FlatXMLParser("diff")
     formatter = FlatXMLPromptFormatter(tag="diff")
     toolbox = create_toolbox()
     tool_prompt = formatter.usage_prompt(toolbox)
 
+    if model == "gemini-2.0-flash-thinking-exp-01-21":
+        user_prompt = system_prompt+"\n"+tool_prompt+"\n"+user_prompt
+
     messages = [
         {"role": "system", "content": system_prompt+"\n"+tool_prompt},
         {"role": "user", "content": user_prompt + "\n"+files_content},
     ]
     print("Using", model)
+    print("SYSTEM PROMPT")
+    print(system_prompt)
+    print("USER PROMPT")
+    print(user_prompt)
 
     if api_key is None:
         api_key = os.getenv('NANOGPT_API_KEY')
