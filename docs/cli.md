@@ -22,6 +22,13 @@ gptdiff "Add null safety checks" --apply src/
 gptdiff "Modernize string formatting" --call
 ```
 
+`--prepend <file>`  
+**Prepend custom instructions from file to system prompt**  
+*Example:*
+```bash
+gptdiff "Modernize string formatting" --prepend style-guide.txt
+```
+
 `--temperature <0-2>`  
 **Control transformation creativity**  
 *Default:* 0.7  

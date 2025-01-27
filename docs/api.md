@@ -10,6 +10,7 @@ def generate_diff(
     model: str = 'deepseek-reasoner',
     temperature: float = 0.7,
     max_tokens: int = 32000,
+    prepend: Optional[str] = None,  # Path to prepend content file
     api_key: Optional[str] = None,  # Can also set via NANOGPT_API_KEY env
     base_url: Optional[str] = None
 ) -> str
