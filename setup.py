@@ -7,6 +7,7 @@ setup(
     author='255labs',
     packages=['gptdiff'],
     package_data={'gptdiff': []},
+    license_files=["LICENSE"],
     install_requires=[
         'openai>=1.0.0',
         'tiktoken>=0.5.0',
