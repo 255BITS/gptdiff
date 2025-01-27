@@ -524,7 +524,10 @@ def main():
                                                                                                     )
 
     if(diff_text.strip() == ""):
+        print(f"\033[1;33mThere was no data in this diff. The LLM may have returned something invalid.\033[0m")
         print("Unable to parse diff text. Full response:", full_text)
+        if args.beep:
+            print("\a")  # Terminal bell for completion notification
         return
 
     # Output result
@@ -543,6 +546,8 @@ def main():
 
             if(len(parsed_diffs) == 0):
                 print(f"\033[1;33mThere were no entries in this diff. The LLM may have returned something invalid.\033[0m")
+                if args.beep:
+                    print("\a")  # Terminal bell for completion notification
                 return
 
             threads = []
