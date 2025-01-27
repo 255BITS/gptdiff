@@ -144,19 +144,20 @@ def call_gpt4_api(system_prompt, user_prompt, files_content, model, temperature=
     formatter = FlatXMLPromptFormatter(tag="diff")
     toolbox = create_toolbox()
     tool_prompt = formatter.usage_prompt(toolbox)
+    system_prompt += "\n"+tool_prompt
 
     if model == "gemini-2.0-flash-thinking-exp-01-21":
-        user_prompt = system_prompt+"\n"+tool_prompt+"\n"+user_prompt
+        user_prompt = system_prompt+"\n"+user_prompt
 
     messages = [
-        {"role": "system", "content": system_prompt+"\n"+tool_prompt},
+        {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt + "\n"+files_content},
     ]
     print("Using", model)
     print("SYSTEM PROMPT")
     print(system_prompt)
     print("USER PROMPT")
-    print(user_prompt)
+    print(user_prompt, "+", len(files_content), "characters of file content")
 
     if api_key is None:
         api_key = os.getenv('NANOGPT_API_KEY')
@@ -423,9 +424,9 @@ Diff to apply:
         base_url = os.getenv('NANOGPT_BASE_URL', "https://nano-gpt.com/api/v1/")
     client = OpenAI(api_key=api_key, base_url=base_url)
     response = client.chat.completions.create(model=model,
-    messages=messages,
-    temperature=0.0,
-    max_tokens=4000)
+        messages=messages,
+        temperature=0.0,
+        max_tokens=30000)
 
     return response.choices[0].message.content
 
