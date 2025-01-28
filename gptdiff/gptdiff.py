@@ -519,7 +519,7 @@ def main():
 
         # Confirm large requests without specified files
         if (not args.nowarn) and (not args.files) and token_count > 10000 and (args.call or args.apply):
-            print(f"\033[1;33mThis is a larger request ({token_count} tokens). Are you sure you want to send it? [y/N]\033[0m")
+            print(f"\033[1;33mThis is a larger request ({token_count} tokens). Disable this warning with --nowarn. Are you sure you want to send it? [y/N]\033[0m")
             confirmation = input().strip().lower()
             if confirmation != 'y':
                 print("Request canceled")
