@@ -1,3 +1,6 @@
+site_name: GPTDiff Docs
+extra:
+  cname: gptdiff.255labs.xyz
 site_name: GPTDiff
 docs_dir: docs
 site_dir: site
