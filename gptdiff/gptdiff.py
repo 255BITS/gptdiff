@@ -198,15 +198,17 @@ def build_environment(files_dict):
         env.append(content)
     return '\n'.join(env)
 
-def generate_diff(environment, goal, model='deepseek-reasoner', temperature=0.7, max_tokens=32000, api_key=None, base_url=None, prepend=None):
+def generate_diff(environment, goal, model=None, temperature=0.7, max_tokens=32000, api_key=None, base_url=None, prepend=None):
     """API: Generate diff from environment and goal"""
+    if model is None:
+        model = os.getenv('GPTDIFF_MODEL', 'deepseek-reasoner')
     if prepend:
         prepend = load_prepend_file(args.prepend)
         print("Including prepend",len(enc.encode(json.dumps(prepend))), "tokens")
     else:
         prepend = ""
     
-    system_prompt = f"Output a git diff into a <diff> block."
+    system_prompt = prepend+f"Output a git diff into a <diff> block."
     _, diff_text, _, _, _, _ = call_gpt4_api(
         system_prompt, 
         goal, 
@@ -219,7 +221,7 @@ def generate_diff(environment, goal, model='deepseek-reasoner', temperature=0.7,
     )
     return diff_text
 
-def smartapply(diff_text, files, model='deepseek-reasoner', api_key=None, base_url=None):
+def smartapply(diff_text, files, model=None, api_key=None, base_url=None):
     """Applies unified diffs to file contents with AI-powered conflict resolution.
     
     Key features:
@@ -254,6 +256,8 @@ def smartapply(diff_text, files, model='deepseek-reasoner', api_key=None, base_u
         def new():
             pass
     """
+    if model is None:
+        model = os.getenv('GPTDIFF_MODEL', 'deepseek-reasoner')
     parsed_diffs = parse_diff_per_file(diff_text)    
     print("SMARTAPPLY", diff_text)
 
@@ -296,7 +300,7 @@ def parse_arguments():
                         help='Call the GPT-4 API. Writes the full prompt to prompt.txt if not specified.')
     parser.add_argument('files', nargs='*', default=[], help='Specify additional files or directories to include.')
     parser.add_argument('--temperature', type=float, default=0.7, help='Temperature parameter for model creativity (0.0 to 2.0)')
-    parser.add_argument('--model', type=str, default='deepseek-reasoner', help='Model to use for the API call.')
+    parser.add_argument('--model', type=str, default=None, help='Model to use for the API call.')
 
     parser.add_argument('--nowarn', action='store_true', help='Disable large token warning')
 
@@ -495,6 +499,8 @@ def main():
 
     full_prompt = f"{system_prompt}\n\n{user_prompt}\n\n{files_content}"
     token_count = len(enc.encode(full_prompt))
+    if args.model is None:
+        args.model = os.getenv('GPTDIFF_MODEL', 'deepseek-reasoner')
 
     if not args.call and not args.apply:
         with open('prompt.txt', 'w') as f:
