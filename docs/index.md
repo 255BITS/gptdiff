@@ -1,6 +1,3 @@
----
----
-
 <h1>Transform Your Codebase with AI</h1>
 <p class="lead">Semantic code modifications through natural language</p>
 
@@ -93,4 +90,4 @@ For a step-by-step guide on how to install and configure `gptdiff`, check out th
 $ pip install gptdiff
 </code></pre>
 
-<div class="toolbox-note">🔧 Part of the <a href="https://github.com/255BITS/ai-agent-toolbox">AI Agent Toolbox</a> ecosystem - simplifying AI tool usage across models and frameworks</div>
+<div class="toolbox-note">🔧 Built with <a href="https://toolbox.255labs.xyz">AI Agent Toolbox</a></div>
