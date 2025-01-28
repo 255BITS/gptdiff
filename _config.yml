@@ -1,0 +1,30 @@
+title: GPTDiff
+baseurl: /
+url: "https://255labs.github.io/gptdiff"
+nav:
+  - Home: index.md
+  - Concepts:
+    - Overview: concepts.md
+    - Architecture: concepts/architecture.md
+  - Installation: installation.md
+  - Quickstart: quickstart.md
+  - Examples:
+    - Basic: examples/basic.md
+    - Recipes: examples/recipes.md
+    - Advanced: examples/advanced.md
+    - Automation: examples/automation.md
+  - Troubleshooting: troubleshooting.md
+  - API: api.md
+  - CLI: cli.md
+  - Development:
+    - Contributing: development/contributing.md
+    - Testing: development/testing.md
+repository: 255BITS/gptdiff
+
+markdown: kramdown
+kramdown:
+  syntax_highlighter: "rouge"
+  syntax_highlighter_opts:
+    theme: "monokai"
+remote_theme: pmarsceill/just-the-docs
+color_scheme: dark
