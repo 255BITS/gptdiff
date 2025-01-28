@@ -80,22 +80,22 @@ python setup.py install
 
 ### Configuration
 
-First sign up for an API key at https://nano-gpt.com/api and generate your key. Then configure your environment:
+First sign up for an API key at https://nano-gpt.com/api and generate your key. Then configure your environment: 
 
 #### Linux/MacOS
 ```bash
-export NANOGPT_API_KEY='your-api-key'
+export GPTDIFF_LLM_API_KEY='your-api-key'
 # Optional: For switching API providers
 export GPTDIFF_MODEL='deepseek-reasoner'  # Set default model for all commands
-export NANOGPT_BASE_URL='https://nano-gpt.com/api/v1/'
+export GPTDIFF_LLM_BASE_URL='https://nano-gpt.com/api/v1/
 ```
 
 #### Windows
 ```cmd
-set NANOGPT_API_KEY=your-api-key
-rem Optional: For switching API providers
+set GPTDIFF_LLM_API_KEY=your-api-key
+rem Optional: For switching API providers 
 set GPTDIFF_MODEL=deepseek-reasoner
-set NANOGPT_BASE_URL=https://nano-gpt.com/api/v1/
+set GPTDIFF_LLM_BASE_URL=https://nano-gpt.com/api/v1/
 ```
 
 The default base URL points to nano-gpt.com's API. Supported models can be specified with:
@@ -180,7 +180,7 @@ Integrate GPTDiff directly into your Python workflows:
 from gptdiff import generate_diff, smartapply
 import os
 
-os.environ['NANOGPT_API_KEY'] = 'your-api-key'
+os.environ['GPTDIFF_LLM_API_KEY'] = 'your-api-key'
 
 # Create environment representation
 environment = '''

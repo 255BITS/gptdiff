@@ -30,17 +30,17 @@ To use `gptdiff`, you need an API key from [nano-gpt.com/api](https://nano-gpt.c
 
 #### Linux/MacOS
 ```bash
-export NANOGPT_API_KEY='your-api-key'
+export GPTDIFF_LLM_API_KEY='your-api-key'
 # Optional: For switching API providers
 export GPTDIFF_MODEL='deepseek-reasoner'  # Default model
-export NANOGPT_BASE_URL='https://nano-gpt.com/api/v1/'
+export GPTDIFF_LLM_BASE_URL='https://nano-gpt.com/api/v1/'
 ```
 
 #### Windows
 ```cmd
-set NANOGPT_API_KEY=your-api-key
+set GPTDIFF_LLM_API_KEY=your-api-key
 rem Optional: For switching API providers
-set NANOGPT_BASE_URL=https://nano-gpt.com/api/v1/
+set GPTDIFF_LLM_BASE_URL=https://nano-gpt.com/api/v1/
 ```
 
 The default base URL points to `nano-gpt.com`'s API. Supported models can be specified with:

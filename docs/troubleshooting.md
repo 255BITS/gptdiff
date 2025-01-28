@@ -4,18 +4,18 @@
 
 ### Issue 1: API Key Not Found
 **Description:**
-You receive an error message indicating that the NANOGPT_API_KEY environment variable is required.
+You receive an error message indicating that the GPTDIFF_LLM_API_KEY environment variable is required.
 
 **Solution:**
-- Ensure that you have set the NANOGPT_API_KEY environment variable correctly. For Linux/MacOS, you can set it using:
+- Ensure that you have set the GPTDIFF_LLM_API_KEY environment variable correctly. For Linux/MacOS, you can set it using:
     ```bash
-    export NANOGPT_API_KEY='your-api-key'
+    export GPTDIFF_LLM_API_KEY='your-api-key'
     ```
 - For Windows, use:
     ```cmd
-    set NANOGPT_API_KEY=your-api-key
+    set GPTDIFF_LLM_API_KEY=your-api-key
     ```
-- Verify that the API key is correctly set by running `echo $NANOGPT_API_KEY` on Linux/MacOS or `echo %NANOGPT_API_KEY%` on Windows.
+- Verify that the API key is correctly set by running `echo $GPTDIFF_LLM_API_KEY` on Linux/MacOS or `echo %GPTDIFF_LLM_API_KEY%` on Windows.
 
 ### Issue 2: Unable to Apply Generated Diff
 **Description:**

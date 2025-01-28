@@ -160,9 +160,9 @@ def call_gpt4_api(system_prompt, user_prompt, files_content, model, temperature=
     print(user_prompt, "+", len(files_content), "characters of file content")
 
     if api_key is None:
-        api_key = os.getenv('NANOGPT_API_KEY')
+        api_key = os.getenv('GPTDIFF_LLM_API_KEY')
     if base_url is None:
-        base_url = os.getenv('NANOGPT_BASE_URL', "https://nano-gpt.com/api/v1/")
+        base_url = os.getenv('GPTDIFF_LLM_BASE_URL', "https://nano-gpt.com/api/v1/")
     client = OpenAI(api_key=api_key, base_url=base_url)
     response = client.chat.completions.create(model=model,
         messages=messages,
@@ -423,9 +423,9 @@ Diff to apply:
     ]
 
     if api_key is None:
-        api_key = os.getenv('NANOGPT_API_KEY')
+        api_key = os.getenv('GPTDIFF_LLM_API_KEY')
     if base_url is None:
-        base_url = os.getenv('NANOGPT_BASE_URL', "https://nano-gpt.com/api/v1/")
+        base_url = os.getenv('GPTDIFF_LLM_BASE_URL', "https://nano-gpt.com/api/v1/")
     client = OpenAI(api_key=api_key, base_url=base_url)
     response = client.chat.completions.create(model=model,
         messages=messages,
@@ -512,9 +512,9 @@ def main():
         exit(0)
     else:
         # Validate API key presence before any API operations
-        if not os.getenv('NANOGPT_API_KEY'):
-            print("\033[1;31mError: NANOGPT_API_KEY environment variable required\033[0m")
-            print("Set it with: export NANOGPT_API_KEY='your-key'")
+        if not os.getenv('GPTDIFF_LLM_API_KEY'):
+            print("\033[1;31mError: GPTDIFF_LLM_API_KEY environment variable required\033[0m")
+            print("Set it with: export GPTDIFF_LLM_API_KEY='your-key'")
             sys.exit(1)
 
         # Confirm large requests without specified files
@@ -526,9 +526,9 @@ def main():
                 sys.exit(0)
         full_text, diff_text, prompt_tokens, completion_tokens, total_tokens, cost = call_gpt4_api(system_prompt, user_prompt, files_content, args.model, 
                                                                                                     temperature=args.temperature,
-                                                                                                    api_key=os.getenv('NANOGPT_API_KEY'),
-                                                                                                    base_url=os.getenv('NANOGPT_BASE_URL', "https://nano-gpt.com/api/v1/")
-                                                                                                    )
+                                                                                                    api_key=os.getenv('GPTDIFF_LLM_API_KEY'),
+                                                                                                    base_url=os.getenv('GPTDIFF_LLM_BASE_URL', "https://nano-gpt.com/api/v1/") 
+                                                                                                    ) 
 
     if(diff_text.strip() == ""):
         print(f"\033[1;33mThere was no data in this diff. The LLM may have returned something invalid.\033[0m")

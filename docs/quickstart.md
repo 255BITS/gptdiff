@@ -11,7 +11,7 @@ pip install gptdiff
 Set your API key:
 
 ```bash
-export NANOGPT_API_KEY='your-api-key'
+export GPTDIFF_LLM_API_KEY='your-api-key'
 ```
 
 ## Your First Transformation

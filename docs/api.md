@@ -11,7 +11,7 @@ def generate_diff(
     temperature: float = 0.7,
     max_tokens: int = 32000,
     prepend: Optional[str] = None,  # Path to prepend content file
-    api_key: Optional[str] = None,  # Can also set via NANOGPT_API_KEY env
+    api_key: Optional[str] = None,  # Can also set via GPTDIFF_LLM_API_KEY env
     base_url: Optional[str] = None
 ) -> str
 ```
@@ -143,8 +143,8 @@ except APIError as e:  # Built-in error handling
 ```python
 # Option 1: Environment variables
 import os  # Recommended for CLI usage
-os.environ['NANOGPT_API_KEY'] = 'key_123'
-os.environ['NANOGPT_BASE_URL'] = 'https://api.example.com/v1'
+os.environ['GPTDIFF_LLM_API_KEY'] = 'key_123'
+os.environ['GPTDIFF_LLM_BASE_URL'] = 'https://api.example.com/v1'
 
 # Option 2: Direct parameters  # Preferred for library use
 # Direct parameters override environment variables
