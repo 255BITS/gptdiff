@@ -2,7 +2,6 @@
 build
 .pytest_cache
 gptdiff.egg-info
-LICENSE
 *.pyc
 .jekyll-cache
 _site
