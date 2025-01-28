@@ -86,6 +86,7 @@ First sign up for an API key at https://nano-gpt.com/api and generate your key. 
 ```bash
 export NANOGPT_API_KEY='your-api-key'
 # Optional: For switching API providers
+export GPTDIFF_MODEL='deepseek-reasoner'  # Set default model for all commands
 export NANOGPT_BASE_URL='https://nano-gpt.com/api/v1/'
 ```
 
@@ -93,6 +94,7 @@ export NANOGPT_BASE_URL='https://nano-gpt.com/api/v1/'
 ```cmd
 set NANOGPT_API_KEY=your-api-key
 rem Optional: For switching API providers
+set GPTDIFF_MODEL=deepseek-reasoner
 set NANOGPT_BASE_URL=https://nano-gpt.com/api/v1/
 ```
 
@@ -100,6 +102,7 @@ The default base URL points to nano-gpt.com's API. Supported models can be speci
 
 ```bash
 gptdiff 'your prompt' --model deepseek-reasoner
+# Default model can be set via GPTDIFF_MODEL environment variable
 ```
 
 OpenAI will not be called unless you specify `--call` or `--apply`
@@ -227,6 +230,7 @@ for task in transformations:
 - `generate_diff(environment: str, goal: str, model: str) -> str`  
   Generates a git diff implementing the requested changes
   
+  *`model` parameter defaults to `GPTDIFF_MODEL` environment variable*
 - `smartapply(diff_text: str, environment_str: str, model: str) -> str`  
   Applies complex diffs while preserving file context
 

@@ -82,4 +82,10 @@ You encounter `UnicodeDecodeError` while reading some files.
 **Description:**
 The model seems to be generating incorrect or irrelevant diffs.
 
-**Solution:
+**Solution:**
+1. Check that you're using the appropriate model for your task. The default model can be changed by setting the `GPTDIFF_MODEL` environment variable.
+2. Try adjusting the `--temperature` parameter for more deterministic output:
+    ```bash
+    gptdiff "your prompt" --temperature 0.3
+    ```
+3. Ensure your API key has access to the specified model.

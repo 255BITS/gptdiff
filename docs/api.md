@@ -7,7 +7,7 @@
 def generate_diff(
     environment: str,
     goal: str,
-    model: str = 'deepseek-reasoner',
+    model: str = os.getenv('GPTDIFF_MODEL', 'deepseek-reasoner'),
     temperature: float = 0.7,
     max_tokens: int = 32000,
     prepend: Optional[str] = None,  # Path to prepend content file

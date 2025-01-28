@@ -44,7 +44,7 @@ gptdiff "Refactor legacy API" --temperature 0.3
 
 ### Model Selection
 `--model`  
-**Choose reasoning engine**  
+**Choose reasoning engine (default: $GPTDIFF_MODEL or 'deepseek-reasoner')**  
 *Options:* `deepseek-reasoner` (structural), `gemini-2.0-flash` (text)  
 *Example:*  
 ```bash
