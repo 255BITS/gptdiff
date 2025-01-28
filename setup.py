@@ -7,6 +7,8 @@ setup(
     author='255labs',
     packages=find_packages(),  # Use find_packages() to automatically discover packages
     package_data={'gptdiff': []},  # Add any package data if needed
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
     install_requires=[
         'openai>=1.0.0',
         'tiktoken>=0.5.0',
