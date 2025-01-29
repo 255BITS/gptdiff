@@ -442,6 +442,7 @@ Diff to apply:
     if base_url is None:
         base_url = os.getenv('GPTDIFF_LLM_BASE_URL', "https://nano-gpt.com/api/v1/")
     client = OpenAI(api_key=api_key, base_url=base_url)
+    start_time = time.time()
     response = client.chat.completions.create(model=model,
         messages=messages,
         temperature=0.0,
