@@ -4,6 +4,7 @@ import openai
 from openai import OpenAI
 
 import tiktoken
+import time
 
 import os
 import json
@@ -146,6 +147,7 @@ def load_prepend_file(file):
 
 # Function to call GPT-4 API and calculate the cost
 def call_gpt4_api(system_prompt, user_prompt, files_content, model, temperature=0.7, max_tokens=2500, api_key=None, base_url=None):
+    start_time = time.time()
 
     parser = FlatXMLParser("diff")
     formatter = FlatXMLPromptFormatter(tag="diff")
@@ -179,6 +181,12 @@ def call_gpt4_api(system_prompt, user_prompt, files_content, model, temperature=
     prompt_tokens = response.usage.prompt_tokens
     completion_tokens = response.usage.completion_tokens
     total_tokens = response.usage.total_tokens
+
+    elapsed = time.time() - start_time
+    minutes, seconds = divmod(int(elapsed), 60)
+    time_str = f"{minutes}m {seconds}s" if minutes else f"{seconds}s"
+    print(f"Diff creation time: {time_str}")
+    print("-" * 40)
 
     # Now, these rates are updated to per million tokens
     cost_per_million_prompt_tokens = 30
@@ -439,6 +447,11 @@ Diff to apply:
         temperature=0.0,
         max_tokens=30000)
 
+    elapsed = time.time() - start_time
+    minutes, seconds = divmod(int(elapsed), 60)
+    time_str = f"{minutes}m {seconds}s" if minutes else f"{seconds}s"
+    print(f"Smartapply time: {time_str}")
+    print("-" * 40)
     return response.choices[0].message.content
 
 def build_environment_from_filelist(file_list, cwd):
