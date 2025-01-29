@@ -417,7 +417,8 @@ def call_llm_for_apply(file_path, original_content, file_diff, model, api_key=No
 
 1. Carefully apply all changes from the diff
 2. Preserve surrounding context that isn't changed
-3. Only return the final file content, do not add any additional markup and do not add a code block"""
+3. Only return the final file content, do not add any additional markup and do not add a code block
+4. You must return the entire file. It overwrites the existing file."""
 
     user_prompt = f"""File: {file_path}
 File contents:
