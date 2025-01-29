@@ -36,7 +36,14 @@ def create_toolbox():
                 "description": "Complete diff."
             }
         },
-        description="Save the calculated diff as used in 'git apply'"
+        description="""Save the calculated diff as used in 'git apply'. Should include the file and line number. For example:
+a/file.py b/file.py
+--- a/file.py
++++ b/file.py
+@@ -1,2 +1,2 @@
+-def old():
++def new():
+"""
     )
     return toolbox
 
