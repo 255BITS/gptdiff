@@ -165,7 +165,7 @@ def load_prepend_file(file):
         return f.read()
 
 # Function to call GPT-4 API and calculate the cost
-def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperature=0.7, max_tokens=2500, api_key=None, base_url=None):
+def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperature=0.7, max_tokens=30000, api_key=None, base_url=None):
     enc = tiktoken.get_encoding("o200k_base")
     start_time = time.time()
 
@@ -337,6 +337,7 @@ def parse_arguments():
                         help='Call the GPT-4 API. Writes the full prompt to prompt.txt if not specified.')
     parser.add_argument('files', nargs='*', default=[], help='Specify additional files or directories to include.')
     parser.add_argument('--temperature', type=float, default=0.7, help='Temperature parameter for model creativity (0.0 to 2.0)')
+    parser.add_argument('--max_tokens', type=int, default=30000, help='Temperature parameter for model creativity (0.0 to 2.0)')
     parser.add_argument('--model', type=str, default=None, help='Model to use for the API call.')
 
     parser.add_argument('--nowarn', action='store_true', help='Disable large token warning')
@@ -592,7 +593,8 @@ def main():
         full_text, diff_text, prompt_tokens, completion_tokens, total_tokens, cost = call_llm_for_diff(system_prompt, user_prompt, files_content, args.model, 
                                                                                                     temperature=args.temperature,
                                                                                                     api_key=os.getenv('GPTDIFF_LLM_API_KEY'),
-                                                                                                    base_url=os.getenv('GPTDIFF_LLM_BASE_URL', "https://nano-gpt.com/api/v1/") 
+                                                                                                    base_url=os.getenv('GPTDIFF_LLM_BASE_URL', "https://nano-gpt.com/api/v1/"),
+                                                                                                    max_tokens=args.max_tokens
                                                                                                     ) 
 
     if(diff_text.strip() == ""):
