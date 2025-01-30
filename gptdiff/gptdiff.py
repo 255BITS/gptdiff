@@ -165,7 +165,7 @@ def load_prepend_file(file):
         return f.read()
 
 # Function to call GPT-4 API and calculate the cost
-def call_gpt4_api(system_prompt, user_prompt, files_content, model, temperature=0.7, max_tokens=2500, api_key=None, base_url=None):
+def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperature=0.7, max_tokens=2500, api_key=None, base_url=None):
     enc = tiktoken.get_encoding("o200k_base")
     start_time = time.time()
 
@@ -243,7 +243,7 @@ def generate_diff(environment, goal, model=None, temperature=0.7, max_tokens=320
         prepend = ""
     
     system_prompt = prepend+f"Output a git diff into a <diff> block."
-    _, diff_text, _, _, _, _ = call_gpt4_api(
+    _, diff_text, _, _, _, _ = call_llm_for_diff(
         system_prompt, 
         goal, 
         environment, 
@@ -589,7 +589,7 @@ def main():
             if confirmation != 'y':
                 print("Request canceled")
                 sys.exit(0)
-        full_text, diff_text, prompt_tokens, completion_tokens, total_tokens, cost = call_gpt4_api(system_prompt, user_prompt, files_content, args.model, 
+        full_text, diff_text, prompt_tokens, completion_tokens, total_tokens, cost = call_llm_for_diff(system_prompt, user_prompt, files_content, args.model, 
                                                                                                     temperature=args.temperature,
                                                                                                     api_key=os.getenv('GPTDIFF_LLM_API_KEY'),
                                                                                                     base_url=os.getenv('GPTDIFF_LLM_BASE_URL', "https://nano-gpt.com/api/v1/") 
