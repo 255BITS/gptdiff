@@ -604,6 +604,10 @@ def main():
 
                 try:
                     updated_content = call_llm_for_apply(file_path, original_content, file_diff, args.model)
+                    if updated_content.strip() == "":
+                        print("Cowardly refusing to write empty file to", file_path, "merge failed")
+                        return
+
                     full_path.parent.mkdir(parents=True, exist_ok=True)
                     full_path.write_text(updated_content)
                     print(f"\033[1;32mSuccessful 'smartapply' update {file_path}.\033[0m")
