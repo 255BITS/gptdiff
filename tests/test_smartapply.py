@@ -37,18 +37,45 @@ def test_smartapply_file_modification():
 +def goodbye():
 +    print('Goodbye')'''
 
+    original_hello = "def hello():\n    print('Hello')"
+    original_files = {
+        "hello.py": original_hello
+    }
+
+    # Mock LLM to return modified content
+    with patch('gptdiff.gptdiff.call_llm_for_apply',
+               return_value="\ndef goodbye():\n    print('Goodbye')"):
+
+        updated_files = smartapply(diff_text, original_files)
+        
+        assert "hello.py" in updated_files
+        assert original_hello != updated_files["hello.py"]
+
+def test_smartapply_think_then_modify():
+    """Test that smartapply correctly handles file modification diffs"""
+    diff_text = '''diff --git a/hello.py b/hello.py
+--- a/hello.py
++++ b/hello.py
+@@ -1,2 +1,5 @@
+ def hello():
+     print('Hello')
++
++def goodbye():
++    print('Goodbye')'''
+
     original_files = {
         "hello.py": "def hello():\n    print('Hello')"
     }
 
     # Mock LLM to return modified content
     with patch('gptdiff.gptdiff.call_llm_for_apply',
-               return_value="def hello():\n    print('Hello')\n\ndef goodbye():\n    print('Goodbye')"):
+               return_value="<think>Hello from thoughts</think>\ndef goodbye():\n    print('Goodbye')"):
 
         updated_files = smartapply(diff_text, original_files)
         
         assert "hello.py" in updated_files
-        assert original_files["hello.py"] != updated_files["hello.py"]
+        assert updated_files["hello.py"] == "def goodbye():\n    print('Goodbye')"
+
 
 def test_smartapply_new_file_creation():
     """Test that smartapply handles new file creation through diffs"""
