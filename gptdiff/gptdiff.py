@@ -186,7 +186,7 @@ def call_gpt4_api(system_prompt, user_prompt, files_content, model, temperature=
     print("SYSTEM PROMPT")
     print(system_prompt)
     print("USER PROMPT")
-    print(user_prompt, "+", len(files_content), "characters of file content")
+    print(user_prompt, "+", len(enc.encode(files_content)), "tokens of file content")
 
     if api_key is None:
         api_key = os.getenv('GPTDIFF_LLM_API_KEY')
@@ -421,7 +421,6 @@ def call_llm_for_apply_with_think_tool_available(file_path, original_content, fi
             appended_content = ""
         toolbox.use(event)
 
-    print("NOTOOL RESP", notool_response)
     return notool_response
 
 def call_llm_for_apply(file_path, original_content, file_diff, model, api_key=None, base_url=None):
