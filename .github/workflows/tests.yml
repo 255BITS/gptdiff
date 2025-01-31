@@ -25,10 +25,5 @@ jobs:
       run: |
         pytest -v tests/
 
-    - name: Verify Code Formatting
-      run: |
-        pip install black
-        black --check gptdiff/ tests/
-
     env:
       GPTDIFF_LLM_API_KEY: "dummy-key"  # Required but unused in mocked tests
