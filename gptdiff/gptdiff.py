@@ -404,11 +404,11 @@ def parse_diff_per_file(diff_text):
 
     return diffs
 
-def call_llm_for_apply_with_think_tool_available(file_path, original_content, file_diff, model, api_key=None, base_url=None):
+def call_llm_for_apply_with_think_tool_available(file_path, original_content, file_diff, model, api_key=None, base_url=None, extra_prompt=None, max_tokens=30000):
     parser = FlatXMLParser("think")
     formatter = FlatXMLPromptFormatter(tag="think")
     toolbox = create_think_toolbox()
-    full_response = call_llm_for_apply(file_path, original_content, file_diff, model, api_key=None, base_url=None)
+    full_response = call_llm_for_apply(file_path, original_content, file_diff, model, api_key=api_key, base_url=base_url, extra_prompt=extra_prompt, max_tokens=max_tokens)
     notool_response = ""
     events = parser.parse(full_response)
     is_in_tool = False
@@ -424,7 +424,7 @@ def call_llm_for_apply_with_think_tool_available(file_path, original_content, fi
 
     return notool_response
 
-def call_llm_for_apply(file_path, original_content, file_diff, model, api_key=None, base_url=None):
+def call_llm_for_apply(file_path, original_content, file_diff, model, api_key=None, base_url=None, extra_prompt=None, max_tokens=30000):
     """AI-powered diff application with conflict resolution.
     
     Internal workhorse for smartapply that handles individual file patches.
@@ -474,6 +474,8 @@ Diff to apply:
 {file_diff}
 </diff>"""
 
+    if extra_prompt:
+        user_prompt += f"\n\n{extra_prompt}"
     if model == "gemini-2.0-flash-thinking-exp-01-21":
         user_prompt = system_prompt+"\n"+user_prompt
     messages = [
@@ -490,7 +492,7 @@ Diff to apply:
     response = client.chat.completions.create(model=model,
         messages=messages,
         temperature=0.0,
-        max_tokens=30000)
+        max_tokens=max_tokens)
     full_response = response.choices[0].message.content
 
     elapsed = time.time() - start_time
@@ -652,7 +654,7 @@ def main():
                 print(file_diff)
                 print("-" * 40)
                 try:
-                    updated_content = call_llm_for_apply_with_think_tool_available(file_path, original_content, file_diff, args.model)
+                    updated_content = call_llm_for_apply_with_think_tool_available(file_path, original_content, file_diff, args.model, extra_prompt=f"This changeset is from the following instructions:\n{user_prompt}", max_tokens=args.max_tokens)
 
                     if updated_content.strip() == "":
                         print("Cowardly refusing to write empty file to", file_path, "merge failed")
