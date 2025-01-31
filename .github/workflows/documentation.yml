@@ -30,10 +30,10 @@ jobs:
         run: echo "gptdiff.255labs.xyz" > public/CNAME  # Correct location
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v4
         with:
           path: public  # This must match the correct output directory
 
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
 
