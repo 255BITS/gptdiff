@@ -352,11 +352,31 @@ def apply_diff(project_dir, diff_text):
     with open(diff_file, 'w') as f:
         f.write(diff_text)
 
-    result = subprocess.run(["patch", "-p1", "-f", "--remove-empty-files", "--input", str(diff_file)], cwd=project_dir, capture_output=True, text=True)
-    if result.returncode != 0:
+    # First perform a dry run to check that the patch applies cleanly and would result in changes.
+    dry_run = subprocess.run(
+        ["patch", "--dry-run", "-p1", "-f", "--remove-empty-files", "--input", str(diff_file)],
+        cwd=project_dir,
+        capture_output=True,
+        text=True
+    )
+    dry_run_output = dry_run.stdout + dry_run.stderr
+    if dry_run.returncode != 0 or "patching file" not in dry_run_output:
+        print("Dry run failed or did not apply any changes. The patch may not apply as expected:")
+        print(dry_run_output)
         return False
-    else:
-        return True
+
+    print("Dry run successful. Applying patch...")
+    result = subprocess.run(
+        ["patch", "-p1", "-f", "--remove-empty-files", "--input", str(diff_file)],
+        cwd=project_dir,
+        capture_output=True,
+        text=True
+    )
+    if result.returncode != 0:
+        print("Patch application failed:")
+        print(result.stderr)
+        return False
+    return True
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Generate and optionally apply git diffs using GPT-4.')
