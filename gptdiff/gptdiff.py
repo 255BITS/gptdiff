@@ -527,9 +527,6 @@ def main():
 
     args = parse_arguments()
 
-    if args.applymodel is None:
-        args.applymodel = args.model
-
     # TODO: The 'openai.api_base' option isn't read in the client API. You will need to pass it when you instantiate the client, e.g. 'OpenAI(base_url="https://nano-gpt.com/api/v1/")'
     # openai.api_base = "https://nano-gpt.com/api/v1/"
     if len(sys.argv) < 2:
@@ -657,6 +654,9 @@ def main():
                 print("SMARTAPPLY")
                 print(file_diff)
                 print("-" * 40)
+                if args.applymodel is None:
+                    args.applymodel = args.model
+
                 try:
                     updated_content = call_llm_for_apply_with_think_tool_available(file_path, original_content, file_diff, args.applymodel, extra_prompt=f"This changeset is from the following instructions:\n{user_prompt}", max_tokens=args.max_tokens)
 
