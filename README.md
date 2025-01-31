@@ -120,7 +120,7 @@ First sign up for an API key at https://nano-gpt.com/api and generate your key. 
 export GPTDIFF_LLM_API_KEY='your-api-key'
 # Optional: For switching API providers
 export GPTDIFF_MODEL='deepseek-reasoner'  # Set default model for all commands
-export GPTDIFF_LLM_BASE_URL='https://nano-gpt.com/api/v1/
+export GPTDIFF_LLM_BASE_URL='https://nano-gpt.com/api/v1/'
 ```
 
 #### Windows
@@ -187,12 +187,12 @@ For more reliable patching of complex changes, use `smartapply` which processes 
 gptdiff 'refactor authentication system' --apply
 ```
 
-### Completion Notification
+## Completion Notification
 
 Use the `--nobeep` option to disable the default completion beep:
 
 ```bash
-gptdiff '<user_prompt>' --beep
+gptdiff '<user_prompt>' --nobeep
 ```
 
 ## Local API Documentation
@@ -215,29 +215,25 @@ import os
 
 os.environ['GPTDIFF_LLM_API_KEY'] = 'your-api-key'
 
-# Create environment representation
-environment = '''
-File: main.py
-Content:
-def old_name():
-    print("Need renaming")
-'''
+# Create files dictionary
+files = {"main.py": "def old_name():\n    print('Need renaming')"}
 
-# Generate transformation diff
+# Generate transformation diff using an environment string built from the files dictionary
+environment = ""
+for path, content in files.items():
+    environment += f"File: {path}\nContent:\n{content}\n"
+
 diff = generate_diff(
     environment=environment,
     goal='Rename function to new_name()',
     model='deepseek-reasoner'
 )
 
-# Apply changes safely
-updated_environment = smartapply(
-    diff_text=diff,
-    environment_str=environment
-)
+# Apply changes safely using the files dict
+updated_files = smartapply(diff, files)
 
 print("Transformed codebase:")
-print(updated_environment)
+print(updated_files["main.py"])
 ```
 
 **Batch Processing Example:**

@@ -486,14 +486,12 @@ def call_llm_for_apply(file_path, original_content, file_diff, model, api_key=No
         ... )
         >>> print(updated)
         def new(): pass"""
-
     system_prompt = """Please apply the diff to this file. Return the result in a block. Write the entire file.
 
 1. Carefully apply all changes from the diff
 2. Preserve surrounding context that isn't changed
 3. Only return the final file content, do not add any additional markup and do not add a code block
 4. You must return the entire file. It overwrites the existing file."""
-
     user_prompt = f"""File: {file_path}
 File contents:
 <filecontents>
@@ -504,7 +502,6 @@ Diff to apply:
 <diff>
 {file_diff}
 </diff>"""
-
     if extra_prompt:
         user_prompt += f"\n\n{extra_prompt}"
     if model == "gemini-2.0-flash-thinking-exp-01-21":
@@ -513,7 +510,6 @@ Diff to apply:
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt},
     ]
-
     if api_key is None:
         api_key = os.getenv('GPTDIFF_LLM_API_KEY')
     if base_url is None:
@@ -525,7 +521,6 @@ Diff to apply:
         temperature=0.0,
         max_tokens=max_tokens)
     full_response = response.choices[0].message.content
-
     elapsed = time.time() - start_time
     minutes, seconds = divmod(int(elapsed), 60)
     time_str = f"{minutes}m {seconds}s" if minutes else f"{seconds}s"
@@ -646,7 +641,6 @@ def main():
             print("\a")  # Terminal bell for completion notification
         return
 
-    # Output result
     elif args.apply:
         print("\nAttempting apply with the following diff:")
         print("\n<diff>")
@@ -728,3 +722,4 @@ def main():
     print(f"Completion tokens: {completion_tokens}")
     print(f"Total tokens: {total_tokens}")
     #print(f"Total cost: ${cost:.4f}")
+
