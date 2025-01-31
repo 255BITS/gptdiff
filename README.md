@@ -1,8 +1,13 @@
 # GPTDiff
+<!--
+GPTDiff: Create and apply diffs using AI.
+This tool leverages natural language instructions to modify project codebases.
+-->
 
-🚀 **Create and apply diffs with AI** - Modify projects with natural language
+🚀 **Create and apply diffs with AI**  
+Modify your project using plain English.
 
-More docs at [gptdiff.255labs.xyz](gptdiff.255labs.xyz)
+More documentation at [gptdiff.255labs.xyz](gptdiff.255labs.xyz)
 
 ### Example Usage of `gptdiff`
 
@@ -36,7 +41,8 @@ cd myproject
 gptdiff 'add hover effects to the buttons'
 ```
 
-Generates a prompt.txt file that you can copy and paste into an LLM
+Generates a prompt.txt file containing the full request.
+Copy and paste its content into your preferred LLM (e.g., ChatGPT) for further experimentation.
 
 ### Simple command line agent loops
 
@@ -144,7 +150,7 @@ Prevent files being appended to the prompt by adding them to `.gitignore` or `.g
 
 ### Command Line Usage
 
-After installing the package, you can use the `gptdiff` command in your terminal. cd into your codebase and run:
+After installing the package, use the `gptdiff` command in your terminal. Change directory into your codebase and run:
 
 ```bash
 gptdiff '<user_prompt>'
@@ -154,13 +160,7 @@ any files that are included in .gitignore are ignored when generating prompt.txt
 
 #### Specifying Additional Files
 
-You can specify additional files or directories to include in the prompt by adding them as arguments to the `gptdiff` command. If no additional files or directories are specified, the tool will default to using the current working directory.
-
-Example usage:
-
-```bash
-gptdiff 'make this change' src test
-```
+You may supply extra files or directories as arguments to the `gptdiff` command. If omitted, the tool defaults to the current working directory, excluding those matching ignore rules.
 
 #### Autopatch Changes
 
@@ -175,17 +175,13 @@ Preview changes without applying them by omitting the `--apply` flag when using 
 ```bash
 gptdiff "Modernize database queries" --call
 ```
-<span style="color: #0066cc;">ℹ️ Diff preview generated - review changes before applying</span>
+<span style="color: #0066cc;">i️ Diff preview generated - review changes before applying</span>
 
 This often generates incorrect diffs that need to be manually merged.
 
 #### Smart Apply
 
-For more reliable patching of complex changes, use `smartapply` which processes each file's diff individually with the LLM:
-
-```bash
-gptdiff 'refactor authentication system' --apply
-```
+For robust handling of complex changes, use `smartapply`. It processes each file’s diff individually via the LLM, ensuring nuanced conflict resolution.
 
 ## Completion Notification
 
