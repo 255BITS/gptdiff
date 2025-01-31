@@ -160,7 +160,7 @@ diff --git a/file2.py b/file2.py
     }
 
     # Mock LLM to return modified content based on file path
-    def mock_call_llm(file_path, original_content, file_diff, model, api_key, base_url):
+    def mock_call_llm(file_path, original_content, file_diff, model, api_key, base_url, extra_prompt=None, max_tokens=None):
         if file_path == "file1.py":
             return "def func1():\n    print('New func1')"
         elif file_path == "file2.py":
