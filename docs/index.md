@@ -4,7 +4,7 @@
 <p class="lead">Modify projects with natural language</p>
 
 <div class="example">
-<pre><code class="console">gptdiff "Add type hints to functions" --apply
+<pre><code class="console">gptdiff "Add button animations on press" --apply
 <div class="success">✅ Successfully applied patch</div></code></pre>
 </div>
 
@@ -59,6 +59,12 @@ done
       <li>Clear cost tracking</li>
     </ul>
   </li>
+
+  <li class="feature">
+    <strong>🎯 Uses .gitignore and .gptignore</strong><br>
+    Exclude files by efficient pattern matching
+  </li>
+  
 </ul>
 
 ## How to develop with gptdiff

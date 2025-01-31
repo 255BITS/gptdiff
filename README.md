@@ -1,20 +1,53 @@
 # GPTDiff
 
-🚀 **AI-Powered Code Evolution** - Transform your codebase with natural language instructions
+🚀 **Create and apply diffs with AI** - Modify projects with natural language
+
+More docs at [gptdiff.255labs.xyz](gptdiff.255labs.xyz)
+
+### Example Usage of `gptdiff`
+
+#### Apply a Patch Directly
+```
+bash
+gptdiff "Add button animations on press" --apply
+```
+✅ Successfully applied patch
+
+#### Generate a Patch File
+```
+bash
+gptdiff "Add API documentation" --call
+```
+🔧 Patch written to `diff.patch`
+
+#### Generate a Prompt File Without Calling LLM
+```
+bash
+gptdiff "Improve error messages"
+```
+📄 LLM not called, written to `prompt.txt`
+
+---
+
+### Basic Usage
 
 ```bash
 cd myproject
 gptdiff 'add hover effects to the buttons'
 ```
 
-Generates a prompt.txt file that you can copy and paste into a large context gpt to have a conversation with suggested changes. You can also invoke the API and try to directly apply the patch using a smartapply if the git apply fails.
+Generates a prompt.txt file that you can copy and paste into an LLM
 
-## Value Proposition
+### Simple command line agent loops
 
 ```bash
-gptdiff "Update the readme with an api section" --apply
+while
+do
+  gptdiff "Add missing test cases" --apply
+done
 ```
-<span style="color: #00ff00;">Patch applied successfully.</span>
+
+*Requires reasoning model*
 
 ### Why GPTDiff?
 
