@@ -593,12 +593,21 @@ def main():
             if confirmation != 'y':
                 print("Request canceled")
                 sys.exit(0)
-        full_text, diff_text, prompt_tokens, completion_tokens, total_tokens, cost = call_llm_for_diff(system_prompt, user_prompt, files_content, args.model, 
+        try:
+            full_text, diff_text, prompt_tokens, completion_tokens, total_tokens, cost = call_llm_for_diff(system_prompt, user_prompt, files_content, args.model, 
                                                                                                     temperature=args.temperature,
                                                                                                     api_key=os.getenv('GPTDIFF_LLM_API_KEY'),
                                                                                                     base_url=os.getenv('GPTDIFF_LLM_BASE_URL', "https://nano-gpt.com/api/v1/"),
                                                                                                     max_tokens=args.max_tokens
                                                                                                     ) 
+        except json.decoder.JSONDecodeError as e:
+            full_text = f"{e}"
+            diff_text = ""
+            prompt_tokens = 0
+            completion_tokens = 0
+            total_tokens = 0
+            cost = 0
+            print(f"Error in LLM response {e}")
 
     if(diff_text.strip() == ""):
         print(f"\033[1;33mThere was no data in this diff. The LLM may have returned something invalid.\033[0m")
