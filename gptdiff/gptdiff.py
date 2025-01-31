@@ -67,6 +67,25 @@ def create_think_toolbox():
     )
     return toolbox
 
+def color_code_diff(diff_text: str) -> str:
+    """
+    Color code lines in a diff. Lines beginning with '-' in red, and
+    lines beginning with '+' in green.
+    """
+    red = "\033[31m"
+    green = "\033[32m"
+    reset = "\033[0m"
+
+    colorized_lines = []
+    for line in diff_text.split('\n'):
+        if line.startswith('-'):
+            colorized_lines.append(f"{red}{line}{reset}")
+        elif line.startswith('+'):
+            colorized_lines.append(f"{green}{line}{reset}")
+        else:
+            colorized_lines.append(line)
+
+    return '\n'.join(colorized_lines)
 
 def load_gitignore_patterns(gitignore_path):
     with open(gitignore_path, 'r') as f:
@@ -628,7 +647,7 @@ def main():
     elif args.apply:
         print("\nAttempting apply with the following diff:")
         print("\n<diff>")
-        print(diff_text)
+        print(color_code_diff(diff_text))
         print("\n</diff>")
         print("Saved to patch.diff")
         if apply_diff(project_dir, diff_text):
