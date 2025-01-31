@@ -339,6 +339,7 @@ def parse_arguments():
     parser.add_argument('--temperature', type=float, default=0.7, help='Temperature parameter for model creativity (0.0 to 2.0)')
     parser.add_argument('--max_tokens', type=int, default=30000, help='Temperature parameter for model creativity (0.0 to 2.0)')
     parser.add_argument('--model', type=str, default=None, help='Model to use for the API call.')
+    parser.add_argument('--applymodel', type=str, default=None, help='Model to use for applying the diff. Defaults to the value of --model if not specified.')
 
     parser.add_argument('--nowarn', action='store_true', help='Disable large token warning')
 
@@ -526,6 +527,9 @@ def main():
 
     args = parse_arguments()
 
+    if args.applymodel is None:
+        args.applymodel = args.model
+
     # TODO: The 'openai.api_base' option isn't read in the client API. You will need to pass it when you instantiate the client, e.g. 'OpenAI(base_url="https://nano-gpt.com/api/v1/")'
     # openai.api_base = "https://nano-gpt.com/api/v1/"
     if len(sys.argv) < 2:
@@ -654,7 +658,7 @@ def main():
                 print(file_diff)
                 print("-" * 40)
                 try:
-                    updated_content = call_llm_for_apply_with_think_tool_available(file_path, original_content, file_diff, args.model, extra_prompt=f"This changeset is from the following instructions:\n{user_prompt}", max_tokens=args.max_tokens)
+                    updated_content = call_llm_for_apply_with_think_tool_available(file_path, original_content, file_diff, args.applymodel, extra_prompt=f"This changeset is from the following instructions:\n{user_prompt}", max_tokens=args.max_tokens)
 
                     if updated_content.strip() == "":
                         print("Cowardly refusing to write empty file to", file_path, "merge failed")
