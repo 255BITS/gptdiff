@@ -27,6 +27,8 @@ do
 done
 ```
 
+[open source and MIT licensed at github.com/255BITS/gptdiff](https://github.com/255BITS/gptdiff)
+
 <iframe width="560" height="315" src="https://www.youtube.com/embed/cmEMSCQRWto" frameborder="0" allowfullscreen></iframe>
 
 <div class="feature command-feature">

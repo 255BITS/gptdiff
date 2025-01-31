@@ -28,3 +28,4 @@ kramdown:
     theme: "monokai"
 remote_theme: pmarsceill/just-the-docs
 color_scheme: dark
+repository_url: "https://github.com/255BITS/gptdiff"
