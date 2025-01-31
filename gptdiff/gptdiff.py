@@ -308,8 +308,16 @@ def smartapply(diff_text, files, model=None, api_key=None, base_url=None):
             updated = call_llm_for_apply_with_think_tool_available(path, original, patch, model, api_key=api_key, base_url=base_url)
             files[path] = updated.strip()
 
+    threads = []
+
     for path, patch in parsed_diffs:
-        process_file(path, patch)
+        thread = threading.Thread(target=process_file, args=(path, patch))
+        thread.start()
+        threads.append(thread)
+
+    # Wait for all threads to complete
+    for thread in threads:
+        thread.join()
 
     return files
 
