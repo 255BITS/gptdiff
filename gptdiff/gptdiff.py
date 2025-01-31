@@ -255,12 +255,15 @@ def build_environment(files_dict):
     return '\n'.join(env)
 
 def generate_diff(environment, goal, model=None, temperature=0.7, max_tokens=32000, api_key=None, base_url=None, prepend=None):
-    """API: Generate diff from environment and goal"""
+    """API: Generate a git diff from the environment and goal.
+
+If 'prepend' is provided, it should be a path to a file whose content will be
+prepended to the system prompt.
+    """
     if model is None:
         model = os.getenv('GPTDIFF_MODEL', 'deepseek-reasoner')
     if prepend:
-        prepend = load_prepend_file(args.prepend)
-        print("Including prepend",len(enc.encode(json.dumps(prepend))), "tokens")
+        prepend = load_prepend_file(prepend)
     else:
         prepend = ""
     
