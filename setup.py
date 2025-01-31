@@ -12,7 +12,7 @@ setup(
     install_requires=[
         'openai>=1.0.0',
         'tiktoken>=0.5.0',
-        'ai_agent_toolbox>=0.1.9'
+        'ai_agent_toolbox>=0.1.11'
     ],
     extras_require={
         'test': ['pytest', 'pytest-mock'],
