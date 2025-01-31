@@ -608,7 +608,7 @@ def main():
                                                                                                     base_url=os.getenv('GPTDIFF_LLM_BASE_URL', "https://nano-gpt.com/api/v1/"),
                                                                                                     max_tokens=args.max_tokens
                                                                                                     ) 
-        except json.decoder.JSONDecodeError as e:
+        except Exception as e:
             full_text = f"{e}"
             diff_text = ""
             prompt_tokens = 0
