@@ -44,6 +44,9 @@ a/file.py b/file.py
 @@ -1,2 +1,2 @@
 -def old():
 +def new():
+
+-
+You must include the '--- file' and/or '+++ file' part of the diff. File modifications should include both.
 """
     )
     return toolbox
