@@ -29,7 +29,6 @@ done
 while :
 do
   gptdiff "Identify and add missing test cases for edge conditions" \
-    --files tests/ \
     --apply \
     --temperature 0.3
 done
@@ -67,7 +66,6 @@ done
 ```bash
 while :; do
   gptdiff "Find and fix OWASP Top 10 vulnerabilities" \
-    --files src/ \
     --apply \
     --model deepseek-reasoner
 done
@@ -80,7 +78,6 @@ done
 while true;
 do
   gptdiff "Update documentation to match current implementation" \
-    --files src/ docs/ \
     --apply \
     --temperature 0.5
 done

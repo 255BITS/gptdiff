@@ -1,5 +1,7 @@
-<h1>Transform Your Codebase with AI</h1>
-<p class="lead">Semantic code modifications through natural language</p>
+
+
+<h1>Create and apply diffs with AI</h1>
+<p class="lead">Modify projects with natural language</p>
 
 <div class="example">
 <pre><code class="console">gptdiff "Add type hints to functions" --apply
@@ -15,6 +17,17 @@
 <pre><code class="console">gptdiff "Improve error messages"
 <div class="info">📄 LLM not called, written to prompt.txt</div></code></pre>
 </div>
+
+<p class="lead">Set up agents loops with simple bash commands</p>
+
+```bash
+while
+do
+  gptdiff "Add missing test cases" --apply
+done
+```
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/cmEMSCQRWto" frameborder="0" allowfullscreen></iframe>
 
 <div class="feature command-feature">
   <h3>🚀 Make impactful changes with one command</h3>
