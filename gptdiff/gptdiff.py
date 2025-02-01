@@ -371,43 +371,6 @@ def apply_diff(project_dir, diff_text):
             h.update(f.read())
         return h.hexdigest()
 
-    def parse_diff_per_file(diff_text):
-        """
-        Splits a multi-file diff into per-file patches.
-        Returns a list of tuples (file_path, patch_text) for each file.
-        """
-        diffs = []
-        file_path = None
-        current_diff = []
-        from_path = None
-
-        for line in diff_text.splitlines():
-            if line.startswith("diff --git"):
-                if current_diff and file_path is not None:
-                    diffs.append((file_path, "\n".join(current_diff)))
-                current_diff = [line]
-                file_path = None
-                from_path = None
-                parts = line.split()
-                if len(parts) >= 4:
-                    b_path = parts[3]
-                    file_path = b_path[2:] if b_path.startswith("b/") else b_path
-            else:
-                current_diff.append(line)
-                if line.startswith("--- "):
-                    from_path = line[4:].strip()
-                elif line.startswith("+++ "):
-                    to_path = line[4:].strip()
-                    if to_path == "/dev/null":
-                        if from_path:
-                            file_path = from_path[2:] if from_path.startswith("a/") else from_path
-                    else:
-                        if to_path.startswith("b/"):
-                            file_path = to_path[2:]
-        if current_diff and file_path is not None:
-            diffs.append((file_path, "\n".join(current_diff)))
-        return diffs
-
     def apply_patch_to_file(file_path, patch):
         """
         Applies a unified diff patch (for a single file) to file_path.
@@ -600,18 +563,18 @@ def parse_diff_per_file(diff_text):
     file_path = None
     current_diff = []
     from_path = None
-
+    header_pattern = re.compile(r'^(?:diff --git )?(a/[^ ]+)\s+(b/[^ ]+)$')
     for line in diff_text.split('\n'):
-        if line.startswith('diff --git'):
+        header_match = header_pattern.match(line)
+        if header_match:
             if current_diff and file_path is not None:
                 diffs.append((file_path, '\n'.join(current_diff)))
             current_diff = [line]
-            file_path = None
+            from_file = header_match.group(1)
+            to_file = header_match.group(2)
+            # Prefer the 'b/' path for modifications, strip the prefix
+            file_path = to_file[2:] if to_file.startswith('b/') else to_file
             from_path = None
-            parts = line.split()
-            if len(parts) >= 4:
-                b_path = parts[3]
-                file_path = b_path[2:] if b_path.startswith('b/') else b_path
         else:
             current_diff.append(line)
             if line.startswith('--- '):
@@ -620,11 +583,10 @@ def parse_diff_per_file(diff_text):
                 to_path = line[4:].strip()
                 if to_path == '/dev/null':
                     if from_path:
-                        # For deletions, use from_path after stripping 'a/' prefix
                         file_path = from_path[2:] if from_path.startswith('a/') else from_path
                 else:
-                    # For normal cases, use to_path after stripping 'b/' prefix
                     file_path = to_path[2:] if to_path.startswith('b/') else to_path
+
 
     # Handle remaining diff content after loop
     if current_diff and file_path is not None:
