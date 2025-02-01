@@ -924,3 +924,5 @@ def main():
     print(f"Total tokens: {total_tokens}")
     #print(f"Total cost: ${cost:.4f}")
 
+if __name__ == "__main__":
+    main()
