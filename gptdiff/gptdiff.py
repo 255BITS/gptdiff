@@ -454,6 +454,8 @@ def apply_diff(project_dir, diff_text):
 
         # Append any remaining lines from the original file.
         new_lines.extend(original_lines[current_index:])
+        # Ensure parent directories exist before writing the file.
+        file_path.parent.mkdir(parents=True, exist_ok=True)
         # Write the new content back to the file.
         file_path.write_text("".join(new_lines), encoding="utf8")
         return True
