@@ -756,8 +756,9 @@ def main():
         args.model = os.getenv('GPTDIFF_MODEL', 'deepseek-reasoner')
 
     if not args.call and not args.apply:
+        append = "\nInstead of using <diff> tags, use ```diff backticks."
         with open('prompt.txt', 'w') as f:
-            f.write(full_prompt)
+            f.write(full_prompt+append)
         print(f"Total tokens: {token_count:5d}")
         print(f"\033[1;32mNot calling GPT-4.\033[0m")  # Green color for success message
         print('Instead, wrote full prompt to prompt.txt. Use `xclip -selection clipboard < prompt.txt` then paste into chatgpt')
