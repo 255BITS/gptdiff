@@ -19,6 +19,44 @@ index 3efacb1..0000000
         self.assertEqual(file_path, "TODO", f"Got file_path '{file_path}', expected 'TODO'")
         self.assertIn("+++ /dev/null", patch, "Deletion diff should include '+++ /dev/null' to indicate file deletion")
 
+    def test_multiple_files_without_diff_git_header(self):
+        # This diff text does not include "diff --git" headers.
+        # It uses separate '---' and '+++' lines for each file.
+        diff_text = """--- a/TODO
++++ b/TODO
+@@ -1,7 +1,7 @@
+-// FINAL TOUCH: The game is now a complete fantasy themed incremental RPG—every choice matters, and
+-// New Aspect: Replaced external title animation with inline SVG for crisp, scalable visuals, and a
+-// additional dynamic element.
++// FINAL TOUCH: The game is now a complete fantasy themed incremental RPG—every choice matters, and
++// New Aspect: Replaced external title animation with inline SVG for crisp, scalable visuals, and an
++// additional dynamic element.
+-- a/style.css
++++ b/style.css
+@@ -1,3 +1,8 @@
++/* New animation for relic glow effect */
++.relic-glow {
++  animation: relicGlow 1.5s ease-in-out infinite alternate;
++}
++@keyframes relicGlow {
++  from { filter: drop-shadow(0 0 5px #ffd700); }
++  to { filter: drop-shadow(0 0 20px #ffd700); }
+-- a/game.js
++++ b/game.js
+@@ -1,3 +1,8 @@
+- JS HERE
+"""
+        result = parse_diff_per_file(diff_text)
+        self.assertEqual(len(result), 3, "Expected three diff entries")
+        expected_files = {"TODO", "style.css", "game.js"}
+        parsed_files = {fp for fp, patch in result}
+        self.assertEqual(parsed_files, expected_files)
+
+        # Also check that the TODO diff contains the updated text.
+        for fp, patch in result:
+            if fp == "TODO":
+                self.assertIn("FINAL TOUCH: The game is now", patch)
+
     def test_index_html_diff(self):
         diff_text = """a/index.html b/index.html
 @@

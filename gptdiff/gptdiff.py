@@ -559,46 +559,76 @@ def parse_diff_per_file(diff_text):
     Note:
         Uses 'b/' prefix detection from git diffs to determine target paths
     """
-    diffs = []
-    file_path = None
-    current_diff = []
-    from_path = None
-    header_pattern = re.compile(r'^(?:diff --git )?(a/[^ ]+)\s+(b/[^ ]+)$')
+    header_re = re.compile(r'^(?:diff --git\s+)?(a/[^ ]+)\s+(b/[^ ]+)\s*$', re.MULTILINE)
+    lines = diff_text.splitlines()
 
-    deletion_mode = False
-    for line in diff_text.split('\n'):
-        if line.startswith("deleted file mode"):
-            deletion_mode = True
-        header_match = header_pattern.match(line)
-        if header_match:
-            if current_diff and file_path is not None:
-                # If this is a deletion diff and no "+++ " line exists, append it.
-                if deletion_mode and not any(l.startswith("+++ ") for l in current_diff):
-                    current_diff.append("+++ /dev/null")
-                normalized_path = file_path
-                if normalized_path.startswith("a/") or normalized_path.startswith("b/"):
-                    normalized_path = normalized_path[2:]
-                diffs.append((normalized_path, "\n".join(current_diff)))
-            current_diff = [line]
-            deletion_mode = False
-            from_file = header_match.group(1)
-            to_file = header_match.group(2)
-            # Always take the to_file, then normalize by stripping any a/ or b/ prefixes
-            file_path = to_file[2:] if to_file.startswith("b/") else to_file
-            if file_path.startswith("a/") or file_path.startswith("b/"):
-                file_path = file_path[2:]
-            from_path = None
-        else:
-            current_diff.append(line)
-    # Handle remaining diff content after loop
-    if current_diff and file_path is not None:
-        if deletion_mode and not any(l.startswith("+++ ") for l in current_diff):
-            current_diff.append("+++ /dev/null")
-        normalized_path = file_path
-        if normalized_path.startswith("a/") or normalized_path.startswith("b/"):
-            normalized_path = normalized_path[2:]
-        diffs.append((normalized_path, "\n".join(current_diff)))
-    return diffs
+    # Check if any header line exists.
+    if not any(header_re.match(line) for line in lines):
+        # Fallback strategy: detect file headers starting with '--- a/' or '-- a/'
+        diffs = []
+        current_lines = []
+        current_file = None
+        deletion_mode = False
+        header_line_re = re.compile(r'^-{2,3}\s+a/(.+)$')
+
+        for line in lines:
+            if header_line_re.match(line):
+                if current_file is not None and current_lines:
+                    if deletion_mode and not any(l.startswith("+++ ") for l in current_lines):
+                        current_lines.append("+++ /dev/null")
+                    diffs.append((current_file, "\n".join(current_lines)))
+                current_lines = [line]
+                deletion_mode = False
+                file_from = header_line_re.match(line).group(1).strip()
+                current_file = file_from
+            else:
+                current_lines.append(line)
+                if "deleted file mode" in line:
+                    deletion_mode = True
+                if line.startswith("+++ "):
+                    parts = line.split()
+                    if len(parts) >= 2:
+                        file_to = parts[1].strip()
+                        if file_to != "/dev/null":
+                            current_file = file_to[2:] if (file_to.startswith("a/") or file_to.startswith("b/")) else file_to
+        if current_file is not None and current_lines:
+            if deletion_mode and not any(l.startswith("+++ ") for l in current_lines):
+                current_lines.append("+++ /dev/null")
+            diffs.append((current_file, "\n".join(current_lines)))
+        return diffs
+    else:
+        # Use header-based strategy.
+        diffs = []
+        current_lines = []
+        current_file = None
+        deletion_mode = False
+        for line in lines:
+            m = header_re.match(line)
+            if m:
+                if current_file is not None and current_lines:
+                    if deletion_mode and not any(l.startswith("+++ ") for l in current_lines):
+                        current_lines.append("+++ /dev/null")
+                    diffs.append((current_file, "\n".join(current_lines)))
+                current_lines = [line]
+                deletion_mode = False
+                file_from = m.group(1)  # e.g. "a/index.html"
+                file_to = m.group(2)    # e.g. "b/index.html"
+                current_file = file_to[2:] if file_to.startswith("b/") else file_to
+            else:
+                current_lines.append(line)
+                if "deleted file mode" in line:
+                    deletion_mode = True
+                if line.startswith("+++ "):
+                    parts = line.split()
+                    if len(parts) >= 2:
+                        file_to = parts[1].strip()
+                        if file_to != "/dev/null":
+                            current_file = file_to[2:] if (file_to.startswith("a/") or file_to.startswith("b/")) else file_to
+        if current_file is not None and current_lines:
+            if deletion_mode and not any(l.startswith("+++ ") for l in current_lines):
+                current_lines.append("+++ /dev/null")
+            diffs.append((current_file, "\n".join(current_lines)))
+        return diffs
 
 def call_llm_for_apply_with_think_tool_available(file_path, original_content, file_diff, model, api_key=None, base_url=None, extra_prompt=None, max_tokens=30000):
     parser = FlatXMLParser("think")
