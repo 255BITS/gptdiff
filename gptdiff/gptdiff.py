@@ -564,34 +564,40 @@ def parse_diff_per_file(diff_text):
     current_diff = []
     from_path = None
     header_pattern = re.compile(r'^(?:diff --git )?(a/[^ ]+)\s+(b/[^ ]+)$')
+
+    deletion_mode = False
     for line in diff_text.split('\n'):
+        if line.startswith("deleted file mode"):
+            deletion_mode = True
         header_match = header_pattern.match(line)
         if header_match:
             if current_diff and file_path is not None:
-                diffs.append((file_path, '\n'.join(current_diff)))
+                # If this is a deletion diff and no "+++ " line exists, append it.
+                if deletion_mode and not any(l.startswith("+++ ") for l in current_diff):
+                    current_diff.append("+++ /dev/null")
+                normalized_path = file_path
+                if normalized_path.startswith("a/") or normalized_path.startswith("b/"):
+                    normalized_path = normalized_path[2:]
+                diffs.append((normalized_path, "\n".join(current_diff)))
             current_diff = [line]
+            deletion_mode = False
             from_file = header_match.group(1)
             to_file = header_match.group(2)
-            # Prefer the 'b/' path for modifications, strip the prefix
-            file_path = to_file[2:] if to_file.startswith('b/') else to_file
+            # Always take the to_file, then normalize by stripping any a/ or b/ prefixes
+            file_path = to_file[2:] if to_file.startswith("b/") else to_file
+            if file_path.startswith("a/") or file_path.startswith("b/"):
+                file_path = file_path[2:]
             from_path = None
         else:
             current_diff.append(line)
-            if line.startswith('--- '):
-                from_path = line[4:].strip()
-            elif line.startswith('+++ '):
-                to_path = line[4:].strip()
-                if to_path == '/dev/null':
-                    if from_path:
-                        file_path = from_path[2:] if from_path.startswith('a/') else from_path
-                else:
-                    file_path = to_path[2:] if to_path.startswith('b/') else to_path
-
-
     # Handle remaining diff content after loop
     if current_diff and file_path is not None:
-        diffs.append((file_path, '\n'.join(current_diff)))
-
+        if deletion_mode and not any(l.startswith("+++ ") for l in current_diff):
+            current_diff.append("+++ /dev/null")
+        normalized_path = file_path
+        if normalized_path.startswith("a/") or normalized_path.startswith("b/"):
+            normalized_path = normalized_path[2:]
+        diffs.append((normalized_path, "\n".join(current_diff)))
     return diffs
 
 def call_llm_for_apply_with_think_tool_available(file_path, original_content, file_diff, model, api_key=None, base_url=None, extra_prompt=None, max_tokens=30000):
