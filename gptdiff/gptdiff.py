@@ -268,7 +268,12 @@ prepended to the system prompt.
     if model is None:
         model = os.getenv('GPTDIFF_MODEL', 'deepseek-reasoner')
     if prepend:
-        prepend = load_prepend_file(prepend)
+        if prepend.startswith("http://") or prepend.startswith("https://"):
+            import urllib.request
+            with urllib.request.urlopen(prepend) as response:
+                prepend = response.read().decode('utf-8')
+        else:
+            prepend = load_prepend_file(prepend)
     else:
         prepend = ""
     
