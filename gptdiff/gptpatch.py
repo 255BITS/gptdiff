@@ -37,8 +37,20 @@ def parse_arguments():
         default=".",
         help="Project directory where the diff should be applied (default: current directory)."
     )
+    parser.add_argument('--nobeep', action='store_false', dest='beep', default=True, help='Disable completion notification beep')
+    parser.add_argument(
+        "--model",
+        type=str,
+        default=None,
+        help="Model to use for applying the diff"
+    )
+    parser.add_argument(
+        "--max_tokens",
+        type=int,
+        default=30000,
+        help="Maximum tokens to use for LLM responses"
+    )
     return parser.parse_args()
-
 
 def main():
     args = parse_arguments()
