@@ -747,6 +747,67 @@ def build_environment_from_filelist(file_list, cwd):
             continue
     return build_environment(files_dict)
 
+def smart_apply_patch(project_dir, diff_text, user_prompt, args):
+    """
+    Attempt to apply a diff via smartapply: process each file concurrently using the LLM.
+    """
+    from pathlib import Path
+    parsed_diffs = parse_diff_per_file(diff_text)
+    print("Found", len(parsed_diffs), "files in diff, processing smart apply concurrently:")
+    if len(parsed_diffs) == 0:
+        print("\033[1;33mThere were no entries in this diff. The LLM may have returned something invalid.\033[0m")
+        if args.beep:
+            print("\a")
+        return
+    threads = []
+
+    def process_file(file_path, file_diff):
+        full_path = Path(project_dir) / file_path
+        print(f"Processing file: {file_path}")
+        if '+++ /dev/null' in file_diff:
+            if full_path.exists():
+                full_path.unlink()
+                print(f"\033[1;32mDeleted file {file_path}.\033[0m")
+            else:
+                print(f"\033[1;33mFile {file_path} not found - skipping deletion\033[0m")
+            return
+        original_content = ''
+        if full_path.exists():
+            try:
+                original_content = full_path.read_text()
+            except UnicodeDecodeError:
+                print(f"Skipping binary file {file_path}")
+                return
+        print("-" * 40)
+        print("SMARTAPPLY")
+        print(file_diff)
+        print("-" * 40)
+        if args.applymodel is None:
+            args.applymodel = args.model
+        try:
+            updated_content = call_llm_for_apply_with_think_tool_available(
+                file_path, original_content, file_diff, args.applymodel,
+                extra_prompt=f"This changeset is from the following instructions:\n{user_prompt}",
+                max_tokens=args.max_tokens)
+            if updated_content.strip() == "":
+                print("Cowardly refusing to write empty file to", file_path, "merge failed")
+                return
+            full_path.parent.mkdir(parents=True, exist_ok=True)
+            full_path.write_text(updated_content)
+            print(f"\033[1;32mSuccessful 'smartapply' update {file_path}.\033[0m")
+        except Exception as e:
+            print(f"\033[1;31mFailed to process {file_path}: {str(e)}\033[0m")
+
+    for file_path, file_diff in parsed_diffs:
+        thread = threading.Thread(target=process_file, args=(file_path, file_diff))
+        thread.start()
+        threads.append(thread)
+    for thread in threads:
+        thread.join()
+
+    if args.beep:
+        print("\a")
+
 def main():
     # Adding color support for Windows CMD
     if os.name == 'nt':
@@ -754,7 +815,6 @@ def main():
 
     args = parse_arguments()
 
-    # TODO: The 'openai.api_base' option isn't read in the client API. You will need to pass it when you instantiate the client, e.g. 'OpenAI(base_url="https://nano-gpt.com/api/v1/")'
     # openai.api_base = "https://nano-gpt.com/api/v1/"
     if len(sys.argv) < 2:
         print("Usage: python script.py '<user_prompt>' [--apply]")
@@ -851,73 +911,11 @@ def main():
         print("\n</diff>")
         print("Saved to patch.diff")
         if apply_diff(project_dir, diff_text):
-            print(f"\033[1;32mPatch applied successfully with 'git apply'.\033[0m")  # Green color for success message
+            print(f"\033[1;32mPatch applied successfully with 'git apply'.\033[0m")
         else:
             print("Apply failed, attempting smart apply.")
-            parsed_diffs = parse_diff_per_file(diff_text)
-            print("Found", len(parsed_diffs), " files in diff, calling smartdiff for each file concurrently:")
+            smart_apply_patch(project_dir, diff_text, user_prompt, args)
 
-            if(len(parsed_diffs) == 0):
-                print(f"\033[1;33mThere were no entries in this diff. The LLM may have returned something invalid.\033[0m")
-                if args.beep:
-                    print("\a")  # Terminal bell for completion notification
-                return
-
-            threads = []
-
-            def process_file(file_path, file_diff):
-                full_path = Path(project_dir) / file_path
-                print(f"Processing file: {file_path}")
-                
-                # Handle file deletions from diff
-                if '+++ /dev/null' in file_diff:
-                    if full_path.exists():
-                        full_path.unlink()
-                        print(f"\033[1;32mDeleted file {file_path}.\033[0m")
-                    else:
-                        print(f"\033[1;33mFile {file_path} not found - skipping deletion\033[0m")
-                    return
-
-                original_content = ''
-                if full_path.exists():
-                    try:
-                        original_content = full_path.read_text()
-                    except UnicodeDecodeError:
-                        print(f"Skipping binary file {file_path}")
-                        return
-
-                print("-" * 40)
-                print("SMARTAPPLY")
-                print(file_diff)
-                print("-" * 40)
-                if args.applymodel is None:
-                    args.applymodel = args.model
-
-                try:
-                    updated_content = call_llm_for_apply_with_think_tool_available(file_path, original_content, file_diff, args.applymodel, extra_prompt=f"This changeset is from the following instructions:\n{user_prompt}", max_tokens=args.max_tokens)
-
-                    if updated_content.strip() == "":
-                        print("Cowardly refusing to write empty file to", file_path, "merge failed")
-                        return
-
-                    full_path.parent.mkdir(parents=True, exist_ok=True)
-                    full_path.write_text(updated_content)
-                    print(f"\033[1;32mSuccessful 'smartapply' update {file_path}.\033[0m")
-                except Exception as e:
-                    print(f"\033[1;31mFailed to process {file_path}: {str(e)}\033[0m")
-
-            threads = []
-            for file_path, file_diff in parsed_diffs:
-                thread = threading.Thread(
-                    target=process_file,
-                    args=(file_path, file_diff)
-                )
-                thread.start()
-                threads.append(thread)
-            for thread in threads:
-                thread.join()
-
-    
     if args.beep:
         print("\a")  # Terminal bell for completion notification
 

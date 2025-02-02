@@ -3,9 +3,9 @@
 Command line tool to apply a unified diff directly to a file system.
 
 Usage:
-    gptapply --diff "<diff text>"
+    gptpatch --diff "<diff text>"
     or
-    gptapply path/to/diff.patch
+    gptpatch path/to/diff.patch
 
 This tool uses the same patch-application logic as gptdiff.
 """
@@ -56,7 +56,11 @@ def main():
     if success:
         print("✅ Diff applied successfully.")
     else:
-        print("❌ Failed to apply diff.")
+        print("❌ Failed to apply diff using git apply. Attempting smart apply.")
+        # Import and call smart_apply_patch from gptdiff.gptdiff
+        from gptdiff.gptdiff import smart_apply_patch
+        # Pass an empty user_prompt since gptpatch does not have one
+        smart_apply_patch(project_dir, diff_text, "", args)
 
 
 if __name__ == "__main__":
