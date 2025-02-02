@@ -778,12 +778,14 @@ def smart_apply_patch(project_dir, diff_text, user_prompt, args):
             except UnicodeDecodeError:
                 print(f"Skipping binary file {file_path}")
                 return
-        print("-" * 40)
-        print("SMARTAPPLY")
-        print(file_diff)
-        print("-" * 40)
-        if args.applymodel is None:
+        if not hasattr(args, "applymodel") or args.applymodel is None:
             args.applymodel = args.model
+        if args.applymodel is None:
+            args.applymodel = os.getenv("GPTDIFF_MODEL")
+
+        print("-" * 40)
+        print("Running smartapply with", args.applymodel,"on",file_path)
+        print("-" * 40)
         try:
             updated_content = call_llm_for_apply_with_think_tool_available(
                 file_path, original_content, file_diff, args.applymodel,
@@ -838,10 +840,23 @@ def main():
                 project_files.extend(load_project_files(additional_path, project_dir))
 
     if args.prepend:
-        prepend = load_prepend_file(args.prepend)
-        print("Including prepend",len(enc.encode(json.dumps(prepend))), "tokens")
+        prepend = args.prepend
     else:
         prepend = ""
+
+    if prepend.startswith("http://") or prepend.startswith("https://"):
+        try:
+            import urllib.request
+            with urllib.request.urlopen(prepend) as response:
+                prepend = response.read().decode('utf-8')
+        except Exception as e:
+            print(f"Error fetching prepend content from URL {prepend}: {e}")
+            prepend = ""
+    elif os.path.exists(prepend):
+        prepend = load_prepend_file(prepend)
+    else:
+        # If the specified prepend path does not exist, treat the value as literal content.
+        prepend = prepend
 
     # Prepare system prompt
     system_prompt = prepend + f"Output a git diff into a <diff> block."

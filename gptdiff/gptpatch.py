@@ -57,11 +57,8 @@ def main():
         print("✅ Diff applied successfully.")
     else:
         print("❌ Failed to apply diff using git apply. Attempting smart apply.")
-        # Import and call smart_apply_patch from gptdiff.gptdiff
         from gptdiff.gptdiff import smart_apply_patch
-        # Pass an empty user_prompt since gptpatch does not have one
         smart_apply_patch(project_dir, diff_text, "", args)
-
-
+        
 if __name__ == "__main__":
     main()
