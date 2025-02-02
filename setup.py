@@ -21,7 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'gptdiff=gptdiff.gptdiff:main',
-            'gptapply=gptdiff.gptdiffapply:main',
+            'gptpatch=gptdiff.gptpatch:main',
         ],
     },
     license=None, # Remove license argument
