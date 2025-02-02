@@ -19,7 +19,10 @@ setup(
         'docs': ['mkdocs', 'mkdocs-material']
     },
     entry_points={
-        'console_scripts': ['gptdiff=gptdiff.gptdiff:main'],
+        'console_scripts': [
+            'gptdiff=gptdiff.gptdiff:main',
+            'gptapply=gptdiff.gptdiffapply:main',
+        ],
     },
     license=None, # Remove license argument
     # license_file='LICENSE.txt', # Remove license_file argument
