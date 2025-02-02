@@ -810,6 +810,32 @@ def smart_apply_patch(project_dir, diff_text, user_prompt, args):
     if args.beep:
         print("\a")
 
+def save_files(files_dict, target_directory):
+    """
+    Save files from a dictionary mapping relative file paths to file contents
+    into the specified target directory.
+
+    Args:
+        files_dict (dict): A dictionary where keys are file paths (relative)
+                           and values are the corresponding file contents.
+        target_directory (str or Path): The directory where files will be saved.
+    """
+    target_directory = Path(target_directory)
+    # Create the target directory if it doesn't exist.
+    target_directory.mkdir(parents=True, exist_ok=True)
+    
+    for file_path, content in files_dict.items():
+        # Create the full path for the file.
+        full_path = target_directory / file_path
+        
+        # Ensure parent directories exist.
+        full_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Write the file content.
+        with full_path.open('w', encoding='utf-8') as f:
+            f.write(content)
+        print(f"Saved: {full_path}")
+
 def main():
     # Adding color support for Windows CMD
     if os.name == 'nt':
