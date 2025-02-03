@@ -33,10 +33,10 @@ def main():
             env = build_environment(files)
 
             # Generate a diff using GPTDiff API based on the failing test output
-            diff = generate_diff(env, prompt)
+            diff = generate_diff(env, prompt, model="o3-mini")
 
             # Apply the generated diff using smartapply to get updated file contents
-            updated_files = smartapply(diff, files)
+            updated_files = smartapply(diff, files, model="o3-mini")
 
             # Save the updated files back to the project directory
             save_files(updated_files, ".")
