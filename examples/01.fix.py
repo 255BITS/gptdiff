@@ -42,6 +42,7 @@ def main():
         build_log = result.stdout + "\n" + result.stderr
         
         # Save the build log in the files dictionary so GPT can see it.
+        original_files["build command"] = " ".join(command)
         original_files["build.log"] = build_log
         
         # Check if the build (or test) command succeeded.
