@@ -148,7 +148,38 @@ OpenAI will not be called unless you specify `--call` or `--apply`
 
 Prevent files being appended to the prompt by adding them to `.gitignore` or `.gptignore`
 
-### Command Line Usage
+## Command Line Usage
+
+## gptpatch: Apply Diffs Directly
+
+`gptpatch` is a companion command-line tool to [GPTDiff](https://github.com/255BITS/gptdiff) that applies unified diffs directly to your project.
+
+### Usage
+
+Apply a diff provided directly:
+
+```bash
+gptpatch --diff "<diff text>"
+```
+
+Or apply a diff from a file:
+
+```bash
+gptpatch path/to/diff.patch
+```
+
+### Options
+
+- **--project-dir**: Specify the target project directory (default: current directory)
+- **--model**: (Optional) Specify the LLM model for advanced conflict resolution
+- **--max_tokens**: (Optional) Define the maximum token count for LLM responses during patch application
+- **--nobeep**: Disable the completion beep notification
+
+### Workflow
+
+`gptpatch` first attempts to apply the diff using standard patch logic. If that fails, it automatically falls back to a smart apply mechanism that leverages AI-powered conflict resolution.
+
+For more details, see the [gptpatch documentation](https://gptdiff.255labs.xyz) on our docs site.
 
 After installing the package, use the `gptdiff` command in your terminal. Change directory into your codebase and run:
 
