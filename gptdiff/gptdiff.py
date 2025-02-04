@@ -273,7 +273,7 @@ prepended to the system prompt.
             with urllib.request.urlopen(prepend) as response:
                 prepend = response.read().decode('utf-8')
         else:
-            prepend = load_prepend_file(prepend)
+            prepend = load_prepend_file(prepend)+"\n"
     else:
         prepend = ""
     
@@ -885,10 +885,9 @@ def main():
         prepend = prepend
 
     if not args.call and not args.apply:
-    # Prepare system prompt
-        system_prompt = prepend + f"Output a git diff into a <diff> block."
-    else:
         system_prompt = prepend + f"Output a git diff into a ```diff block"
+    else:
+        system_prompt = prepend + f"Output a git diff into a <diff> block."
 
     files_content = ""
     for file, content in project_files:
