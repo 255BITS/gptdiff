@@ -884,8 +884,11 @@ def main():
         # If the specified prepend path does not exist, treat the value as literal content.
         prepend = prepend
 
+    if not args.call and not args.apply:
     # Prepare system prompt
-    system_prompt = prepend + f"Output a git diff into a <diff> block."
+        system_prompt = prepend + f"Output a git diff into a <diff> block."
+    else:
+        system_prompt = prepend + f"Output a git diff into a ```diff block"
 
     files_content = ""
     for file, content in project_files:
@@ -900,9 +903,8 @@ def main():
         args.model = os.getenv('GPTDIFF_MODEL', 'deepseek-reasoner')
 
     if not args.call and not args.apply:
-        append = "\nInstead of using <diff> tags, use ```diff backticks."
         with open('prompt.txt', 'w') as f:
-            f.write(full_prompt+append)
+            f.write(full_prompt)
         print(f"Total tokens: {token_count:5d}")
         print(f"\033[1;32mNot calling GPT-4.\033[0m")  # Green color for success message
         print('Instead, wrote full prompt to prompt.txt. Use `xclip -selection clipboard < prompt.txt` then paste into chatgpt')
