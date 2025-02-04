@@ -867,7 +867,7 @@ def main():
                 project_files.extend(load_project_files(additional_path, project_dir))
 
     if args.prepend:
-        prepend = args.prepend
+        prepend = args.prepend+"\n"
     else:
         prepend = ""
 
