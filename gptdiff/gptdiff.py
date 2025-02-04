@@ -21,7 +21,7 @@ import argparse
 import pkgutil
 import re
 import contextvars
-from ai_agent_toolbox import FlatXMLParser, FlatXMLPromptFormatter, Toolbox
+from ai_agent_toolbox import MarkdownParser, MarkdownPromptFormatter, Toolbox, FlatXMLParser, FlatXMLPromptFormatter
 import threading
 from pkgutil import get_data
 
@@ -196,8 +196,8 @@ def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperat
     enc = tiktoken.get_encoding("o200k_base")
     start_time = time.time()
 
-    parser = FlatXMLParser("diff")
-    formatter = FlatXMLPromptFormatter(tag="diff")
+    parser = MarkdownParser()
+    formatter = MarkdownPromptFormatter()
     toolbox = create_diff_toolbox()
     tool_prompt = formatter.usage_prompt(toolbox)
     system_prompt += "\n"+tool_prompt
@@ -277,7 +277,8 @@ prepended to the system prompt.
     else:
         prepend = ""
     
-    system_prompt = prepend+f"Output a git diff into a <diff> block."
+    diff_tag = "```diff"
+    system_prompt = prepend + f"Output a git diff into a \"{diff_tag}\" block."
     _, diff_text, _, _, _, _ = call_llm_for_diff(
         system_prompt, 
         goal, 
