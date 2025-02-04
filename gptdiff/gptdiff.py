@@ -697,14 +697,14 @@ def call_llm_for_apply(file_path, original_content, file_diff, model, api_key=No
 4. You must return the entire file. It overwrites the existing file."""
     user_prompt = f"""File: {file_path}
 File contents:
-<filecontents>
+```
 {original_content}
-</filecontents>
+```
 
 Diff to apply:
-<diff>
+```diff
 {file_diff}
-</diff>"""
+```"""
     if extra_prompt:
         user_prompt += f"\n\n{extra_prompt}"
     if model == "gemini-2.0-flash-thinking-exp-01-21":
@@ -885,10 +885,10 @@ def main():
         # If the specified prepend path does not exist, treat the value as literal content.
         prepend = prepend
 
-    if not args.call and not args.apply:
-        system_prompt = prepend + f"Output a git diff into a ```diff block"
-    else:
-        system_prompt = prepend + f"Output a git diff into a <diff> block."
+    if prepend != "":
+        prepend += "\n"
+
+    system_prompt = prepend + f"Output a git diff into a ```diff block"
 
     files_content = ""
     for file, content in project_files:
