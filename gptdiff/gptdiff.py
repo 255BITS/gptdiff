@@ -165,7 +165,7 @@ def load_project_files(project_dir, cwd):
         Prints skipped files to stdout for visibility
     """
     ignore_paths = [Path(cwd) / ".gitignore", Path(cwd) / ".gptignore"]
-    gitignore_patterns = [".gitignore", "diff.patch", "prompt.txt", ".gptignore", "*.pdf", "*.docx", ".git", "*.orig", "*.rej"]
+    gitignore_patterns = [".gitignore", "diff.patch", "prompt.txt", ".gptignore", "*.pdf", "*.docx", ".git", "*.orig", "*.rej", "*.diff"]
 
     for p in ignore_paths:
         if p.exists():
