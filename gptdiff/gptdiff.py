@@ -967,5 +967,29 @@ def main():
     print(f"Total tokens: {total_tokens}")
     #print(f"Total cost: ${cost:.4f}")
 
+def swallow_reasoning(full_response: str) -> (str, str):
+    """
+    Extracts and swallows the chain-of-thought reasoning section from the full LLM response.
+    Assumes the reasoning block starts with a line beginning with "> Reasoning"
+    and ends with a line matching 'Reasoned for <number> seconds'.
+
+    Returns:
+        A tuple (final_content, reasoning) where:
+         - final_content: The response with the reasoning block removed.
+         - reasoning: The extracted reasoning block, or an empty string if not found.
+    """
+    pattern = re.compile(
+        r"(?P<reasoning>>\s*Reasoning.*?Reasoned for \d+\s*seconds)",
+        re.DOTALL
+    )
+    match = pattern.search(full_response)
+    if match:
+        reasoning = match.group("reasoning").strip()
+        final_content = full_response.replace(reasoning, "").strip()
+    else:
+        reasoning = ""
+        final_content = full_response.strip()
+    return final_content, reasoning
+
 if __name__ == "__main__":
     main()
