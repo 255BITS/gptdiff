@@ -202,7 +202,7 @@ def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperat
     tool_prompt = formatter.usage_prompt(toolbox)
     system_prompt += "\n"+tool_prompt
 
-    if model == "gemini-2.0-flash-thinking-exp-01-21":
+    if 'gemini' in model:
         user_prompt = system_prompt+"\n"+user_prompt
 
     messages = [
@@ -713,7 +713,7 @@ Diff to apply:
 ```"""
     if extra_prompt:
         user_prompt += f"\n\n{extra_prompt}"
-    if model == "gemini-2.0-flash-thinking-exp-01-21":
+    if 'gemini' in model:
         user_prompt = system_prompt+"\n"+user_prompt
     messages = [
         {"role": "system", "content": system_prompt},
