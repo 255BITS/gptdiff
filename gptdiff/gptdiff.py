@@ -241,6 +241,9 @@ def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperat
     cost = (prompt_tokens / 1_000_000 * cost_per_million_prompt_tokens) + (completion_tokens / 1_000_000 * cost_per_million_completion_tokens)
 
     full_response = response.choices[0].message.content.strip()
+    full_response, reasoning = swallow_reasoning(full_response)
+    if reasoning and len(reasoning) > 0:
+        print("Swallowed reasoning", reasoning)
 
     events = parser.parse(full_response)
     for event in events:
@@ -643,6 +646,9 @@ def call_llm_for_apply_with_think_tool_available(file_path, original_content, fi
     formatter = FlatXMLPromptFormatter(tag="think")
     toolbox = create_think_toolbox()
     full_response = call_llm_for_apply(file_path, original_content, file_diff, model, api_key=api_key, base_url=base_url, extra_prompt=extra_prompt, max_tokens=max_tokens)
+    full_response, reasoning = swallow_reasoning(full_response)
+    if reasoning and len(reasoning) > 0:
+        print("Swallowed reasoning", reasoning)
     notool_response = ""
     events = parser.parse(full_response)
     is_in_tool = False
