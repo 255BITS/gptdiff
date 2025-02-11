@@ -985,13 +985,19 @@ def swallow_reasoning(full_response: str) -> (str, str):
          - reasoning: The extracted reasoning block, or an empty string if not found.
     """
     pattern = re.compile(
-        r"(?P<reasoning>>\s*Reasoning.*?Reasoned for \d+\s*seconds)",
+        r"(?P<reasoning>>\s*Reasoning.*?Reasoned.*?seconds)",
         re.DOTALL
     )
     match = pattern.search(full_response)
     if match:
-        reasoning = match.group("reasoning").strip()
-        final_content = full_response.replace(reasoning, "").strip()
+        raw_reasoning = match.group("reasoning")
+        # Remove any leading '+' characters and extra whitespace from each line
+        reasoning_lines = [line.lstrip('+').strip() for line in raw_reasoning.splitlines()]
+        reasoning = "\n".join(reasoning_lines).strip()
+
+        # Remove the reasoning block from the response using its exact span
+        final_content = full_response[:match.start()] + full_response[match.end():]
+        final_content = final_content.strip()
     else:
         reasoning = ""
         final_content = full_response.strip()
