@@ -778,24 +778,41 @@ def smart_apply_patch(project_dir, diff_text, user_prompt, args):
             else:
                 print(f"\033[1;33mFile {file_path} not found - skipping deletion\033[0m")
             return
-        original_content = ''
-        if full_path.exists():
-            try:
-                original_content = full_path.read_text()
-            except UnicodeDecodeError:
-                print(f"Skipping binary file {file_path}")
-                return
-        if not hasattr(args, "applymodel") or args.applymodel is None:
-            args.applymodel = args.model
-        if args.applymodel is None:
-            args.applymodel = os.getenv("GPTDIFF_MODEL")
+
+        try:
+            original_content = full_path.read_text()
+        except (UnicodeDecodeError, IOError):
+            print(f"Skipping file {file_path} due to read error")
+            return
+
+        # Use SMARTAPPLY-specific environment variables if set, otherwise fallback.
+        smart_apply_model = os.getenv("GPTDIFF_SMARTAPPLY_MODEL")
+        if smart_apply_model and smart_apply_model.strip():
+            model = smart_apply_model
+        elif hasattr(args, "applymodel") and args.applymodel:
+            model = args.applymodel
+        else:
+            model = os.getenv("GPTDIFF_MODEL", "deepseek-reasoner")
+
+        smart_api_key = os.getenv("GPTDIFF_SMARTAPPLY_API_KEY")
+        if smart_api_key and smart_api_key.strip():
+            api_key = smart_api_key
+        else:
+            api_key = os.getenv("GPTDIFF_LLM_API_KEY")
+
+        smart_base_url = os.getenv("GPTDIFF_SMARTAPPLY_BASE_URL")
+        if smart_base_url and smart_base_url.strip():
+            base_url = smart_base_url
+        else:
+            base_url = os.getenv("GPTDIFF_LLM_BASE_URL", "https://nano-gpt.com/api/v1/")
 
         print("-" * 40)
-        print("Running smartapply with", args.applymodel,"on",file_path)
+        print("Running smartapply with", model, "on", file_path)
         print("-" * 40)
         try:
             updated_content = call_llm_for_apply_with_think_tool_available(
-                file_path, original_content, file_diff, args.applymodel,
+                file_path, original_content, file_diff, model,
+                api_key=api_key, base_url=base_url,
                 extra_prompt=f"This changeset is from the following instructions:\n{user_prompt}",
                 max_tokens=args.max_tokens)
             if updated_content.strip() == "":

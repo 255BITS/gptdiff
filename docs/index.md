@@ -18,6 +18,11 @@
 <div class="info">📄 LLM not called, written to prompt.txt</div></code></pre>
 </div>
 
+<div class="example">
+<pre><code class="console">gptdiff "Improve login error messages" auth.py --apply
+<div class="success">✅ Patch applied: auth.py updated successfully</div></code></pre>
+</div>
+
 <p class="lead">Set up agents loops with simple bash commands</p>
 
 ```bash
