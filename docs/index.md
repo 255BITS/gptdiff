@@ -112,8 +112,21 @@ done
 
 ## Getting Started
 For a step-by-step guide on how to install and configure `gptdiff`, check out the [Installation Guide](installation.md).
-<pre><code class="console">
+
+```bash
 $ pip install gptdiff
-</code></pre>
+```
 
 <div class="toolbox-note">🔧 Built with <a href="https://toolbox.255labs.xyz">AI Agent Toolbox</a></div>
+
+## Using gptpatch
+
+You can further refine your diff application using gptpatch. For example, to enhance clarity:
+
+    gptdiff "make the value prop clearer" splash.html
+
+Then, copy the generated prompt from prompt.txt to your clipboard and send it to OpenAI. Once you receive the outputs, open patch.diff, paste the outputs, and finally run:
+
+    gptpatch patch.diff
+
+Note: You can configure GPTDIFF_SMARTAPPLY_* variables independently from the base GPTDIFF_* variables.
