@@ -586,7 +586,7 @@ def parse_diff_per_file(diff_text):
         for line in lines:
             if header_line_re.match(line):
                 if current_file is not None and current_lines:
-                    if deletion_mode and not any(l.startswith("+++ ") for l in current_lines):
+                    if deletion_mode and not any(l.startswith("+++ /dev/null") for l in current_lines):
                         current_lines.append("+++ /dev/null")
                     diffs.append((current_file, "\n".join(current_lines)))
                 current_lines = [line]
