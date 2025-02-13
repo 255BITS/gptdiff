@@ -345,7 +345,8 @@ def smartapply(diff_text, files, model=None, api_key=None, base_url=None):
                 del files[path]
         else:
             updated = call_llm_for_apply_with_think_tool_available(path, original, patch, model, api_key=api_key, base_url=base_url)
-            files[path] = updated.strip()
+            cleaned = strip_bad_output(updated, original)
+            files[path] = cleaned
 
     threads = []
 
@@ -1019,6 +1020,30 @@ def swallow_reasoning(full_response: str) -> (str, str):
         reasoning = ""
         final_content = full_response.strip()
     return final_content, reasoning
+
+def strip_bad_output(updated: str, original: str) -> str:
+    """
+    If the original file content does not start with a code fence but the LLM’s updated output
+    starts with triple backticks (possibly with an introductory message), extract and return only
+    the content within the first code block.
+    """
+    updated_stripped = updated.strip()
+    # If the original file does not start with a code fence, but the updated output contains a code block,
+    # extract and return only the content inside the first code block.
+    if not original.lstrip().startswith("```"):
+        # Search for the first code block in the updated output.
+        m = re.search(r"```(.*?)```", updated_stripped, re.DOTALL)
+        if m:
+            content = m.group(1).strip()
+            lines = content.splitlines()
+            if len(lines) > 1:
+                first_line = lines[0].strip()
+                # If the first line appears to be a language specifier (i.e., a single word)
+                # and is not "diff", then drop it.
+                if " " not in first_line and first_line.lower() != "diff":
+                    content = "\n".join(lines[1:]).strip()
+            return content
+    return updated_stripped
 
 if __name__ == "__main__":
     main()
