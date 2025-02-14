@@ -102,3 +102,42 @@ def test_minimal_new_file_diff(tmp_project_dir_empty):
     assert new_file.exists()
     assert new_file.read_text() == "hello world\n"
 
+import pytest
+from pathlib import Path
+from gptdiff.gptdiff import apply_diff
+
+@pytest.fixture
+def tmp_project_dir_empty(tmp_path):
+    project_dir = tmp_path / "project"
+    project_dir.mkdir()
+    return project_dir
+
+def test_new_file_creation_minimal_header_failure(tmp_project_dir_empty):
+    """
+    Test that a minimal diff for new file creation (with a hunk header that lacks line numbers)
+    creates the file with the expected content.
+
+    Diff text:
+        --- /dev/null
+        +++ b/test_feature_1739491796.py
+        @@
+        +import pytest
+        +
+
+    Expected result: a new file "test_feature_1739491796.py" containing "import pytest\n"
+    """
+    diff_text = (
+        "--- /dev/null\n"
+        "+++ b/test_feature_1739491796.py\n"
+        "@@\n"
+        "+import pytest\n"
+        "+\n"
+    )
+    result = apply_diff(str(tmp_project_dir_empty), diff_text)
+    assert result is True, "apply_diff should return True for a successful new file creation"
+    new_file = tmp_project_dir_empty / "test_feature_1739491796.py"
+    assert new_file.exists(), "New file should be created"
+    expected_content = "import pytest\n"
+    content = new_file.read_text()
+    assert content.strip() == expected_content.strip(), f"Expected file content:\n{expected_content}\nGot:\n{content}"
+
