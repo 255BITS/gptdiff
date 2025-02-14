@@ -397,28 +397,26 @@ def apply_diff(project_dir, diff_text):
 
         patch_lines = patch.splitlines()
         # Regex for a hunk header, e.g., @@ -3,7 +3,6 @@
-        hunk_header_re = re.compile(r"^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@")
+        hunk_header_re = re.compile(r"^@@(?: -(\d+)(?:,(\d+))?)?(?: \+(\d+)(?:,(\d+))?)? @@")
         i = 0
         while i < len(patch_lines):
             line = patch_lines[i]
-            if line.startswith("@@"):
-                m = hunk_header_re.match(line)
-                if not m:
-                    print("Invalid hunk header:", line)
-                    return False
-                orig_start = int(m.group(1))
-                # orig_len = int(m.group(2)) if m.group(2) else 1  # not used explicitly
-                # new_start = int(m.group(3))
-                # new_len = int(m.group(4)) if m.group(4) else 1
-
-                # Copy unchanged lines before the hunk.
+            if line.lstrip().startswith("@@"):
+                if line.strip() == "@@":
+                    # Handle minimal hunk header without line numbers.
+                    orig_start = 1
+                else:
+                    m = hunk_header_re.match(line.strip())
+                    if not m:
+                        print("Invalid hunk header:", line)
+                        return False
+                    orig_start = int(m.group(1)) if m.group(1) is not None else 1
                 hunk_start_index = orig_start - 1  # diff headers are 1-indexed
                 if hunk_start_index > len(original_lines):
                     print("Hunk start index beyond file length")
                     return False
                 new_lines.extend(original_lines[current_index:hunk_start_index])
                 current_index = hunk_start_index
-
                 i += 1
                 # Process the hunk lines until the next hunk header.
                 while i < len(patch_lines) and not patch_lines[i].startswith("@@"):

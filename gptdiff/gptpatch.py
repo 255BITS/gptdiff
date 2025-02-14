@@ -13,8 +13,7 @@ This tool uses the same patch-application logic as gptdiff.
 import sys
 import argparse
 from pathlib import Path
-from gptdiff.gptdiff import apply_diff
-
+from gptdiff.gptdiff import apply_diff, smart_apply_patch
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -50,6 +49,7 @@ def parse_arguments():
         default=30000,
         help="Maximum tokens to use for LLM responses"
     )
+    parser.add_argument('--dumb', action='store_true', default=False, help='Attempt dumb apply before trying smart apply')
     return parser.parse_args()
 
 def main():
@@ -64,12 +64,14 @@ def main():
         diff_text = diff_path.read_text(encoding="utf8")
 
     project_dir = args.project_dir
-    success = apply_diff(project_dir, diff_text)
-    if success:
-        print("✅ Diff applied successfully.")
+    if args.dumb:
+        success = apply_diff(project_dir, diff_text)
+        if success:
+            print("✅ Diff applied successfully.")
+        else:
+            print("❌ Failed to apply diff using git apply. Attempting smart apply.")
+            smart_apply_patch(project_dir, diff_text, "", args)
     else:
-        print("❌ Failed to apply diff using git apply. Attempting smart apply.")
-        from gptdiff.gptdiff import smart_apply_patch
         smart_apply_patch(project_dir, diff_text, "", args)
         
 if __name__ == "__main__":
