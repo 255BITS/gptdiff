@@ -122,7 +122,7 @@ def test_smartapply_modify_nonexistent_file():
         result = smartapply(diff_text, original_files)
         assert "newfile.py" in result
 
-def test_smartapply_multi_file_modification(mocker):
+def test_smartapply_multi_file_modification(monkeypatch):
     """Test smartapply handles multi-file modifications through LLM integration.
     
     Verifies:
@@ -167,8 +167,7 @@ diff --git a/file2.py b/file2.py
             return "def func2():\n    print('New func2')"
         return original_content
 
-    mocker.patch('gptdiff.gptdiff.call_llm_for_apply', side_effect=mock_call_llm)
-
+    monkeypatch.setattr('gptdiff.gptdiff.call_llm_for_apply', mock_call_llm)
     updated_files = smartapply(diff_text, original_files)
     
     # Verify both target files modified
@@ -184,7 +183,7 @@ diff --git a/file2.py b/file2.py
     assert updated_files["unrelated.py"] == "def unrelated():\n    pass"
 
 
-def test_smartapply_complex_single_hunk(mocker):
+def test_smartapply_complex_single_hunk(monkeypatch):
     """Test complex single hunk with multiple change types
     
     Validates proper handling of:
@@ -235,7 +234,7 @@ def test_smartapply_complex_single_hunk(mocker):
         "        results.append(x ** 2)\n"
         "    return results"
     )
-    mocker.patch('gptdiff.gptdiff.call_llm_for_apply', return_value=expected_content)
+    monkeypatch.setattr('gptdiff.gptdiff.call_llm_for_apply', lambda *args, **kwargs: expected_content)
 
     updated_files = smartapply(diff_text, original_files)
     
