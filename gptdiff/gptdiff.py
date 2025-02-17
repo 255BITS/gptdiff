@@ -3,30 +3,38 @@ from pathlib import Path
 import subprocess
 import hashlib
 import re
-
-
-import openai
-from openai import OpenAI
-
-import tiktoken
 import time
-
 import os
 import json
 import subprocess
-from pathlib import Path
 import sys
 import fnmatch
 import argparse
 import pkgutil
-import re
 import contextvars
-from ai_agent_toolbox import MarkdownParser, MarkdownPromptFormatter, Toolbox, FlatXMLParser, FlatXMLPromptFormatter
-import threading
 from pkgutil import get_data
-from .applydiff import apply_diff
+import threading
 
+import openai
+from openai import OpenAI
+import tiktoken
+import time
+import os
+import json
+import subprocess
+import sys
+import fnmatch
+import argparse
+import pkgutil
+import contextvars
+from pkgutil import get_data
+import threading
+from ai_agent_toolbox import MarkdownParser, MarkdownPromptFormatter, Toolbox, FlatXMLParser, FlatXMLPromptFormatter
+from applydiff import apply_diff, parse_diff_per_file
+
+VERBOSE = False
 diff_context = contextvars.ContextVar('diffcontent', default="")
+
 def create_diff_toolbox():
     toolbox = Toolbox()
     
@@ -98,7 +106,9 @@ def color_code_diff(diff_text: str) -> str:
 
 def load_gitignore_patterns(gitignore_path):
     with open(gitignore_path, 'r') as f:
-        patterns = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+        patterns = [
+            line.strip() for line in f if line.strip() and not line.startswith('#')
+        ]
     return patterns
 
 def is_ignored(filepath, gitignore_patterns):
@@ -176,14 +186,15 @@ def load_project_files(project_dir, cwd):
     project_files = []
     for file in list_files_and_dirs(project_dir, gitignore_patterns):
         if os.path.isfile(file):
-                try:
-                    with open(file, 'r') as f:
-                        content = f.read()
+            try:
+                with open(file, 'r') as f:
+                    content = f.read()
+                if VERBOSE:
                     print(file)
-                    project_files.append((file, content))
-                except UnicodeDecodeError:
-                    print(f"Skipping file {file} due to UnicodeDecodeError")
-                    continue
+                project_files.append((file, content))
+            except UnicodeDecodeError:
+                print(f"Skipping file {file} due to UnicodeDecodeError")
+                continue
 
     print("")
     return project_files
@@ -195,36 +206,53 @@ def load_prepend_file(file):
 # Function to call GPT-4 API and calculate the cost
 def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperature=0.7, max_tokens=30000, api_key=None, base_url=None):
     enc = tiktoken.get_encoding("o200k_base")
+    
+    # Use colors in print statements
+    red = "\033[91m"
+    green = "\033[92m"
+    reset = "\033[0m"
     start_time = time.time()
 
     parser = MarkdownParser()
     formatter = MarkdownPromptFormatter()
     toolbox = create_diff_toolbox()
     tool_prompt = formatter.usage_prompt(toolbox)
-    system_prompt += "\n"+tool_prompt
+    system_prompt += "\n" + tool_prompt
 
     if 'gemini' in model:
-        user_prompt = system_prompt+"\n"+user_prompt
+        user_prompt = system_prompt + "\n" + user_prompt
 
     messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": user_prompt + "\n"+files_content},
+        {"role": "system", "content": f"{green}{system_prompt}{reset}"},
+        {"role": "user", "content": user_prompt + "\n" + files_content},
     ]
-    print("Using", model)
-    print("SYSTEM PROMPT")
-    print(system_prompt)
-    print("USER PROMPT")
-    print(user_prompt, "+", len(enc.encode(files_content)), "tokens of file content")
+    if VERBOSE:
+        print(f"{green}Using {model}{reset}")
+        print(f"{green}SYSTEM PROMPT{reset}")
+        print(system_prompt)
+        print(f"{green}USER PROMPT{reset}")
+        print(user_prompt, "+", len(enc.encode(files_content)), "tokens of file content")
+    else:
+        print("Generating diff...")
 
-    if api_key is None:
+    if not api_key:
         api_key = os.getenv('GPTDIFF_LLM_API_KEY')
-    if base_url is None:
+    if not base_url:
         base_url = os.getenv('GPTDIFF_LLM_BASE_URL', "https://nano-gpt.com/api/v1/")
+    base_url = base_url or "https://nano-gpt.com/api/v1/"
+    
     client = OpenAI(api_key=api_key, base_url=base_url)
     response = client.chat.completions.create(model=model,
         messages=messages,
         max_tokens=max_tokens,
         temperature=temperature)
+
+    if VERBOSE:
+        print("RESPONSE RAW-------------")
+        print(response.choices[0].message.content.strip())
+        print("/RESPONSE RAW-------------")
+    else:
+        print("Diff generated.")
 
     prompt_tokens = response.usage.prompt_tokens
     completion_tokens = response.usage.completion_tokens
@@ -362,7 +390,6 @@ def smartapply(diff_text, files, model=None, api_key=None, base_url=None):
 
     return files
 
-
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Generate and optionally apply git diffs using GPT-4.')
     parser.add_argument('prompt', type=str, help='Prompt that runs on the codebase.')
@@ -378,9 +405,8 @@ def parse_arguments():
     parser.add_argument('--max_tokens', type=int, default=30000, help='Temperature parameter for model creativity (0.0 to 2.0)')
     parser.add_argument('--model', type=str, default=None, help='Model to use for the API call.')
     parser.add_argument('--applymodel', type=str, default=None, help='Model to use for applying the diff. Defaults to the value of --model if not specified.')
-
     parser.add_argument('--nowarn', action='store_true', help='Disable large token warning')
-
+    parser.add_argument('--verbose', action='store_true', help='Enable verbose output with detailed information')
     return parser.parse_args()
 
 def absolute_to_relative(absolute_path):
@@ -469,9 +495,9 @@ Diff to apply:
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt},
     ]
-    if api_key is None:
+    if not api_key:
         api_key = os.getenv('GPTDIFF_LLM_API_KEY')
-    if base_url is None:
+    if not base_url:
         base_url = os.getenv('GPTDIFF_LLM_BASE_URL', "https://nano-gpt.com/api/v1/")
     client = OpenAI(api_key=api_key, base_url=base_url)
     start_time = time.time()
@@ -483,8 +509,11 @@ Diff to apply:
     elapsed = time.time() - start_time
     minutes, seconds = divmod(int(elapsed), 60)
     time_str = f"{minutes}m {seconds}s" if minutes else f"{seconds}s"
-    print(f"Smartapply time: {time_str}")
-    print("-" * 40)
+    if VERBOSE:
+        print(f"Smartapply time: {time_str}")
+        print("-" * 40)
+    else:
+        print(f"Smartapply completed in {time_str}")
     return full_response
 
 def build_environment_from_filelist(file_list, cwd):
@@ -512,7 +541,7 @@ def smart_apply_patch(project_dir, diff_text, user_prompt, args):
     parsed_diffs = parse_diff_per_file(diff_text)
     print("Found", len(parsed_diffs), "files in diff, processing smart apply concurrently:")
     if len(parsed_diffs) == 0:
-        print("\033[1;33mThere were no entries in this diff. The LLM may have returned something invalid.\033[0m")
+        print(colorize_warning_warning("There were no entries in this diff. The LLM may have returned something invalid."))
         if args.beep:
             print("\a")
         return
@@ -520,13 +549,14 @@ def smart_apply_patch(project_dir, diff_text, user_prompt, args):
 
     def process_file(file_path, file_diff):
         full_path = Path(project_dir) / file_path
-        print(f"Processing file: {file_path}")
+        if VERBOSE:
+            print(f"Processing file: {file_path}")
         if '+++ /dev/null' in file_diff:
             if full_path.exists():
                 full_path.unlink()
                 print(f"\033[1;32mDeleted file {file_path}.\033[0m")
             else:
-                print(f"\033[1;33mFile {file_path} not found - skipping deletion\033[0m")
+                print(colorize_warning_warning(f"File {file_path} not found - skipping deletion"))
             return
 
         try:
@@ -611,11 +641,13 @@ def save_files(files_dict, target_directory):
         print(f"Saved: {full_path}")
 
 def main():
+    global VERBOSE
     # Adding color support for Windows CMD
     if os.name == 'nt':
         os.system('color')
 
     args = parse_arguments()
+    VERBOSE = args.verbose
 
     # openai.api_base = "https://nano-gpt.com/api/v1/"
     if len(sys.argv) < 2:
@@ -665,9 +697,8 @@ def main():
 
     files_content = ""
     for file, content in project_files:
-        print(f"Including {len(enc.encode(content)):5d} tokens", absolute_to_relative(file))
-
-        # Prepare the prompt for GPT-4
+        if VERBOSE:
+            print(f"Including {len(enc.encode(content)):5d} tokens", absolute_to_relative(file))
         files_content += f"File: {absolute_to_relative(file)}\nContent:\n{content}\n"
 
     full_prompt = f"{system_prompt}\n\n{user_prompt}\n\n{files_content}"
