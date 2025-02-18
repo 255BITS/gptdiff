@@ -30,7 +30,7 @@ import contextvars
 from pkgutil import get_data
 import threading
 from ai_agent_toolbox import MarkdownParser, MarkdownPromptFormatter, Toolbox, FlatXMLParser, FlatXMLPromptFormatter
-from applydiff import apply_diff, parse_diff_per_file
+from .applydiff import apply_diff, parse_diff_per_file
 
 VERBOSE = False
 diff_context = contextvars.ContextVar('diffcontent', default="")
