@@ -55,13 +55,15 @@ done
 
 *Requires reasoning model*
 
-### Why GPTDiff?
+## Why Choose GPTDiff?
 
-- **Understands Your Code** - Describe changes in plain English
-- **Safe Modifications** - Keeps existing code working
-- **Auto-Fix** - `--apply` fixes mistakes in generated changes
-- **Works Instantly** - No complex setup needed
-- **Whole Project View** - Handles multiple files together
+- **Describe changes in plain English**  
+- **AI gets your whole project**  
+- **Auto-fixes conflicts**  
+- **Keeps code functional**  
+- **Fast setup, no fuss**  
+- **You approve every change**  
+- **Costs are upfront**
 
 ## Core Capabilities
 

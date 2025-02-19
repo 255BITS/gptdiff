@@ -1,5 +1,3 @@
-
-
 <h1>Create and apply diffs with AI</h1>
 <p class="lead">Modify projects with natural language</p>
 
@@ -49,30 +47,16 @@ done
 ## Features
 
 <ul class="features">
-  <li class="feature">
-    <strong>🔥 Multi-File Changes</strong> - Update related files together in one step
-  </li>
-  
-  <li class="feature">
-    <strong>🛠 Auto-Fix Conflicts</strong><br>
-    Fixes conflicting changes using AI understanding of your code's purpose
-  </li>
-  
-  <li class="feature">
-    <strong>⚡ Simple Commands</strong>
-    <ul>
-      <li>Change specific files</li>
-      <li>See progress updates</li>
-      <li>Clear cost tracking</li>
-    </ul>
-  </li>
-
-  <li class="feature">
-    <strong>🎯 Uses .gitignore and .gptignore</strong><br>
-    Exclude files by efficient pattern matching
-  </li>
-  
+  <li class="feature">Describe changes in plain English</li>
+  <li class="feature">AI gets your whole project</li>
+  <li class="feature">Auto-fixes conflicts</li>
+  <li class="feature">Keeps code functional</li>
+  <li class="feature">Fast setup, no fuss</li>
+  <li class="feature">You approve every change</li>
+  <li class="feature">Costs are upfront</li>
 </ul>
+
+<p><em>Ready to simplify your workflow? Try GPTDiff now!</em></p>
 
 ## How to develop with gptdiff
 
