@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
+from urllib.parse import urlparse
 import subprocess
 import hashlib
 import re
@@ -210,6 +211,7 @@ def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperat
     # Use colors in print statements
     red = "\033[91m"
     green = "\033[92m"
+    blue = "\033[94m"
     reset = "\033[0m"
     start_time = time.time()
 
@@ -222,6 +224,18 @@ def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperat
     if 'gemini' in model:
         user_prompt = system_prompt + "\n" + user_prompt
 
+    # Extract domain from base_url
+    parsed = urlparse(base_url)
+    if parsed.netloc:
+        if parsed.username:
+            domain = parsed.hostname
+            if parsed.port:
+                domain += f":{parsed.port}"
+        else:
+            domain = parsed.netloc
+    else:
+        domain = base_url
+
     messages = [
         {"role": "system", "content": f"{green}{system_prompt}{reset}"},
         {"role": "user", "content": user_prompt + "\n" + files_content},
@@ -233,7 +247,7 @@ def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperat
         print(f"{green}USER PROMPT{reset}")
         print(user_prompt, "+", len(enc.encode(files_content)), "tokens of file content")
     else:
-        print("Generating diff...")
+        print(f"Generating diff using model '{green}{model}{reset}' from '{blue}{domain}{reset}'...")
 
     if not api_key:
         api_key = os.getenv('GPTDIFF_LLM_API_KEY')
