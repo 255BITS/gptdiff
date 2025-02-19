@@ -33,6 +33,7 @@ gptdiff "Modernize string formatting" --call
 ```bash
 gptdiff "Modernize string formatting" --prepend style-guide.txt
 ```
+`--prepend <file_or_url>`: Prepend custom instructions from the specified file or URL to the system prompt
 
 `--temperature <0-2>`  
 **Control transformation creativity**  
@@ -59,6 +60,11 @@ gptdiff "Translate docs to French" --model gemini-2.0-flash
 gptdiff "Update config system" config/ utils/config_loader.py
 ```
 
+`--max_tokens <number>`: Set the maximum number of tokens for the API response (default: 30000)
+`--applymodel <model_name>`: Specify the model to use for applying the diff (used in smartapply). If not specified, defaults to the model from `--model` or `GPTDIFF_MODEL`.
+`--nowarn`: Disable the warning and confirmation prompt for large token usage
+`--verbose`: Enable verbose output for detailed information during execution
+
 `--nobeep`  
 **Silence completion alerts**  
 *Example:*  
@@ -66,3 +72,15 @@ gptdiff "Update config system" config/ utils/config_loader.py
 gptdiff "Remove deprecated features" --nobeep
 ```
 
+### Environment Variables
+GPTDiff uses the following environment variables:
+- `GPTDIFF_LLM_API_KEY`: API key for the LLM service
+- `GPTDIFF_LLM_BASE_URL`: Base URL for the LLM API (default: https://nano-gpt.com/api/v1/)
+- `GPTDIFF_MODEL`: Default model for generating diffs (default: deepseek-reasoner)
+
+For the smartapply feature, you can set separate variables:
+- `GPTDIFF_SMARTAPPLY_MODEL`: Model for smartapply (defaults to `GPTDIFF_MODEL` if not set)
+- `GPTDIFF_SMARTAPPLY_API_KEY`: API key for smartapply (defaults to `GPTDIFF_LLM_API_KEY` if not set)
+- `GPTDIFF_SMARTAPPLY_BASE_URL`: Base URL for smartapply (defaults to `GPTDIFF_LLM_BASE_URL` if not set)
+
+These allow you to use different models or credentials for generating and applying diffs—perfect for virtual team flexibility!

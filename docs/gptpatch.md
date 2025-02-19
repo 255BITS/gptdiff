@@ -30,10 +30,10 @@ gptpatch path/to/diff.patch
 - **--model**: (Optional) Specify the LLM model for advanced conflict resolution
 - **--max_tokens**: (Optional) Maximum tokens to use for LLM responses
 - **--nobeep**: Disable the completion beep notification
+- **--dumb**: Attempt to apply the diff using standard patch logic (like git apply) before falling back to smart apply
 
 ## Workflow
 
-1. The tool first attempts to apply the diff using standard patch logic via the `apply_diff` function.
-2. If standard application fails, it automatically falls back to a smart apply mechanism using AI-powered conflict resolution.
+By default, gptpatch uses an AI-powered smart apply mechanism to apply the diff directly. If the `--dumb` flag is specified, it first attempts to apply the diff using standard patch logic (similar to git apply). If that fails, it falls back to the smart apply mechanism with AI-powered conflict resolution.
 
 For further details about GPTDiff and its companion tools, please refer to the [GPTDiff Documentation](https://gptdiff.255labs.xyz).
