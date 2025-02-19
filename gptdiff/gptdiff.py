@@ -224,6 +224,22 @@ def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperat
     if 'gemini' in model:
         user_prompt = system_prompt + "\n" + user_prompt
 
+    input_content = system_prompt + "\n" + user_prompt + "\n" + files_content
+    token_count = len(enc.encode(input_content))
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_prompt + "\n" + files_content},
+    ]
+
+    if VERBOSE:
+        print(f"{green}Using {model}{reset}")
+        print(f"{green}SYSTEM PROMPT{reset}")
+        print(system_prompt)
+        print(f"{green}USER PROMPT{reset}")
+        print(user_prompt, "+", len(enc.encode(files_content)), "tokens of file content")
+    else:
+        print(f"Generating diff using model '{green}{model}{reset}' from '{blue}{domain}{reset}' with {token_count} input tokens...")
+
     # Extract domain from base_url
     parsed = urlparse(base_url)
     if parsed.netloc:
@@ -235,19 +251,6 @@ def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperat
             domain = parsed.netloc
     else:
         domain = base_url
-
-    messages = [
-        {"role": "system", "content": f"{green}{system_prompt}{reset}"},
-        {"role": "user", "content": user_prompt + "\n" + files_content},
-    ]
-    if VERBOSE:
-        print(f"{green}Using {model}{reset}")
-        print(f"{green}SYSTEM PROMPT{reset}")
-        print(system_prompt)
-        print(f"{green}USER PROMPT{reset}")
-        print(user_prompt, "+", len(enc.encode(files_content)), "tokens of file content")
-    else:
-        print(f"Generating diff using model '{green}{model}{reset}' from '{blue}{domain}{reset}'...")
 
     if not api_key:
         api_key = os.getenv('GPTDIFF_LLM_API_KEY')
@@ -262,9 +265,9 @@ def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperat
         temperature=temperature)
 
     if VERBOSE:
-        print("RESPONSE RAW-------------")
+        print("Debug: Raw LLM Response\n---")
         print(response.choices[0].message.content.strip())
-        print("/RESPONSE RAW-------------")
+        print("---")
     else:
         print("Diff generated.")
 
@@ -552,6 +555,7 @@ def smart_apply_patch(project_dir, diff_text, user_prompt, args):
     Attempt to apply a diff via smartapply: process each file concurrently using the LLM.
     """
     from pathlib import Path
+    start_time = time.time()
     parsed_diffs = parse_diff_per_file(diff_text)
     print("Found", len(parsed_diffs), "files in diff, processing smart apply concurrently:")
     if len(parsed_diffs) == 0:
@@ -624,7 +628,10 @@ def smart_apply_patch(project_dir, diff_text, user_prompt, args):
         threads.append(thread)
     for thread in threads:
         thread.join()
-
+    elapsed = time.time() - start_time
+    minutes, seconds = divmod(int(elapsed), 60)
+    time_str = f"{minutes}m {seconds}s" if minutes else f"{seconds}s"
+    print(f"Smartapply successfully applied changes in {time_str}. Check the updated files to confirm.")
     if args.beep:
         print("\a")
 
@@ -724,7 +731,7 @@ def main():
         with open('prompt.txt', 'w') as f:
             f.write(full_prompt)
         print(f"Total tokens: {token_count:5d}")
-        print(f"\033[1;32mNot calling GPT-4.\033[0m")  # Green color for success message
+        print(f"\033[1;32mNot calling GPT-4.\033[0m")
         print('Instead, wrote full prompt to prompt.txt. Use `xclip -selection clipboard < prompt.txt` then paste into chatgpt')
         print(f"Total cost: ${0.0:.4f}")
         exit(0)
@@ -759,10 +766,11 @@ def main():
             print(f"Error in LLM response {e}")
 
     if(diff_text.strip() == ""):
-        print(f"\033[1;33mThere was no data in this diff. The LLM may have returned something invalid.\033[0m")
-        print("Unable to parse diff text. Full response:", full_text)
+        print(f"\033[1;33mWarning: No valid diff data was generated. This could be due to an unclear prompt or an invalid LLM response.\033[0m")
+        print("Suggested action: Refine your prompt or check the full response below for clues.")
+        print("Full LLM response:\n---\n" + full_text + "\n---")
         if args.beep:
-            print("\a")  # Terminal bell for completion notification
+            print("\a")
         return
 
     elif args.apply:
@@ -770,7 +778,7 @@ def main():
         print("\n<diff>")
         print(color_code_diff(diff_text))
         print("\n</diff>")
-        print("Saved to patch.diff")
+        print("Patch saved to 'patch.diff' in the current directory. Apply it with 'gptpatch patch.diff' or review it manually.")
         if apply_diff(project_dir, diff_text):
             print(f"\033[1;32mPatch applied successfully with 'git apply'.\033[0m")
         else:
@@ -778,12 +786,16 @@ def main():
             smart_apply_patch(project_dir, diff_text, user_prompt, args)
 
     if args.beep:
-        print("\a")  # Terminal bell for completion notification
+        print("\a")
 
-    print(f"Prompt tokens: {prompt_tokens}")
-    print(f"Completion tokens: {completion_tokens}")
-    print(f"Total tokens: {total_tokens}")
-    #print(f"Total cost: ${cost:.4f}")
+    if VERBOSE:
+        print("API Usage Details:")
+        print(f"- Prompt tokens: {prompt_tokens}")
+        print(f"- Completion tokens: {completion_tokens}")
+        print(f"- Total tokens: {total_tokens}")
+        print(f"- Cost: ${cost:.4f}")
+    else:
+        print(f"API Usage: {total_tokens} tokens, Cost: ${cost:.4f}")
 
 def swallow_reasoning(full_response: str) -> (str, str):
     """
