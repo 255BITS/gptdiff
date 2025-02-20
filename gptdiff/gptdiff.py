@@ -791,14 +791,16 @@ def main():
     if args.beep:
         print("\a")
 
+    green = "\033[92m"
+    reset = "\033[0m"
     if VERBOSE:
         print("API Usage Details:")
         print(f"- Prompt tokens: {prompt_tokens}")
         print(f"- Completion tokens: {completion_tokens}")
         print(f"- Total tokens: {total_tokens}")
-        print(f"- Cost: ${cost:.4f}")
+        print(f"- Model used: {green}{args.model}{reset}")
     else:
-        print(f"API Usage: {total_tokens} tokens, Cost: ${cost:.4f}")
+        print(f"API Usage: {total_tokens} tokens, Model used: {green}{args.model}{reset}")
 
 def swallow_reasoning(full_response: str) -> (str, str):
     """
