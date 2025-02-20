@@ -13,7 +13,7 @@ This tool uses the same patch-application logic as gptdiff.
 import sys
 import argparse
 from pathlib import Path
-from gptdiff.gptdiff import apply_diff, smart_apply_patch
+from gptdiff.gptdiff import apply_diff, smart_apply_patch, color_code_diff
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -49,11 +49,14 @@ def parse_arguments():
         default=30000,
         help="Maximum tokens to use for LLM responses"
     )
+    parser.add_argument('--verbose', action='store_true', help='Enable verbose output with detailed information')
     parser.add_argument('--dumb', action='store_true', default=False, help='Attempt dumb apply before trying smart apply')
     return parser.parse_args()
 
 def main():
     args = parse_arguments()
+    import gptdiff.gptdiff as gd
+    gd.VERBOSE = args.verbose
     if args.diff:
         diff_text = args.diff
     else:
@@ -64,12 +67,18 @@ def main():
         diff_text = diff_path.read_text(encoding="utf8")
 
     project_dir = args.project_dir
+
+    if args.verbose:
+        print("\n\033[1;34mDiff to be applied:\033[0m")
+        print(color_code_diff(diff_text))
+        print("")
+
     if args.dumb:
         success = apply_diff(project_dir, diff_text)
         if success:
-            print("✅ Diff applied successfully.")
+            print("\033[1;32m✅ Diff applied successfully.\033[0m")
         else:
-            print("❌ Failed to apply diff using git apply. Attempting smart apply.")
+            print("\033[1;31m❌ Failed to apply diff using git apply. Attempting smart apply.\033[0m")
             smart_apply_patch(project_dir, diff_text, "", args)
     else:
         smart_apply_patch(project_dir, diff_text, "", args)
