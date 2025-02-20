@@ -230,16 +230,6 @@ def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperat
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt + "\n" + files_content},
     ]
-
-    if VERBOSE:
-        print(f"{green}Using {model}{reset}")
-        print(f"{green}SYSTEM PROMPT{reset}")
-        print(system_prompt)
-        print(f"{green}USER PROMPT{reset}")
-        print(user_prompt, "+", len(enc.encode(files_content)), "tokens of file content")
-    else:
-        print(f"Generating diff using model '{green}{model}{reset}' from '{blue}{domain}{reset}' with {token_count} input tokens...")
-
     # Extract domain from base_url
     parsed = urlparse(base_url)
     if parsed.netloc:
@@ -251,6 +241,16 @@ def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperat
             domain = parsed.netloc
     else:
         domain = base_url
+
+    if VERBOSE:
+        print(f"{green}Using {model}{reset}")
+        print(f"{green}SYSTEM PROMPT{reset}")
+        print(system_prompt)
+        print(f"{green}USER PROMPT{reset}")
+        print(user_prompt, "+", len(enc.encode(files_content)), "tokens of file content")
+    else:
+        print(f"Generating diff using model '{green}{model}{reset}' from '{blue}{domain}{reset}' with {token_count} input tokens...")
+
 
     if not api_key:
         api_key = os.getenv('GPTDIFF_LLM_API_KEY')
