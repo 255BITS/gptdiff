@@ -577,11 +577,14 @@ def smart_apply_patch(project_dir, diff_text, user_prompt, args):
                 print(colorize_warning_warning(f"File {file_path} not found - skipping deletion"))
             return
 
-        try:
-            original_content = full_path.read_text()
-        except (UnicodeDecodeError, IOError):
-            print(f"Skipping file {file_path} due to read error")
-            return
+        original_content = ""
+        if full_path.exists():
+            try:
+                original_content = full_path.read_text()
+            except (UnicodeDecodeError, IOError) as e:
+                print(f"Cannot read {file_path} due to {str(e)}, treating as new file")
+        else:
+            print(f"File {file_path} does not exist, treating as new file")
 
         # Use SMARTAPPLY-specific environment variables if set, otherwise fallback.
         smart_apply_model = os.getenv("GPTDIFF_SMARTAPPLY_MODEL")
