@@ -204,7 +204,6 @@ def load_prepend_file(file):
     with open(file, 'r') as f:
         return f.read()
 
-# Function to call GPT-4 API and calculate the cost
 def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperature=0.7, max_tokens=30000, api_key=None, base_url=None):
     enc = tiktoken.get_encoding("o200k_base")
     
@@ -282,9 +281,6 @@ def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperat
     print("-" * 40)
 
     # Now, these rates are updated to per million tokens
-    cost_per_million_prompt_tokens = 30
-    cost_per_million_completion_tokens = 60
-    cost = (prompt_tokens / 1_000_000 * cost_per_million_prompt_tokens) + (completion_tokens / 1_000_000 * cost_per_million_completion_tokens)
 
     full_response = response.choices[0].message.content.strip()
     full_response, reasoning = swallow_reasoning(full_response)
@@ -296,7 +292,7 @@ def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperat
         toolbox.use(event)
     diff_response = diff_context.get()
 
-    return full_response, diff_response, prompt_tokens, completion_tokens, total_tokens, cost
+    return full_response, diff_response, prompt_tokens, completion_tokens, total_tokens
 
 # New API functions
 def build_environment(files_dict):
@@ -734,9 +730,8 @@ def main():
         with open('prompt.txt', 'w') as f:
             f.write(full_prompt)
         print(f"Total tokens: {token_count:5d}")
-        print(f"\033[1;32mNot calling GPT-4.\033[0m")
+        print(f"\033[1;32mWrote full prompt to prompt.txt.\033[0m")
         print('Instead, wrote full prompt to prompt.txt. Use `xclip -selection clipboard < prompt.txt` then paste into chatgpt')
-        print(f"Total cost: ${0.0:.4f}")
         exit(0)
     else:
         # Validate API key presence before any API operations
@@ -753,7 +748,7 @@ def main():
                 print("Request canceled")
                 sys.exit(0)
         try:
-            full_text, diff_text, prompt_tokens, completion_tokens, total_tokens, cost = call_llm_for_diff(system_prompt, user_prompt, files_content, args.model, 
+            full_text, diff_text, prompt_tokens, completion_tokens, total_tokens = call_llm_for_diff(system_prompt, user_prompt, files_content, args.model, 
                                                                                                     temperature=args.temperature,
                                                                                                     api_key=os.getenv('GPTDIFF_LLM_API_KEY'),
                                                                                                     base_url=os.getenv('GPTDIFF_LLM_BASE_URL', "https://nano-gpt.com/api/v1/"),
@@ -765,7 +760,6 @@ def main():
             prompt_tokens = 0
             completion_tokens = 0
             total_tokens = 0
-            cost = 0
             print(f"Error in LLM response {e}")
 
     if(diff_text.strip() == ""):
