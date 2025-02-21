@@ -204,6 +204,19 @@ def load_prepend_file(file):
     with open(file, 'r') as f:
         return f.read()
 
+def domain_for_url(baseurl):
+    parsed = urlparse(base_url)
+    if parsed.netloc:
+        if parsed.username:
+            domain = parsed.hostname
+            if parsed.port:
+                domain += f":{parsed.port}"
+        else:
+            domain = parsed.netloc
+    else:
+        domain = base_url
+    return domain
+
 def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperature=0.7, max_tokens=30000, api_key=None, base_url=None):
     enc = tiktoken.get_encoding("o200k_base")
     
@@ -229,17 +242,6 @@ def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperat
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt + "\n" + files_content},
     ]
-    # Extract domain from base_url
-    parsed = urlparse(base_url)
-    if parsed.netloc:
-        if parsed.username:
-            domain = parsed.hostname
-            if parsed.port:
-                domain += f":{parsed.port}"
-        else:
-            domain = parsed.netloc
-    else:
-        domain = base_url
 
     if VERBOSE:
         print(f"{green}Using {model}{reset}")
@@ -248,8 +250,7 @@ def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperat
         print(f"{green}USER PROMPT{reset}")
         print(user_prompt, "+", len(enc.encode(files_content)), "tokens of file content")
     else:
-        print(f"Generating diff using model '{green}{model}{reset}' from '{blue}{domain}{reset}' with {token_count} input tokens...")
-
+        print(f"Generating diff using model '{green}{model}{reset}' from '{blue}{domain_for_url(base_url)}{reset}' with {token_count} input tokens...")
 
     if not api_key:
         api_key = os.getenv('GPTDIFF_LLM_API_KEY')
@@ -603,9 +604,7 @@ def smart_apply_patch(project_dir, diff_text, user_prompt, args):
         else:
             base_url = os.getenv("GPTDIFF_LLM_BASE_URL", "https://nano-gpt.com/api/v1/")
 
-        print("-" * 40)
         print("Running smartapply with", model, "on", file_path)
-        print("-" * 40)
         try:
             updated_content = call_llm_for_apply_with_think_tool_available(
                 file_path, original_content, file_diff, model,
