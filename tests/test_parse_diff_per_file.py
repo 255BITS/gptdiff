@@ -126,6 +126,20 @@ diff --git a/file2.py b/file2.py
         self.assertIn("file1.py", paths)
         self.assertIn("file2.py", paths)
 
+def test_parse_diff_per_file_unconventional_header():
+    diff_text = """--- game.js
++++ game.js
+@@ -0,0 +1,3 @@
++let player = {
++    class: "Warrior",
++};
+"""
+    result = parse_diff_per_file(diff_text)
+    assert len(result) == 1, f"Expected one file patch, got {len(result)}"
+    file_path, patch = result[0]
+    assert file_path == "game.js", f"Expected file path 'game.js', got '{file_path}'"
+    assert "+++ game.js" in patch, "Expected patch to include '+++ game.js'"
+    assert "+let player" in patch, "Expected patch to include added lines"
 
 if __name__ == '__main__':
     unittest.main()

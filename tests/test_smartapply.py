@@ -244,3 +244,23 @@ def test_smartapply_complex_single_hunk(monkeypatch):
     assert "if not data:" in updated
     assert "temp = data * 2" not in updated
     assert "for x in data:" in updated
+
+def test_smartapply_new_file_with_incorrect_header(monkeypatch):
+    """Test that smartapply creates a new file from a diff with an incorrect '--- a/' header."""
+    diff_text = """
+diff --git a/game.js b/game.js
+--- a/game.js
+++++ b/game.js
+@@ -0,0 +1,3 @@
++let player = {
++    class: "Warrior",
++};
+"""
+    original_files = {}
+    expected_content = "let player = {\n    class: \"Warrior\",\n};"
+    def mock_call_llm(file_path, original_content, file_diff, model, api_key, base_url, extra_prompt=None, max_tokens=None):
+        return expected_content
+    monkeypatch.setattr('gptdiff.gptdiff.call_llm_for_apply', mock_call_llm)
+    updated_files = smartapply(diff_text, original_files)
+    assert "game.js" in updated_files, "The new file 'game.js' should be created"
+    assert updated_files["game.js"] == expected_content, "The file content should match the diff"
