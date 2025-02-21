@@ -604,7 +604,7 @@ def smart_apply_patch(project_dir, diff_text, user_prompt, args):
         else:
             base_url = os.getenv("GPTDIFF_LLM_BASE_URL", "https://nano-gpt.com/api/v1/")
 
-        print("Running smartapply with", model, "on", file_path)
+        print(f"Running smartapply in parallel using model '{green}{model}{reset}' from '{blue}{domain_for_url(base_url)}{reset}'...")
         try:
             updated_content = call_llm_for_apply_with_think_tool_available(
                 file_path, original_content, file_diff, model,
