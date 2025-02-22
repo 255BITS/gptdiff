@@ -798,8 +798,6 @@ def main():
         if apply_result:
             print(f"\033[1;32mPatch applied successfully with basic apply.\033[0m")
         else:
-            print(f"\033[91m**Basic apply failed** for file: {apply_result.failed_file}\033[0m")
-            print(f"Context line mismatch. Expected: {apply_result.expected_line} Got: {apply_result.got_line}")
             print("\033[94m**Attempting smart apply with LLM...**\033[0m")
             smart_apply_patch(project_dir, diff_text, user_prompt, args)
 
