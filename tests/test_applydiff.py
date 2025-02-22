@@ -141,3 +141,31 @@ def test_new_file_creation_minimal_header_failure(tmp_project_dir_empty):
     content = new_file.read_text()
     assert content.strip() == expected_content.strip(), f"Expected file content:\n{expected_content}\nGot:\n{content}"
 
+@pytest.fixture
+def tmp_project_dir_with_gptdiff(tmp_path):
+    """
+    Create a temporary project directory with a gptdiff.py file containing four lines.
+    """
+    project_dir = tmp_path / "project"
+    project_dir.mkdir()
+    file = project_dir / "gptdiff.py"
+    file.write_text("#!/usr/bin/env python3\nfrom pathlib import Path\n# Line 3\n# Line 4\n")
+    return project_dir
+
+def test_apply_bad_diff_fails(tmp_project_dir_with_gptdiff):
+    """
+    Test that a diff is applied correctly to the file.
+    """
+    diff_text = """diff --git a/gptdiff/gptdiff.py b/gptdiff/gptdiff.py
+index 1234567..89abcde 100644
+--- a/gptdiff/gptdiff.py
++++ b/gptdiff/gptdiff.py
+@@ -1,4 +1,5 @@
+ #!/usr/bin/env python3
++from threading import Lock
+ from pathlib import Path"""
+
+    # Assume apply_diff is a function that applies the diff
+    from gptdiff.gptdiff import apply_diff
+    result = apply_diff(str(tmp_project_dir_with_gptdiff), diff_text)
+    assert result is False, "apply_diff should fail, needs smartapply"
