@@ -566,6 +566,9 @@ def smart_apply_patch(project_dir, diff_text, user_prompt, args):
             print("\a")
         return
     threads = []
+    success_files = []
+    failed_files = []
+    success_lock = Lock()
 
     def process_file(file_path, file_diff):
         full_path = Path(project_dir) / file_path
@@ -618,12 +621,18 @@ def smart_apply_patch(project_dir, diff_text, user_prompt, args):
                 max_tokens=args.max_tokens)
             if updated_content.strip() == "":
                 print("Cowardly refusing to write empty file to", file_path, "merge failed")
+                with success_lock:
+                    failed_files.append(file_path)
                 return
             full_path.parent.mkdir(parents=True, exist_ok=True)
             full_path.write_text(updated_content)
             print(f"\033[1;32mSuccessful 'smartapply' update {file_path}.\033[0m")
+            with success_lock:
+                success_files.append(file_path)
         except Exception as e:
             print(f"\033[1;31mFailed to process {file_path}: {str(e)}\033[0m")
+            with success_lock:
+                failed_files.append(file_path)
 
     for file_path, file_diff in parsed_diffs:
         thread = threading.Thread(target=process_file, args=(file_path, file_diff))
@@ -635,6 +644,13 @@ def smart_apply_patch(project_dir, diff_text, user_prompt, args):
     minutes, seconds = divmod(int(elapsed), 60)
     time_str = f"{minutes}m {seconds}s" if minutes else f"{seconds}s"
     print(f"Smartapply successfully applied changes in {time_str}. Check the updated files to confirm.")
+    if failed_files:
+        print(f"\033[1;31mSmart apply completed in {time_str} with failures for {len(failed_files)} files:\033[0m")
+        for file in failed_files:
+            print(f"  - {file}")
+        print("Please check the errors above for details.")
+    else:
+        print(f"\033[1;32mSmart apply completed successfully in {time_str} for all {len(success_files)} files.\033[0m")
     if args.beep:
         print("\a")
 
@@ -777,11 +793,14 @@ def main():
     elif args.apply:
         print("\nAttempting apply with the following diff:")
         print(color_code_diff(diff_text))
-        print("Patch saved to 'patch.diff' in the current directory. Apply it with 'gptpatch patch.diff' or review it manually.")
-        if apply_diff(project_dir, diff_text):
-            print(f"\033[1;32mPatch applied successfully with 'git apply'.\033[0m")
+        print("\033[94m**Attempting to apply patch using basic method...**\033[0m")
+        apply_result = apply_diff(project_dir, diff_text)
+        if apply_result.success:
+            print(f"\033[1;32mPatch applied successfully with basic apply.\033[0m")
         else:
-            print("Apply failed, attempting smart apply.")
+            print(f"\033[91m**Basic apply failed** for file: {apply_result.failed_file}\033[0m")
+            print(f"Context line mismatch. Expected: {apply_result.expected_line} Got: {apply_result.got_line}")
+            print("\033[94m**Attempting smart apply with LLM...**\033[0m")
             smart_apply_patch(project_dir, diff_text, user_prompt, args)
 
     if args.beep:
