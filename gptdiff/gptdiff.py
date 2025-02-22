@@ -795,7 +795,7 @@ def main():
         print(color_code_diff(diff_text))
         print("\033[94m**Attempting to apply patch using basic method...**\033[0m")
         apply_result = apply_diff(project_dir, diff_text)
-        if apply_result.success:
+        if apply_result:
             print(f"\033[1;32mPatch applied successfully with basic apply.\033[0m")
         else:
             print(f"\033[91m**Basic apply failed** for file: {apply_result.failed_file}\033[0m")
