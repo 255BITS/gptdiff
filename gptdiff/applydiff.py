@@ -189,6 +189,7 @@ def parse_diff_per_file(diff_text):
 
     Note:
         Uses 'b/' prefix detection from git diffs to determine target paths
+        This doesn't work all the time and needs to be revised with stronger models
     """
     header_re = re.compile(r'^(?:diff --git\s+)?(a/[^ ]+)\s+(b/[^ ]+)\s*$', re.MULTILINE)
     lines = diff_text.splitlines()

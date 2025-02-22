@@ -204,7 +204,7 @@ def load_prepend_file(file):
     with open(file, 'r') as f:
         return f.read()
 
-def domain_for_url(baseurl):
+def domain_for_url(base_url):
     parsed = urlparse(base_url)
     if parsed.netloc:
         if parsed.username:
@@ -555,6 +555,11 @@ def smart_apply_patch(project_dir, diff_text, user_prompt, args):
     start_time = time.time()
     parsed_diffs = parse_diff_per_file(diff_text)
     print("Found", len(parsed_diffs), "files in diff, processing smart apply concurrently:")
+    green = "\033[92m"
+    red = "\033[91m"
+    blue = "\033[94m"
+    reset = "\033[0m"
+
     if len(parsed_diffs) == 0:
         print(colorize_warning_warning("There were no entries in this diff. The LLM may have returned something invalid."))
         if args.beep:
@@ -771,9 +776,7 @@ def main():
 
     elif args.apply:
         print("\nAttempting apply with the following diff:")
-        print("\n<diff>")
         print(color_code_diff(diff_text))
-        print("\n</diff>")
         print("Patch saved to 'patch.diff' in the current directory. Apply it with 'gptpatch patch.diff' or review it manually.")
         if apply_diff(project_dir, diff_text):
             print(f"\033[1;32mPatch applied successfully with 'git apply'.\033[0m")
