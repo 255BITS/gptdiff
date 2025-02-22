@@ -15,6 +15,7 @@ import pkgutil
 import contextvars
 from pkgutil import get_data
 import threading
+from threading import Lock
 
 import openai
 from openai import OpenAI
