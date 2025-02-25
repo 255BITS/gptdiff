@@ -223,23 +223,23 @@ def call_llm(api_key, base_url, model, messages, max_tokens, temperature):
     # Check if we're using Anthropic
     if base_url == "https://api.anthropic.com/v1/" or "claude" in model:
         anthropic_url = "https://api.anthropic.com/v1/messages"
-
+        
         headers = {
             "x-api-key": api_key,
             "Content-Type": "application/json",
             "anthropic-version": "2023-06-01"
         }
-
+        
         # Extract system message if present
         system_message = None
         filtered_messages = []
-
+        
         for message in messages:
             if message["role"] == "system":
                 system_message = message["content"]
             else:
                 filtered_messages.append(message)
-
+        
         # Prepare request data
         data = {
             "model": model,
@@ -247,37 +247,53 @@ def call_llm(api_key, base_url, model, messages, max_tokens, temperature):
             "max_tokens": max_tokens,
             "temperature": temperature
         }
-
+        
         # Add system message as top-level parameter if found
         if system_message:
             data["system"] = system_message
-
+        
         # Make the API call
         response = requests.post(anthropic_url, headers=headers, json=data)
         response_data = response.json()
-
+        
         if 'error' in response_data:
             print(f"Error from Anthropic API: {response_data}")
             return response_data
-
+        
         # Format response to match OpenAI structure for compatibility
         class OpenAICompatResponse:
             class Choice:
                 class Message:
                     def __init__(self, content):
                         self.content = content
-
+                
                 def __init__(self, message):
                     self.message = message
-
-            def __init__(self, choices):
+            
+            class Usage:
+                def __init__(self, prompt_tokens, completion_tokens, total_tokens):
+                    self.prompt_tokens = prompt_tokens
+                    self.completion_tokens = completion_tokens
+                    self.total_tokens = total_tokens
+            
+            def __init__(self, choices, usage):
                 self.choices = choices
-
+                self.usage = usage
+        
         # Get content from the response
         message_content = response_data["content"][0]["text"]
+        
+        # Extract token usage information
+        input_tokens = response_data["usage"]["input_tokens"]
+        output_tokens = response_data["usage"]["output_tokens"]
+        total_tokens = input_tokens + output_tokens
+        
+        # Create the response object with usage information
         message = OpenAICompatResponse.Choice.Message(message_content)
         choice = OpenAICompatResponse.Choice(message)
-        return OpenAICompatResponse([choice])
+        usage = OpenAICompatResponse.Usage(input_tokens, output_tokens, total_tokens)
+        
+        return OpenAICompatResponse([choice], usage)
     else:
         # Use OpenAI client as before
         client = OpenAI(api_key=api_key, base_url=base_url)
