@@ -20,6 +20,7 @@ from threading import Lock
 import openai
 from openai import OpenAI
 import tiktoken
+import requests
 import time
 import os
 import json
@@ -218,6 +219,75 @@ def domain_for_url(base_url):
         domain = base_url
     return domain
 
+def call_llm(api_key, base_url, model, messages, max_tokens, temperature):
+    # Check if we're using Anthropic
+    if base_url == "https://api.anthropic.com/v1/" or "claude" in model:
+        anthropic_url = "https://api.anthropic.com/v1/messages"
+
+        headers = {
+            "x-api-key": api_key,
+            "Content-Type": "application/json",
+            "anthropic-version": "2023-06-01"
+        }
+
+        # Extract system message if present
+        system_message = None
+        filtered_messages = []
+
+        for message in messages:
+            if message["role"] == "system":
+                system_message = message["content"]
+            else:
+                filtered_messages.append(message)
+
+        # Prepare request data
+        data = {
+            "model": model,
+            "messages": filtered_messages,
+            "max_tokens": max_tokens,
+            "temperature": temperature
+        }
+
+        # Add system message as top-level parameter if found
+        if system_message:
+            data["system"] = system_message
+
+        # Make the API call
+        response = requests.post(anthropic_url, headers=headers, json=data)
+        response_data = response.json()
+
+        if 'error' in response_data:
+            print(f"Error from Anthropic API: {response_data}")
+            return response_data
+
+        # Format response to match OpenAI structure for compatibility
+        class OpenAICompatResponse:
+            class Choice:
+                class Message:
+                    def __init__(self, content):
+                        self.content = content
+
+                def __init__(self, message):
+                    self.message = message
+
+            def __init__(self, choices):
+                self.choices = choices
+
+        # Get content from the response
+        message_content = response_data["content"][0]["text"]
+        message = OpenAICompatResponse.Choice.Message(message_content)
+        choice = OpenAICompatResponse.Choice(message)
+        return OpenAICompatResponse([choice])
+    else:
+        # Use OpenAI client as before
+        client = OpenAI(api_key=api_key, base_url=base_url)
+        return client.chat.completions.create(
+            model=model,
+            messages=messages,
+            max_tokens=max_tokens,
+            temperature=temperature
+        )
+
 def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperature=0.7, max_tokens=30000, api_key=None, base_url=None):
     enc = tiktoken.get_encoding("o200k_base")
     
@@ -258,13 +328,15 @@ def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperat
     if not base_url:
         base_url = os.getenv('GPTDIFF_LLM_BASE_URL', "https://nano-gpt.com/api/v1/")
     base_url = base_url or "https://nano-gpt.com/api/v1/"
-    
-    client = OpenAI(api_key=api_key, base_url=base_url)
-    response = client.chat.completions.create(model=model,
+
+    response = call_llm(
+        api_key=api_key,
+        base_url=base_url,
+        model=model,
         messages=messages,
         max_tokens=max_tokens,
-        temperature=temperature)
-
+        temperature=temperature
+    )
     if VERBOSE:
         print("Debug: Raw LLM Response\n---")
         print(response.choices[0].message.content.strip())
