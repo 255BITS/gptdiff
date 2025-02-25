@@ -219,7 +219,7 @@ def domain_for_url(base_url):
         domain = base_url
     return domain
 
-def call_llm(api_key, base_url, model, messages, max_tokens, temperature):
+def call_llm(api_key, base_url, model, messages, max_tokens, temperature, budget_tokens=None):
     # Check if we're using Anthropic
     if base_url == "https://api.anthropic.com/v1/" or "claude" in model:
         anthropic_url = "https://api.anthropic.com/v1/messages"
@@ -304,7 +304,7 @@ def call_llm(api_key, base_url, model, messages, max_tokens, temperature):
             temperature=temperature
         )
 
-def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperature=0.7, max_tokens=30000, api_key=None, base_url=None):
+def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperature=0.7, max_tokens=30000, api_key=None, base_url=None, budget_tokens=None):
     enc = tiktoken.get_encoding("o200k_base")
     
     # Use colors in print statements
@@ -351,6 +351,7 @@ def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperat
         model=model,
         messages=messages,
         max_tokens=max_tokens,
+        budget_tokens=budget_tokens,
         temperature=temperature
     )
     if VERBOSE:
@@ -509,6 +510,7 @@ def parse_arguments():
     parser.add_argument('--model', type=str, default=None, help='Model to use for the API call.')
     parser.add_argument('--applymodel', type=str, default=None, help='Model to use for applying the diff. Defaults to the value of --model if not specified.')
     parser.add_argument('--nowarn', action='store_true', help='Disable large token warning')
+    parser.add_argument('--anthropic_budget_tokens', type=int, default=None, help='Budget tokens for Anthropic extended thinking')
     parser.add_argument('--verbose', action='store_true', help='Enable verbose output with detailed information')
     return parser.parse_args()
 
@@ -861,7 +863,8 @@ def main():
                                                                                                     temperature=args.temperature,
                                                                                                     api_key=os.getenv('GPTDIFF_LLM_API_KEY'),
                                                                                                     base_url=os.getenv('GPTDIFF_LLM_BASE_URL', "https://nano-gpt.com/api/v1/"),
-                                                                                                    max_tokens=args.max_tokens
+                                                                                                    max_tokens=args.max_tokens,
+                                                                                                    budget_tokens=args.anthropic_budget_tokens
                                                                                                     ) 
         except Exception as e:
             full_text = f"{e}"
