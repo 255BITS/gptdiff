@@ -40,6 +40,7 @@ diff_context = contextvars.ContextVar('diffcontent', default=[])
 
 def create_diff_toolbox():
     toolbox = Toolbox()
+    diff_context.set([])
     
     def diff(content: str):
         diff_context.set(diff_context.get()+[content])
@@ -862,21 +863,13 @@ def main():
             if confirmation != 'y':
                 print("Request canceled")
                 sys.exit(0)
-        try:
-            full_text, diff_text, prompt_tokens, completion_tokens, total_tokens = call_llm_for_diff(system_prompt, user_prompt, files_content, args.model, 
-                                                                                                    temperature=args.temperature,
-                                                                                                    api_key=os.getenv('GPTDIFF_LLM_API_KEY'),
-                                                                                                    base_url=os.getenv('GPTDIFF_LLM_BASE_URL', "https://nano-gpt.com/api/v1/"),
-                                                                                                    max_tokens=args.max_tokens,
-                                                                                                    budget_tokens=args.anthropic_budget_tokens
-                                                                                                    ) 
-        except Exception as e:
-            full_text = f"{e}"
-            diff_text = ""
-            prompt_tokens = 0
-            completion_tokens = 0
-            total_tokens = 0
-            print(f"Error in LLM response {e}")
+        full_text, diff_text, prompt_tokens, completion_tokens, total_tokens = call_llm_for_diff(system_prompt, user_prompt, files_content, args.model, 
+                                                                                                temperature=args.temperature,
+                                                                                                api_key=os.getenv('GPTDIFF_LLM_API_KEY'),
+                                                                                                base_url=os.getenv('GPTDIFF_LLM_BASE_URL', "https://nano-gpt.com/api/v1/"),
+                                                                                                max_tokens=args.max_tokens,
+                                                                                                budget_tokens=args.anthropic_budget_tokens
+                                                                                                ) 
 
     if(diff_text.strip() == ""):
         print(f"\033[1;33mWarning: No valid diff data was generated. This could be due to an unclear prompt or an invalid LLM response.\033[0m")

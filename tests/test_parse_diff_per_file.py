@@ -126,6 +126,34 @@ diff --git a/file2.py b/file2.py
         self.assertIn("file1.py", paths)
         self.assertIn("file2.py", paths)
 
+
+    def test_multiple_files(self):
+        diff_text = """diff --git a/file1.py b/file1.py
+--- a/file1.py
++++ b/file1.py
+@@ -1 +1 @@
+-print("Hello")
++print("Hi")
+diff --git a/file2.py b/file2.py
+--- a/file2.py
++++ b/file2.py
+@@ -1 +1 @@
+-print("World")
++print("Earth")
+diff --git a/file1.py b/file1.py
+--- a/file1.py
++++ b/file1.py
+@@ -3 +3 @@
+-print("Hello2")
++print("Hi2")
+"""
+        result = parse_diff_per_file(diff_text)
+        self.assertEqual(len(result), 2)
+        paths = [fp for fp, _ in result]
+        self.assertIn("file1.py", paths)
+        self.assertIn("file2.py", paths)
+        assert("Hi2" in result[0][1])
+
 def test_parse_diff_per_file_unconventional_header():
     diff_text = """--- game.js
 +++ game.js

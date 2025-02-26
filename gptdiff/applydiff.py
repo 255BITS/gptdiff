@@ -7,6 +7,7 @@ Contains the function to apply unified git diffs to files on disk.
 from pathlib import Path
 import re
 import hashlib
+from collections import defaultdict
 
 def apply_diff(project_dir, diff_text):
     """
@@ -191,6 +192,12 @@ def parse_diff_per_file(diff_text):
         Uses 'b/' prefix detection from git diffs to determine target paths
         This doesn't work all the time and needs to be revised with stronger models
     """
+    def dedup_diffs(diffs):
+        groups = defaultdict(list)
+        for key, value in diffs:
+            groups[key].append(value)
+        return [[key, "\n".join(values)] for key, values in groups.items()]
+
     header_re = re.compile(r'^(?:diff --git\s+)?(a/[^ ]+)\s+(b/[^ ]+)\s*$', re.MULTILINE)
     lines = diff_text.splitlines()
 
@@ -227,7 +234,7 @@ def parse_diff_per_file(diff_text):
             if deletion_mode and not any(l.startswith("+++ ") for l in current_lines):
                 current_lines.append("+++ /dev/null")
             diffs.append((current_file, "\n".join(current_lines)))
-        return diffs
+        return dedup_diffs(diffs)
     else:
         # Use header-based strategy.
         diffs = []
@@ -260,6 +267,6 @@ def parse_diff_per_file(diff_text):
             if deletion_mode and not any(l.startswith("+++ ") for l in current_lines):
                 current_lines.append("+++ /dev/null")
             diffs.append((current_file, "\n".join(current_lines)))
-        return diffs
+        return dedup_diffs(diffs)
 
 
