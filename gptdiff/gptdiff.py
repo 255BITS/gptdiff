@@ -36,13 +36,13 @@ from ai_agent_toolbox import MarkdownParser, MarkdownPromptFormatter, Toolbox, F
 from .applydiff import apply_diff, parse_diff_per_file
 
 VERBOSE = False
-diff_context = contextvars.ContextVar('diffcontent', default="")
+diff_context = contextvars.ContextVar('diffcontent', default=[])
 
 def create_diff_toolbox():
     toolbox = Toolbox()
     
     def diff(content: str):
-        diff_context.set(content)
+        diff_context.set(diff_context.get()+[content])
         return content
 
     toolbox.add_tool(
@@ -386,7 +386,7 @@ def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperat
         toolbox.use(event)
     diff_response = diff_context.get()
 
-    return full_response, diff_response, prompt_tokens, completion_tokens, total_tokens
+    return full_response, "\n".join(diff_response), prompt_tokens, completion_tokens, total_tokens
 
 # New API functions
 def build_environment(files_dict):
@@ -398,7 +398,7 @@ def build_environment(files_dict):
         env.append(content)
     return '\n'.join(env)
 
-def generate_diff(environment, goal, model=None, temperature=0.7, max_tokens=32000, api_key=None, base_url=None, prepend=None):
+def generate_diff(environment, goal, model=None, temperature=0.7, max_tokens=32000, api_key=None, base_url=None, prepend=None, anthropic_budget_tokens=None):
     """API: Generate a git diff from the environment and goal.
 
 If 'prepend' is provided, it should be a path to a file whose content will be
@@ -418,15 +418,16 @@ prepended to the system prompt.
     
     diff_tag = "```diff"
     system_prompt = prepend + f"Output a git diff into a \"{diff_tag}\" block."
-    _, diff_text, _, _, _, _ = call_llm_for_diff(
+    _, diff_text, _, _, _ = call_llm_for_diff(
         system_prompt, 
         goal, 
         environment, 
-        model=model,
+        model,
+        temperature=temperature,
+        max_tokens=max_tokens,
         api_key=api_key,
         base_url=base_url,
-        max_tokens=max_tokens,
-        temperature=temperature
+        budget_tokens=anthropic_budget_tokens
     )
     return diff_text
 
