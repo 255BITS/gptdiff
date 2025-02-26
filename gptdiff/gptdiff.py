@@ -221,7 +221,7 @@ def domain_for_url(base_url):
 
 def call_llm(api_key, base_url, model, messages, max_tokens, temperature, budget_tokens=None):
     # Check if we're using Anthropic
-    if base_url == "https://api.anthropic.com/v1/" or "claude" in model:
+    if "api.anthropic.com" in base_url:
         anthropic_url = "https://api.anthropic.com/v1/messages"
         
         headers = {
@@ -251,6 +251,9 @@ def call_llm(api_key, base_url, model, messages, max_tokens, temperature, budget
         # Add system message as top-level parameter if found
         if system_message:
             data["system"] = system_message
+
+        if budget_tokens:
+            data["thinking"] = {"budget_tokens": budget_tokens, "type": "enabled"}
         
         # Make the API call
         response = requests.post(anthropic_url, headers=headers, json=data)
