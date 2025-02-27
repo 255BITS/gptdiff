@@ -254,6 +254,7 @@ def call_llm(api_key, base_url, model, messages, max_tokens, temperature, budget
             data["system"] = system_message
 
         if budget_tokens:
+            data["temperature"] = 1
             data["thinking"] = {"budget_tokens": budget_tokens, "type": "enabled"}
         
         # Make the API call
