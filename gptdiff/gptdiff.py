@@ -286,7 +286,16 @@ def call_llm(api_key, base_url, model, messages, max_tokens, temperature, budget
                 self.usage = usage
         
         # Get content from the response
-        message_content = response_data["content"][0]["text"]
+        thinking_items = [item["thinking"] for item in response_data["content"] if item["type"] == "thinking"]
+        text_items = [item["text"] for item in response_data["content"] if item["type"] == "text"]
+        if not text_items:
+            raise ValueError("No 'text' type found in response content")
+        text_content = text_items[0]
+        if thinking_items:
+            wrapped_thinking = f"<think>{thinking_items[0]}</think>"
+            message_content = wrapped_thinking + "\n" + text_content
+        else:
+            message_content = text_content
         
         # Extract token usage information
         input_tokens = response_data["usage"]["input_tokens"]
