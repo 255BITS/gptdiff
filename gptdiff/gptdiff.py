@@ -318,7 +318,7 @@ def call_llm(api_key, base_url, model, messages, max_tokens, temperature, budget
             temperature=temperature
         )
 
-def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperature=0.7, max_tokens=30000, api_key=None, base_url=None, budget_tokens=None):
+def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperature=1.0, max_tokens=30000, api_key=None, base_url=None, budget_tokens=None):
     enc = tiktoken.get_encoding("o200k_base")
     
     # Use colors in print statements
@@ -409,7 +409,7 @@ def build_environment(files_dict):
         env.append(content)
     return '\n'.join(env)
 
-def generate_diff(environment, goal, model=None, temperature=0.7, max_tokens=32000, api_key=None, base_url=None, prepend=None, anthropic_budget_tokens=None):
+def generate_diff(environment, goal, model=None, temperature=1.0, max_tokens=32000, api_key=None, base_url=None, prepend=None, anthropic_budget_tokens=None):
     """API: Generate a git diff from the environment and goal.
 
 If 'prepend' is provided, it should be a path to a file whose content will be
@@ -520,7 +520,7 @@ def parse_arguments():
     parser.add_argument('--call', action='store_true',
                         help='Call the GPT-4 API. Writes the full prompt to prompt.txt if not specified.')
     parser.add_argument('files', nargs='*', default=[], help='Specify additional files or directories to include.')
-    parser.add_argument('--temperature', type=float, default=0.7, help='Temperature parameter for model creativity (0.0 to 2.0)')
+    parser.add_argument('--temperature', type=float, default=1.0, help='Temperature parameter for model creativity (0.0 to 2.0)')
     parser.add_argument('--max_tokens', type=int, default=30000, help='Temperature parameter for model creativity (0.0 to 2.0)')
     parser.add_argument('--model', type=str, default=None, help='Model to use for the API call.')
     parser.add_argument('--applymodel', type=str, default=None, help='Model to use for applying the diff. Defaults to the value of --model if not specified.')
