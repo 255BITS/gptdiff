@@ -114,3 +114,7 @@ Then, copy the generated prompt from prompt.txt to your clipboard and send it to
     gptpatch patch.diff
 
 Note: You can configure GPTDIFF_SMARTAPPLY_* variables independently from the base GPTDIFF_* variables.
+
+## Using Anthropic Claude with Extended Thinking
+
+When working with Anthropic Claude models, you can enable the extended thinking capability using the `--anthropic_budget_tokens` flag:
