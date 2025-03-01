@@ -417,6 +417,10 @@ prepended to the system prompt.
     """
     if model is None:
         model = os.getenv('GPTDIFF_MODEL', 'deepseek-reasoner')
+        # Use ANTHROPIC_BUDGET_TOKENS env var if set and no cli override provided
+        if anthropic_budget_tokens is None:
+            anthropic_budget_tokens = os.getenv('ANTHROPIC_BUDGET_TOKENS')
+    
     if prepend:
         if prepend.startswith("http://") or prepend.startswith("https://"):
             import urllib.request
@@ -438,7 +442,7 @@ prepended to the system prompt.
         max_tokens=max_tokens,
         api_key=api_key,
         base_url=base_url,
-        budget_tokens=anthropic_budget_tokens
+        budget_tokens=int(anthropic_budget_tokens) if anthropic_budget_tokens is not None else None
     )
     return diff_text
 
