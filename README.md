@@ -4,10 +4,31 @@ GPTDiff: Create and apply diffs using AI.
 This tool leverages natural language instructions to modify project codebases.
 -->
 
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Example Usage](#example-usage-of-gptdiff)
+- [Basic Usage](#basic-usage)
+- [Simple Command Line Agent Loops](#simple-command-line-agent-loops)
+- [Why Choose GPTDiff?](#why-choose-gptdiff)
+- [Core Capabilities](#core-capabilities)
+  - [CLI Excellence](#-cli-excellence)
+  - [Magic Diff Generation](#-magic-diff-generation)
+  - [Smart Apply System](#-smart-apply-system)
+- [Get Started](#get-started)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+- [Command Line Usage](#command-line-usage)
+
 🚀 **Create and apply diffs with AI**  
 Modify your project using plain English.
 
-More documentation at [gptdiff.255labs.xyz](gptdiff.255labs.xyz)
+More documentation at [gptdiff.255labs.xyz](https://gptdiff.255labs.xyz)
+
+## Quick Start
+
+1. **Install GPTDiff**
+   
 
 ### Example Usage of `gptdiff`
 
