@@ -29,26 +29,23 @@ More documentation at [gptdiff.255labs.xyz](https://gptdiff.255labs.xyz)
 
 1. **Install GPTDiff**
    
-
+   
 ### Example Usage of `gptdiff`
 
 #### Apply a Patch Directly
-```
-bash
+```bash
 gptdiff "Add button animations on press" --apply
 ```
 ✅ Successfully applied patch
 
 #### Generate a Patch File
-```
-bash
+```bash
 gptdiff "Add API documentation" --call
 ```
 🔧 Patch written to `diff.patch`
 
 #### Generate a Prompt File Without Calling LLM
-```
-bash
+```bash
 gptdiff "Improve error messages"
 ```
 📄 LLM not called, written to `prompt.txt`
