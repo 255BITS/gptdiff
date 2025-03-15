@@ -45,8 +45,6 @@ def test_swallow_reasoning_extraction_multiline():
     assert "line 1\nline 2\n  \nline 3:" == final_content
     # The final content should no longer contain the reasoning block.
     assert expected_reasoning not in final_content
-    # And it should contain the diff block.
-    assert "```diff" in final_content
 
 def test_swallow_reasoning_with_untested_response():
     llm_response = (
