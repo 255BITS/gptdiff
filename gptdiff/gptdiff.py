@@ -933,20 +933,17 @@ def swallow_reasoning(full_response: str) -> (str, str):
         r"(?P<reasoning>>\s*Reasoning.*?Reasoned.*?seconds)",
         re.DOTALL
     )
-    match = pattern.search(full_response)
-    if match:
+    reasoning_list = []
+    def replacer(match):
         raw_reasoning = match.group("reasoning")
-        # Remove any leading '+' characters and extra whitespace from each line
         reasoning_lines = [line.lstrip('+').strip() for line in raw_reasoning.splitlines()]
         reasoning = "\n".join(reasoning_lines).strip()
-
-        # Remove the reasoning block from the response using its exact span
-        final_content = full_response[:match.start()] + full_response[match.end():]
-        final_content = final_content.strip()
-    else:
-        reasoning = ""
-        final_content = full_response.strip()
-    return final_content, reasoning
+        reasoning_list.append(reasoning)
+        return ""
+    
+    final_content = re.sub(pattern, replacer, full_response)
+    reasoning = "\n".join(reasoning_list)
+    return final_content.strip(), reasoning
 
 def strip_bad_output(updated: str, original: str) -> str:
     """

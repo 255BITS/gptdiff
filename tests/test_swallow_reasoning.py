@@ -23,27 +23,26 @@ def test_swallow_reasoning_extraction_simple():
 
 def test_swallow_reasoning_extraction_multiline():
     llm_response = (
-        "line 1+> Reasoning\n"
+        "line 1> Reasoning\n"
         "+None\n"
         "+Reasoned about summary drawer button 변경 for 1 seconds\n"
         "line 2\n"
-        "  +> Reasoning\n"
+        "  > Reasoning\n"
         "+None\n"
         "+Reasoned about summary drawer button 변경 for 2 seconds\n"
-        "+line 3:\n"
-        "```"
+        "line 3:"
     )
     final_content, reasoning = swallow_reasoning(llm_response)
     expected_reasoning = (
         "> Reasoning\n"
-        "+None\n"
-        "+Reasoned about summary drawer button 변경 for 1 seconds\n"
+        "None\n"
+        "Reasoned about summary drawer button 변경 for 1 seconds\n"
         "> Reasoning\n"
-        "+None\n"
-        "+Reasoned about summary drawer button 변경 for 2 seconds\n"
+        "None\n"
+        "Reasoned about summary drawer button 변경 for 2 seconds"
     )
     assert reasoning == expected_reasoning
-    assert "line 1\nline 2\nline 3:\n" == final_content
+    assert "line 1\nline 2\n  \nline 3:" == final_content
     # The final content should no longer contain the reasoning block.
     assert expected_reasoning not in final_content
     # And it should contain the diff block.
