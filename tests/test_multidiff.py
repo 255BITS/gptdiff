@@ -34,8 +34,7 @@ DIFF 2
     expected = """
 DIFF 1
 
-DIFF 2
-`"""
+DIFF 2"""
 
  
     # Define a dummy call_llm function that returns our fake response
