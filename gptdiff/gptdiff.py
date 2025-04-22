@@ -705,22 +705,15 @@ def smart_apply_patch(project_dir, diff_text, user_prompt, args):
             print(f"File {file_path} does not exist, treating as new file")
 
         # Use SMARTAPPLY-specific environment variables if set, otherwise fallback.
--        smart_apply_model = os.getenv("GPTDIFF_SMARTAPPLY_MODEL", "").strip()
--        if smart_apply_model:
--            model = smart_apply_model
--        elif hasattr(args, "applymodel") and args.applymodel:
--            model = args.applymodel
--        else:
--            model = 'openai/gpt-4.1-mini'
-+        # Determine model for smartapply: CLI flag > environment > recommended default
-+        if hasattr(args, "applymodel") and args.applymodel:
-+            model = args.applymodel
-+        else:
-+            smart_apply_model = os.getenv("GPTDIFF_SMARTAPPLY_MODEL", "").strip()
-+            if smart_apply_model:
-+                model = smart_apply_model
-+            else:
-+                model = 'openai/gpt-4.1-mini'
+        # Determine model for smartapply: CLI flag > environment > recommended default
+        if hasattr(args, "applymodel") and args.applymodel:
+            model = args.applymodel
+        else:
+            smart_apply_model = os.getenv("GPTDIFF_SMARTAPPLY_MODEL", "").strip()
+            if smart_apply_model:
+                model = smart_apply_model
+            else:
+                model = 'openai/gpt-4.1-mini'
 
         smart_api_key = os.getenv("GPTDIFF_SMARTAPPLY_API_KEY")
         if smart_api_key and smart_api_key.strip():
