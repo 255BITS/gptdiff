@@ -527,12 +527,9 @@ def parse_arguments():
     parser.add_argument('--temperature', type=float, default=1.0, help='Temperature parameter for model creativity (0.0 to 2.0)')
     parser.add_argument('--max_tokens', type=int, default=30000, help='Temperature parameter for model creativity (0.0 to 2.0)')
     parser.add_argument('--model', type=str, default=None, help='Model to use for the API call.')
--    parser.add_argument(
--        '--applymodel', type=str, default=os.getenv('GPTDIFF_SMARTAPPLY_MODEL', 'openai/gpt-4.1-mini'),
--        help='Model to use for applying the diff. Defaults to the fastest reliable model "openai/gpt-4.1-mini" if not specified.')
-+    parser.add_argument(
-+        '--applymodel', type=str, default=None,
-+        help='Model to use for applying the diff. Overrides GPTDIFF_SMARTAPPLY_MODEL env var; if not set, defaults to "openai/gpt-4.1-mini".')
+    parser.add_argument(
+        '--applymodel', type=str, default=None,
+        help='Model to use for applying the diff. Overrides GPTDIFF_SMARTAPPLY_MODEL env var; if not set, defaults to "openai/gpt-4.1-mini".')
 
     parser.add_argument('--nowarn', action='store_true', help='Disable large token warning')
     parser.add_argument('--anthropic_budget_tokens', type=int, default=None, help='Budget tokens for Anthropic extended thinking')
