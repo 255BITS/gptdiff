@@ -22,6 +22,7 @@ setup(
         'console_scripts': [
             'gptdiff=gptdiff.gptdiff:main',
             'gptpatch=gptdiff.gptpatch:main',
+            'plangptdiff=gptdiff.plangptdiff:main',
         ],
     },
     license=None, # Remove license argument

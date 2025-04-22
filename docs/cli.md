@@ -84,3 +84,24 @@ For the smartapply feature, you can set separate variables:
 - `GPTDIFF_SMARTAPPLY_BASE_URL`: Base URL for smartapply (defaults to `GPTDIFF_LLM_BASE_URL` if not set)
 
 These allow you to use different models or credentials for generating and applying diffs—perfect for virtual team flexibility!
+  
+## plangptdiff
+  
+`plangptdiff` scans your repository with **ripgrep**, selects only the files likely to change (always including anything named *schema*), and writes a ready‑to‑paste prompt to **planprompt.txt**.  
+
+**Usage:**  
+```bash  
+plangptdiff "<natural language command>" [--apply]  
+```  
+
+**Examples:**  
+- Generate a prompt only:  
+  ```bash  
+  plangptdiff "add validation to the signup form"  
+  ```  
+- Generate a prompt and auto‑apply the diff:  
+  ```bash  
+  plangptdiff "upgrade to Django 5" --apply  
+  ```  
+
+The file list is appended to the generated `gptdiff` command so the LLM sees only the files that matter.

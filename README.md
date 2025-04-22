@@ -320,3 +320,20 @@ pytest tests/
 ```
 
 This will execute all unit tests verifying core diff generation and application logic.
+
+### plangptdiff: Generate *plan* prompts that call GPTDiff
+
+`plangptdiff` scans your repo with **ripgrep**, selects only the files likely to
+change (always including anything named *schema*), and writes a ready‑to‑paste
+prompt to **planprompt.txt**:
+
+```bash
+# Prompt only
+plangptdiff "add validation to the signup form"
+
+# Prompt that will auto‑apply the diff
+plangptdiff "upgrade to Django 5" --apply
+```
+
+The file list is appended to the generated `gptdiff` command so the LLM sees
+only the files that matter, keeping prompts lean and costs down.
