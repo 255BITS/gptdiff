@@ -527,7 +527,13 @@ def parse_arguments():
     parser.add_argument('--temperature', type=float, default=1.0, help='Temperature parameter for model creativity (0.0 to 2.0)')
     parser.add_argument('--max_tokens', type=int, default=30000, help='Temperature parameter for model creativity (0.0 to 2.0)')
     parser.add_argument('--model', type=str, default=None, help='Model to use for the API call.')
-    parser.add_argument('--applymodel', type=str, default=None, help='Model to use for applying the diff. Defaults to the value of --model if not specified.')
+-    parser.add_argument(
+-        '--applymodel', type=str, default=os.getenv('GPTDIFF_SMARTAPPLY_MODEL', 'openai/gpt-4.1-mini'),
+-        help='Model to use for applying the diff. Defaults to the fastest reliable model "openai/gpt-4.1-mini" if not specified.')
++    parser.add_argument(
++        '--applymodel', type=str, default=None,
++        help='Model to use for applying the diff. Overrides GPTDIFF_SMARTAPPLY_MODEL env var; if not set, defaults to "openai/gpt-4.1-mini".')
+
     parser.add_argument('--nowarn', action='store_true', help='Disable large token warning')
     parser.add_argument('--anthropic_budget_tokens', type=int, default=None, help='Budget tokens for Anthropic extended thinking')
     parser.add_argument('--verbose', action='store_true', help='Enable verbose output with detailed information')
@@ -702,13 +708,22 @@ def smart_apply_patch(project_dir, diff_text, user_prompt, args):
             print(f"File {file_path} does not exist, treating as new file")
 
         # Use SMARTAPPLY-specific environment variables if set, otherwise fallback.
-        smart_apply_model = os.getenv("GPTDIFF_SMARTAPPLY_MODEL")
-        if smart_apply_model and smart_apply_model.strip():
-            model = smart_apply_model
-        elif hasattr(args, "applymodel") and args.applymodel:
-            model = args.applymodel
-        else:
-            model = os.getenv("GPTDIFF_MODEL", "deepseek-reasoner")
+-        smart_apply_model = os.getenv("GPTDIFF_SMARTAPPLY_MODEL", "").strip()
+-        if smart_apply_model:
+-            model = smart_apply_model
+-        elif hasattr(args, "applymodel") and args.applymodel:
+-            model = args.applymodel
+-        else:
+-            model = 'openai/gpt-4.1-mini'
++        # Determine model for smartapply: CLI flag > environment > recommended default
++        if hasattr(args, "applymodel") and args.applymodel:
++            model = args.applymodel
++        else:
++            smart_apply_model = os.getenv("GPTDIFF_SMARTAPPLY_MODEL", "").strip()
++            if smart_apply_model:
++                model = smart_apply_model
++            else:
++                model = 'openai/gpt-4.1-mini'
 
         smart_api_key = os.getenv("GPTDIFF_SMARTAPPLY_API_KEY")
         if smart_api_key and smart_api_key.strip():

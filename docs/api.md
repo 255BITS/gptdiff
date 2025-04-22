@@ -265,3 +265,8 @@ for task in ["Add type hints", "Convert to f-strings"]:
 
 save_files(files)  # Your custom saver
 ```
+
+For the smartapply feature, you can set separate variables:
+ - `GPTDIFF_SMARTAPPLY_MODEL`: Model for smartapply (recommended: `openai/gpt-4.1-mini`, the fastest model that applies diffs reliably; defaults to `GPTDIFF_MODEL` if not set)
+ - `GPTDIFF_SMARTAPPLY_API_KEY`: API key for smartapply (defaults to `GPTDIFF_LLM_API_KEY` if not set)
+ - `GPTDIFF_SMARTAPPLY_BASE_URL`: Base URL for smartapply (defaults to `GPTDIFF_LLM_BASE_URL` if not set)
