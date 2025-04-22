@@ -24,6 +24,7 @@ import shutil
 import subprocess
 from pathlib import Path
 from typing import List, Set
+from gptdiff.gptdiff import load_gitignore_patterns, is_ignored
 
 # LLM helpers
 import json
@@ -180,6 +181,20 @@ def main() -> None:
     original_cmd = " ".join(args.command).strip()
     keywords = _parse_keywords(original_cmd)
     files = find_relevant_files(keywords)
+
+    # Exclude prompt.txt and any files listed in .gitignore or .gptignore
+    ignore_patterns: List[str] = []
+    cwd = Path.cwd()
+    gitignore_path = cwd / ".gitignore"
+    gptignore_path = cwd / ".gptignore"
+    if gitignore_path.exists():
+        ignore_patterns.extend(load_gitignore_patterns(str(gitignore_path)))
+    if gptignore_path.exists():
+        ignore_patterns.extend(load_gitignore_patterns(str(gptignore_path)))
+    # Always ignore prompt.txt explicitly
+    ignore_patterns.append("prompt.txt")
+    # Filter out ignored files
+    files = [f for f in files if not is_ignored(f, ignore_patterns)]
 
     gptdiff_cmd = build_gptdiff_command(original_cmd, files, args.apply)
 
