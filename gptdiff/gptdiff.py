@@ -16,6 +16,7 @@ import contextvars
 from pkgutil import get_data
 import threading
 from threading import Lock
+import shutil
 
 import openai
 from openai import OpenAI
@@ -862,11 +863,55 @@ def main():
         args.model = os.getenv('GPTDIFF_MODEL', 'deepseek-reasoner')
 
     if not args.call and not args.apply:
-        with open('prompt.txt', 'w') as f:
-            f.write(full_prompt)
+        """
+        For convenience:
+          • macOS & Linux  → copy prompt directly to the system clipboard
+          • Windows        → fall back to prompt.txt (no reliable native clipboard CLI)
+        """
+        wrote_location = None
+
+        try:
+            if os.name == "nt":
+                # Windows: keep legacy behaviour
+                with open("prompt.txt", "w") as f:
+                    f.write(full_prompt)
+                wrote_location = "prompt.txt"
+            else:
+                # macOS first
+                if sys.platform == "darwin" and shutil.which("pbcopy"):
+                    subprocess.run(["pbcopy"], input=full_prompt.encode(), check=True)
+                    wrote_location = "clipboard (pbcopy)"
+                # Linux – prefer wl-copy, then xclip
+                elif shutil.which("wl-copy"):
+                    subprocess.run(["wl-copy"], input=full_prompt.encode(), check=True)
+                    wrote_location = "clipboard (wl-copy)"
+                elif shutil.which("xclip"):
+                    subprocess.run(
+                        ["xclip", "-selection", "clipboard"],
+                        input=full_prompt.encode(),
+                        check=True,
+                    )
+                    wrote_location = "clipboard (xclip)"
+                # No clipboard utility available – revert to file
+                else:
+                    with open("prompt.txt", "w") as f:
+                        f.write(full_prompt)
+                    wrote_location = "prompt.txt (clipboard utility not found)"
+        except Exception as e:
+            # Any failure falls back to prompt.txt as a safe default
+            print(
+                f"\033[1;31mClipboard write failed: {e}. Falling back to prompt.txt\033[0m"
+            )
+            with open("prompt.txt", "w") as f:
+                f.write(full_prompt)
+            wrote_location = "prompt.txt (clipboard write failed)"
+
         print(f"Total tokens: {token_count:5d}")
-        print(f"\033[1;32mWrote full prompt to prompt.txt.\033[0m")
-        print('Instead, wrote full prompt to prompt.txt. Use `xclip -selection clipboard < prompt.txt` then paste into chatgpt')
+        print(f"\033[1;32mWrote full prompt to {wrote_location}.\033[0m")
+        if wrote_location.startswith("prompt.txt"):
+            print(
+                "Tip: install 'xclip' or 'wl-clipboard' to enable automatic clipboard copy on Linux."
+            )
         exit(0)
     else:
         # Validate API key presence before any API operations
