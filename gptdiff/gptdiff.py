@@ -433,7 +433,7 @@ prepended to the system prompt.
         prepend = ""
     
     diff_tag = "```diff"
-    system_prompt = prepend + f"Output a git diff into a \"{diff_tag}\" block."
+    system_prompt = prepend + f"Output a full unified git diff into a \"{diff_tag}\" block."
     _, diff_text, _, _, _ = call_llm_for_diff(
         system_prompt, 
         goal, 
@@ -849,7 +849,7 @@ def main():
     if prepend != "":
         prepend += "\n"
 
-    system_prompt = prepend + f"Output a git diff into a ```diff block"
+    system_prompt = prepend + f"Output a full unified git diff into a ```diff block"
 
     files_content = ""
     for file, content in project_files:
