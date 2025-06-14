@@ -41,8 +41,14 @@ DIFF 2"""
     def dummy_call_llm(api_key, base_url, model, messages, max_tokens, budget_tokens, temperature):
         return DummyResponse(diff_str, prompt_tokens=10, completion_tokens=20, total_tokens=30)
 
-    # Patch call_llm in the gptdiff module with our dummy function.
+    # Patch call_llm and tiktoken.get_encoding to avoid network access.
     monkeypatch.setattr("gptdiff.gptdiff.call_llm", dummy_call_llm)
+
+    class DummyEnc:
+        def encode(self, text):
+            return [0] * len(text)
+
+    monkeypatch.setattr("tiktoken.get_encoding", lambda name: DummyEnc())
 
     # generate_diff calls call_llm_for_diff internally, which now uses our dummy_call_llm.
     result = generate_diff("dummy environment", "dummy goal", model="test-model")

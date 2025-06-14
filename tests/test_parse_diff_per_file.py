@@ -169,5 +169,22 @@ def test_parse_diff_per_file_unconventional_header():
     assert "+++ game.js" in patch, "Expected patch to include '+++ game.js'"
     assert "+let player" in patch, "Expected patch to include added lines"
 
+
+def test_parse_diff_with_code_fence():
+    diff_text = """```diff
+diff --git a/file.txt b/file.txt
+--- a/file.txt
++++ b/file.txt
+@@ -1 +1 @@
+-old
++new
+```"""
+
+    result = parse_diff_per_file(diff_text)
+    assert len(result) == 1
+    file_path, patch = result[0]
+    assert file_path == "file.txt"
+    assert "+new" in patch
+
 if __name__ == '__main__':
     unittest.main()
