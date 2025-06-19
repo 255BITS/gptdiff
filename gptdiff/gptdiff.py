@@ -741,6 +741,8 @@ def smart_apply_patch(project_dir, diff_text, user_prompt, args):
                     failed_files.append(file_path)
                 return
             full_path.parent.mkdir(parents=True, exist_ok=True)
+            if updated_content and not updated_content.endswith("\n"):
+                updated_content += "\n"
             full_path.write_text(updated_content)
             print(f"\033[1;32mSuccessful 'smartapply' update {file_path}.\033[0m")
             with success_lock:
