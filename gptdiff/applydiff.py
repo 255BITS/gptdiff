@@ -107,8 +107,12 @@ def apply_diff(project_dir, diff_text):
         new_lines.extend(original_lines[current_index:])
         # Ensure parent directories exist before writing the file.
         file_path.parent.mkdir(parents=True, exist_ok=True)
-        # Write the new content back to the file.
-        file_path.write_text("".join(new_lines), encoding="utf8")
+        # Write the new content back to the file. Ensure the file ends with a newline
+        # to match typical patch behavior and avoid tooling conflicts.
+        content = "".join(new_lines)
+        if content and not content.endswith("\n"):
+            content += "\n"
+        file_path.write_text(content, encoding="utf8")
         return True
 
     # Parse the diff into per-file patches.
