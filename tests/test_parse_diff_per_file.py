@@ -169,5 +169,19 @@ def test_parse_diff_per_file_unconventional_header():
     assert "+++ game.js" in patch, "Expected patch to include '+++ game.js'"
     assert "+let player" in patch, "Expected patch to include added lines"
 
+def test_begin_patch_format():
+    diff_text = """*** Begin Patch
+*** Update File: services/clerkReportPdf.tsx
+@@
+-changes1
++changes2
+*** End Patch"""
+    result = parse_diff_per_file(diff_text)
+    assert len(result) == 1
+    file_path, patch = result[0]
+    assert file_path == "services/clerkReportPdf.tsx"
+    assert "-changes1" in patch
+    assert "+changes2" in patch
+
 if __name__ == '__main__':
     unittest.main()

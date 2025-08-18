@@ -198,6 +198,30 @@ def parse_diff_per_file(diff_text):
             groups[key].append(value)
         return [[key, "\n".join(values)] for key, values in groups.items()]
 
+    # Special case: handle LLM-style patch delimiters
+    if "*** Begin Patch" in diff_text:
+        lines = diff_text.splitlines()
+        diffs = []
+        current_lines = []
+        current_file = None
+        in_patch = False
+        for line in lines:
+            stripped = line.strip()
+            if stripped == "*** Begin Patch":
+                in_patch = True
+                current_lines = []
+                current_file = None
+            elif stripped == "*** End Patch":
+                if current_file is not None:
+                    diffs.append((current_file, "\n".join(current_lines)))
+                in_patch = False
+            elif in_patch:
+                if stripped.startswith("*** Update File:"):
+                    current_file = stripped.split(":", 1)[1].strip()
+                else:
+                    current_lines.append(line)
+        return dedup_diffs(diffs)
+
     header_re = re.compile(r'^(?:diff --git\s+)?(a/[^ ]+)\s+(b/[^ ]+)\s*$', re.MULTILINE)
     lines = diff_text.splitlines()
 
