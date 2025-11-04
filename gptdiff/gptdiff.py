@@ -851,7 +851,7 @@ def main():
     if prepend != "":
         prepend += "\n"
 
-    system_prompt = prepend + f"Output a full unified git diff into a ```diff block"
+    system_prompt = prepend + f"Output a full unified git diff into a ```diff block(diff --git ...)"
 
     files_content = ""
     for file, content in project_files:
