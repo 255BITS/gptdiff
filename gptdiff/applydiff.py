@@ -96,8 +96,19 @@ def apply_diff(project_dir, diff_text):
                         # Addition line: add to new_lines.
                         new_lines.append(pline[1:] + "\n")
                     else:
-                        print("Unexpected line in hunk:", pline)
-                        return False
+                        # Some diffs (especially LLM-generated) omit the leading space on
+                        # context lines. Treat bare lines as context when they match the
+                        # original file to make patch application more forgiving.
+                        expected = pline
+                        if current_index >= len(original_lines):
+                            print("Context line expected but file ended")
+                            return False
+                        orig_line = original_lines[current_index].rstrip("\n")
+                        if orig_line != expected:
+                            print("Context line mismatch. Expected:", expected, "Got:", orig_line)
+                            return False
+                        new_lines.append(original_lines[current_index])
+                        current_index += 1
                     i += 1
             else:
                 # Skip non-hunk header lines.
