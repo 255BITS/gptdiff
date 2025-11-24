@@ -81,11 +81,10 @@ def create_think_toolbox():
         fn=think,
         args={
             "content": {
-                "type": "string",
-                "description": "Thoughts"
+                "type": "string"
             }
         },
-        description=""
+        description="Just output the diff content. Not a datastructure."
     )
     return toolbox
 
@@ -332,7 +331,19 @@ def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperat
     parser = MarkdownParser()
     formatter = MarkdownPromptFormatter()
     toolbox = create_diff_toolbox()
-    tool_prompt = formatter.usage_prompt(toolbox)
+    #tool_prompt = formatter.usage_prompt(toolbox)
+    tool_prompt="""Save the calculated diff as used in 'git apply'. Should include the file and line number. For example:
+```diff
+a/file.py b/file.py
+--- a/file.py
++++ b/file.py
+@@ -1,2 +1,2 @@
+-def old():
++def new():
+```
+
+You must include the '--- file' and/or '+++ file' part of the diff. File modifications should include both.
+"""
     system_prompt += "\n" + tool_prompt
 
     if 'gemini' in model:
