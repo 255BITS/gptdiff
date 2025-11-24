@@ -245,33 +245,46 @@ def parse_diff_per_file(diff_text):
 
     # Check if any header line exists.
     if not any(header_re.match(line) for line in lines):
-        # Fallback strategy: detect file headers starting with '--- a/' or '-- a/'
+        # Fallback strategy: detect file headers starting with '---' / '+++' pairs
         diffs = []
         current_lines = []
         current_file = None
         deletion_mode = False
-        header_line_re = re.compile(r'^-{2,3}\s+a/(.+)$')
+        from_header = None
+        header_from_re = re.compile(r'^-{2,3}\s+(.*)$')
+        header_to_re = re.compile(r'^\+{2,3}\s+(.*)$')
 
         for line in lines:
-            if header_line_re.match(line):
+            from_match = header_from_re.match(line)
+            to_match = header_to_re.match(line)
+
+            if from_match:
                 if current_file is not None and current_lines:
                     if deletion_mode and not any(l.startswith("+++ /dev/null") for l in current_lines):
                         current_lines.append("+++ /dev/null")
                     diffs.append((current_file, "\n".join(current_lines)))
                 current_lines = [line]
                 deletion_mode = False
-                file_from = header_line_re.match(line).group(1).strip()
-                current_file = file_from
-            else:
+                current_file = None
+                from_header = from_match.group(1).strip()
+                continue
+
+            if to_match and current_lines:
                 current_lines.append(line)
-                if "deleted file mode" in line:
+                file_to = to_match.group(1).strip()
+
+                if file_to == "/dev/null":
                     deletion_mode = True
-                if line.startswith("+++ "):
-                    parts = line.split()
-                    if len(parts) >= 2:
-                        file_to = parts[1].strip()
-                        if file_to != "/dev/null":
-                            current_file = file_to[2:] if (file_to.startswith("a/") or file_to.startswith("b/")) else file_to
+                    if from_header and from_header != "/dev/null":
+                        current_file = from_header[2:] if (from_header.startswith("a/") or from_header.startswith("b/")) else from_header
+                else:
+                    current_file = file_to[2:] if (file_to.startswith("a/") or file_to.startswith("b/")) else file_to
+                continue
+
+            current_lines.append(line)
+            if "deleted file mode" in line:
+                deletion_mode = True
+
         if current_file is not None and current_lines:
             if deletion_mode and not any(l.startswith("+++ ") for l in current_lines):
                 current_lines.append("+++ /dev/null")

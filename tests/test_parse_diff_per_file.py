@@ -57,6 +57,25 @@ index 3efacb1..0000000
             if fp == "TODO":
                 self.assertIn("FINAL TOUCH: The game is now", patch)
 
+    def test_new_files_without_diff_git_header(self):
+        diff_text = """--- /dev/null
++++ b/index.html
+@@ -0,0 +1,3 @@
++<!DOCTYPE html>
++<html>
++</html>
+--- /dev/null
++++ b/game.js
+@@ -0,0 +1,2 @@
++const a = 1;
++const b = 2;
+"""
+
+        result = parse_diff_per_file(diff_text)
+        self.assertEqual(len(result), 2, "Expected two file entries for new file creations")
+        files = {fp for fp, _ in result}
+        self.assertEqual(files, {"index.html", "game.js"})
+
     def test_index_html_diff(self):
         diff_text = """a/index.html b/index.html
 @@
