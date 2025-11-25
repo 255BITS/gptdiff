@@ -387,9 +387,25 @@ You must include the '--- file' and/or '+++ file' part of the diff. File modific
     else:
         print("Diff generated.")
 
-    prompt_tokens = response.usage.prompt_tokens
-    completion_tokens = response.usage.completion_tokens
-    total_tokens = response.usage.total_tokens
+    # Robust token usage handling
+    prompt_tokens = completion_tokens = total_tokens = 0
+    usage = getattr(response, "usage", None)
+
+    if usage:
+        if isinstance(usage, dict):
+            prompt_tokens = usage.get("prompt_tokens") or usage.get("input_tokens") or 0
+            completion_tokens = usage.get("completion_tokens") or usage.get("output_tokens") or 0
+            total_tokens = usage.get("total_tokens") or (prompt_tokens + completion_tokens)
+        else:
+            prompt_tokens = getattr(usage, "prompt_tokens", None) or getattr(usage, "input_tokens", 0)
+            completion_tokens = getattr(usage, "completion_tokens", None) or getattr(usage, "output_tokens", 0)
+            total_tokens = getattr(usage, "total_tokens", None) or (prompt_tokens + completion_tokens)
+    elif hasattr(response, "x_nanogpt_pricing"):
+        pricing = getattr(response, "x_nanogpt_pricing") or {}
+        prompt_tokens = pricing.get("inputTokens") or pricing.get("cacheCreationInputTokens") or 0
+        completion_tokens = pricing.get("outputTokens", 0)
+        total_tokens = prompt_tokens + completion_tokens
+
 
     elapsed = time.time() - start_time
     minutes, seconds = divmod(int(elapsed), 60)
