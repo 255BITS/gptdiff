@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='gptdiff',
-    version='0.4.1',
+    version='0.5.0',
     description='A tool to generate and apply git diffs using LLMs',
     author='255labs',
     packages=find_packages(),  # Use find_packages() to automatically discover packages
