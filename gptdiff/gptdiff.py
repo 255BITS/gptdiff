@@ -346,7 +346,7 @@ You must include the '--- file' and/or '+++ file' part of the diff. File modific
 """
     system_prompt += "\n" + tool_prompt
 
-    if 'gemini' in model:
+    if 'gemini' in model or 'deepseek' in model:
         user_prompt = system_prompt + "\n" + user_prompt
 
     input_content = system_prompt + "\n" + user_prompt + "\n" + files_content
