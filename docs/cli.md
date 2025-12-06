@@ -27,13 +27,21 @@ gptdiff "Add null safety checks" --apply src/
 gptdiff "Modernize string formatting" --call
 ```
 
-`--prepend <file>`  
-**Prepend custom instructions from file to system prompt**  
+`--prepend <file>`
+**Prepend custom instructions from file to system prompt**
 *Example:*
 ```bash
 gptdiff "Modernize string formatting" --prepend style-guide.txt
 ```
 `--prepend <file_or_url>`: Prepend custom instructions from the specified file or URL to the system prompt
+
+`--image <path>`
+**Attach one or more images**
+*Example:*
+```bash
+gptdiff "Explain the chart in the README and refactor accordingly" --image docs/chart.png --image docs/layout.png
+```
+Adds each image (base64-encoded) to the request so the LLM can use visual context when generating diffs.
 
 `--temperature <0-2>`  
 **Control transformation creativity**  

@@ -17,6 +17,8 @@ from pkgutil import get_data
 import threading
 from threading import Lock
 import shutil
+import base64
+import mimetypes
 
 import openai
 from openai import OpenAI
@@ -220,6 +222,35 @@ def domain_for_url(base_url):
         domain = base_url
     return domain
 
+def _convert_openai_message_to_anthropic(message):
+    if not isinstance(message.get("content"), list):
+        return message
+
+    converted_content = []
+    for block in message["content"]:
+        if not isinstance(block, dict):
+            continue
+        if block.get("type") == "text":
+            converted_content.append({"type": "text", "text": block.get("text", "")})
+        elif block.get("type") == "image_url":
+            url = block.get("image_url", {}).get("url", "")
+            if url.startswith("data:") and ";base64," in url:
+                header, data = url.split(",", 1)
+                media_type = header.split(":", 1)[1].split(";", 1)[0]
+                converted_content.append({
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": media_type,
+                        "data": data,
+                    },
+                })
+        else:
+            converted_content.append(block)
+
+    return {**message, "content": converted_content}
+
+
 def call_llm(api_key, base_url, model, messages, max_tokens, temperature, budget_tokens=None):
     # Check if we're using Anthropic
     if "api.anthropic.com" in base_url:
@@ -242,6 +273,7 @@ def call_llm(api_key, base_url, model, messages, max_tokens, temperature, budget
                 filtered_messages.append(message)
         
         # Prepare request data
+        filtered_messages = [_convert_openai_message_to_anthropic(m) for m in filtered_messages]
         data = {
             "model": model,
             "messages": filtered_messages,
@@ -318,7 +350,7 @@ def call_llm(api_key, base_url, model, messages, max_tokens, temperature, budget
             temperature=temperature
         )
 
-def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperature=1.0, max_tokens=30000, api_key=None, base_url=None, budget_tokens=None):
+def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperature=1.0, max_tokens=30000, api_key=None, base_url=None, budget_tokens=None, images=None):
     enc = tiktoken.get_encoding("o200k_base")
     
     # Use colors in print statements
@@ -346,14 +378,22 @@ You must include the '--- file' and/or '+++ file' part of the diff. File modific
 """
     system_prompt += "\n" + tool_prompt
 
-    if 'gemini' in model or 'deepseek' in model:
+    if 'gemini' in model:
         user_prompt = system_prompt + "\n" + user_prompt
 
     input_content = system_prompt + "\n" + user_prompt + "\n" + files_content
     token_count = len(enc.encode(input_content))
+    user_content = user_prompt + "\n" + files_content
+    if images:
+        content_blocks = [{"type": "text", "text": user_content}]
+        for image in images:
+            data_url = f"data:{image['media_type']};base64,{image['data']}"
+            content_blocks.append({"type": "image_url", "image_url": {"url": data_url}})
+        user_content = content_blocks
+
     messages = [
         {"role": "system", "content": system_prompt},
-        {"role": "user", "content": user_prompt + "\n" + files_content},
+        {"role": "user", "content": user_content},
     ]
 
     if VERBOSE:
@@ -437,7 +477,17 @@ def build_environment(files_dict):
         env.append(content)
     return '\n'.join(env)
 
-def generate_diff(environment, goal, model=None, temperature=1.0, max_tokens=32000, api_key=None, base_url=None, prepend=None, anthropic_budget_tokens=None):
+def load_images(image_paths):
+    images = []
+    for image_path in image_paths or []:
+        media_type, _ = mimetypes.guess_type(image_path)
+        media_type = media_type or "image/png"
+        with open(image_path, "rb") as f:
+            encoded = base64.b64encode(f.read()).decode("utf-8")
+        images.append({"media_type": media_type, "data": encoded, "path": image_path})
+    return images
+
+def generate_diff(environment, goal, model=None, temperature=1.0, max_tokens=32000, api_key=None, base_url=None, prepend=None, anthropic_budget_tokens=None, images=None):
     """API: Generate a git diff from the environment and goal.
 
 If 'prepend' is provided, it should be a path to a file whose content will be
@@ -461,16 +511,19 @@ prepended to the system prompt.
     
     diff_tag = "```diff"
     system_prompt = prepend + f"Output a full unified git diff into a \"{diff_tag}\" block."
+    encoded_images = load_images(images)
+
     _, diff_text, _, _, _ = call_llm_for_diff(
-        system_prompt, 
-        goal, 
-        environment, 
+        system_prompt,
+        goal,
+        environment,
         model,
         temperature=temperature,
         max_tokens=max_tokens,
         api_key=api_key,
         base_url=base_url,
-        budget_tokens=int(anthropic_budget_tokens) if anthropic_budget_tokens is not None else None
+        budget_tokens=int(anthropic_budget_tokens) if anthropic_budget_tokens is not None else None,
+        images=encoded_images,
     )
     return diff_text
 
@@ -558,6 +611,8 @@ def parse_arguments():
     parser.add_argument(
         '--applymodel', type=str, default=None,
         help='Model to use for applying the diff. Overrides GPTDIFF_SMARTAPPLY_MODEL env var; if not set, defaults to "openai/gpt-4.1-mini".')
+
+    parser.add_argument('--image', action='append', default=[], help='Path to an image file to include in the request. Can be provided multiple times.')
 
     parser.add_argument('--nowarn', action='store_true', help='Disable large token warning')
     parser.add_argument('--anthropic_budget_tokens', type=int, default=None, help='Budget tokens for Anthropic extended thinking')
@@ -843,6 +898,11 @@ def main():
     project_dir = os.getcwd()
     enc = tiktoken.get_encoding("o200k_base")
 
+    try:
+        encoded_images = load_images(args.image)
+    except FileNotFoundError as e:
+        print(f"\033[1;31mError loading image: {e}\033[0m")
+        sys.exit(1)
 
     # Load project files, defaulting to current working directory if no additional paths are specified
     if not args.files:
@@ -956,13 +1016,14 @@ def main():
             if confirmation != 'y':
                 print("Request canceled")
                 sys.exit(0)
-        full_text, diff_text, prompt_tokens, completion_tokens, total_tokens = call_llm_for_diff(system_prompt, user_prompt, files_content, args.model, 
+        full_text, diff_text, prompt_tokens, completion_tokens, total_tokens = call_llm_for_diff(system_prompt, user_prompt, files_content, args.model,
                                                                                                 temperature=args.temperature,
                                                                                                 api_key=os.getenv('GPTDIFF_LLM_API_KEY'),
                                                                                                 base_url=os.getenv('GPTDIFF_LLM_BASE_URL', "https://nano-gpt.com/api/v1/"),
                                                                                                 max_tokens=args.max_tokens,
-                                                                                                budget_tokens=args.anthropic_budget_tokens
-                                                                                                ) 
+                                                                                                budget_tokens=args.anthropic_budget_tokens,
+                                                                                                images=encoded_images
+                                                                                                )
 
     if(diff_text.strip() == ""):
         print(f"\033[1;33mWarning: No valid diff data was generated. This could be due to an unclear prompt or an invalid LLM response.\033[0m")

@@ -12,7 +12,8 @@ def generate_diff(
     max_tokens: int = 32000,
     prepend: Optional[str] = None,  # Path to file or URL whose content will be prepended to the system prompt
     api_key: Optional[str] = None,  # Can also set via GPTDIFF_LLM_API_KEY env
-    base_url: Optional[str] = None
+    base_url: Optional[str] = None,
+    images: Optional[List[str]] = None,  # List of image file paths encoded and sent with the prompt
 ) -> str
 ```
 **Note:** Built with the [AI Agent Toolbox](https://github.com/255BITS/ai-agent-toolbox) for reliable tool parsing across models and frameworks
@@ -21,6 +22,7 @@ def generate_diff(
 
 - `environment`: Multi-file codebase representation using `File: [path]` headers
 - `goal`: Natural language instruction for desired code changes
+- `images`: Optional list of image file paths to provide additional visual context (each image is base64-encoded and included in the request)
 - Returns unified diff string sometimes compatible with smartapply
 
 **Example:**
