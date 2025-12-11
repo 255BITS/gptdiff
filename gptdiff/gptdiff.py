@@ -342,7 +342,7 @@ def call_llm(api_key, base_url, model, messages, max_tokens, temperature, budget
         return OpenAICompatResponse([choice], usage)
     else:
         # Use OpenAI client as before
-        client = OpenAI(api_key=api_key, base_url=base_url)
+        client = OpenAI(api_key=api_key, base_url=base_url, max_retries=0)
         return client.chat.completions.create(
             model=model,
             messages=messages,
@@ -709,7 +709,7 @@ Diff to apply:
         api_key = os.getenv('GPTDIFF_LLM_API_KEY')
     if not base_url:
         base_url = os.getenv('GPTDIFF_LLM_BASE_URL', "https://nano-gpt.com/api/v1/")
-    client = OpenAI(api_key=api_key, base_url=base_url)
+    client = OpenAI(api_key=api_key, base_url=base_url, max_retries=0)
     start_time = time.time()
     response = client.chat.completions.create(model=model,
         messages=messages,
