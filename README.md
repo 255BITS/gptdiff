@@ -1,174 +1,238 @@
 # GPTDiff
-<!--
-GPTDiff: Create and apply diffs using AI.
-This tool leverages natural language instructions to modify project codebases.
--->
 
-## Table of Contents
+**Transform your codebase with natural language.** GPTDiff lets you describe code changes in plain English and automatically generates and applies the diffs for you.
 
-- [Quick Start](#quick-start)
-- [Example Usage](#example-usage-of-gptdiff)
-- [Basic Usage](#basic-usage)
-- [Simple Command Line Agent Loops](#simple-command-line-agent-loops)
-- [Why Choose GPTDiff?](#why-choose-gptdiff)
-- [Core Capabilities](#core-capabilities)
-  - [CLI Excellence](#-cli-excellence)
-  - [Magic Diff Generation](#-magic-diff-generation)
-  - [Smart Apply System](#-smart-apply-system)
-- [Get Started](#get-started)
-  - [Installation](#installation)
-  - [Configuration](#configuration)
-- [Command Line Usage](#command-line-usage)
-
-🚀 **Create and apply diffs with AI**  
-Modify your project using plain English.
-
-More documentation at [gptdiff.255labs.xyz](https://gptdiff.255labs.xyz)
-
-## Quick Start
-
-1. **Install GPTDiff**
-   
-   
-### Example Usage of `gptdiff`
-
-#### Apply a Patch Directly
 ```bash
-gptdiff "Add button animations on press" --apply
-```
-✅ Successfully applied patch
+# Install and configure
+pip install gptdiff
+export GPTDIFF_LLM_API_KEY='your-api-key'  # Get one at https://nano-gpt.com/api
 
-#### Generate a Patch File
-```bash
-gptdiff "Add API documentation" --call
+# Make changes with a single command
+gptdiff "Add input validation to all form fields" --apply
 ```
-🔧 Patch written to `diff.patch`
 
-#### Generate a Prompt File Without Calling LLM
-```bash
-gptdiff "Improve error messages"
-```
-📄 LLM not called, written to `prompt.txt`
+That's it. GPTDiff reads your entire project, understands the context, generates a unified diff, and applies it—all in one command.
+
+📚 Full documentation at [gptdiff.255labs.xyz](https://gptdiff.255labs.xyz)
 
 ---
 
-### Basic Usage
+## Quick Start
 
-```bash
-cd myproject
-gptdiff 'add hover effects to the buttons'
-```
-
-Generates a prompt.txt file containing the full request.
-Copy and paste its content into your preferred LLM (e.g., ChatGPT) for further experimentation.
-
-### Simple command line agent loops
-
-```bash
-while
-do
-  gptdiff "Add missing test cases" --apply
-done
-```
-
-*Requires reasoning model*
-
-## Why Choose GPTDiff?
-
-- **Describe changes in plain English**  
-- **AI gets your whole project**  
-- **Auto-fixes conflicts**  
-- **Keeps code functional**  
-- **Fast setup, no fuss**  
-- **You approve every change**  
-- **Costs are upfront**
-
-## Core Capabilities
-
-### ⚡ CLI Excellence
-- **Target Specific Files** - Change just what you need
-- **Live Updates** - See changes as they're made
-- **Try Before Applying** - Test changes safely first
-- **Clear Pricing** - Know costs upfront
-- **Preview Changes** - See what will change with `--call`
-- **Fix Mistakes** - Automatic error correction
-
-### ✨ Magic Diff Generation
-```bash
-gptdiff "Convert class components to React hooks" --model deepseek-reasoner
-```
-- Full project context awareness
-- Cross-file refactoring support
-- Automatic conflict prevention
-
-### 🧠 Smart Apply System
-
-**Git-native Workflow:**
-```bash
-# 1. Apply AI-generated changes
-gptdiff "Improve error handling" --apply
-
-# 2. Review each change interactively
-git add -p
-
-# 3. Commit or discard
-git commit -m "Enhanced error handling"
-git reset --hard  # To undo all changes
-```
-
-```bash
-gptdiff "Refactor authentication to use OAuth 2.0" --apply
-```
-<span style="color: #00ff00;">✅ Successfully applied complex changes across 5 files</span>
-
-## Get Started
-
-### Installation
-
-Requires Python 3.8+. Install from PyPI:
+### Step 1: Install
 
 ```bash
 pip install gptdiff
-pip install tiktoken  # For token counting
 ```
 
-Development install (no pip package yet)
+### Step 2: Set Your API Key
+
 ```bash
-python setup.py install
-```
-
-### Configuration
-
-First sign up for an API key at https://nano-gpt.com/api and generate your key. Then configure your environment: 
-
-#### Linux/MacOS
-```bash
+# Linux/macOS
 export GPTDIFF_LLM_API_KEY='your-api-key'
-# Optional: For switching API providers
-export GPTDIFF_MODEL='deepseek-reasoner'  # Set default model for all commands
-export GPTDIFF_LLM_BASE_URL='https://nano-gpt.com/api/v1/'
-```
 
-#### Windows
-```cmd
+# Windows
 set GPTDIFF_LLM_API_KEY=your-api-key
-rem Optional: For switching API providers 
-set GPTDIFF_MODEL=deepseek-reasoner
-set GPTDIFF_LLM_BASE_URL=https://nano-gpt.com/api/v1/
 ```
 
-The default base URL points to nano-gpt.com's API. Supported models can be specified with:
+Get your API key at [nano-gpt.com/api](https://nano-gpt.com/api).
+
+### Step 3: Run Your First Command
+
+Navigate to any project directory and describe what you want to change:
 
 ```bash
-gptdiff 'your prompt' --model deepseek-reasoner
-# Default model can be set via GPTDIFF_MODEL environment variable
+cd your-project
+gptdiff "Add type hints to all functions" --apply
 ```
 
-OpenAI will not be called unless you specify `--call` or `--apply`
+**What happens:**
+1. GPTDiff scans your codebase (respecting `.gitignore`)
+2. Sends context + your instruction to an AI model
+3. Receives a unified diff
+4. Applies the changes to your files
 
-Prevent files being appended to the prompt by adding them to `.gitignore` or `.gptignore`
+### Three Ways to Use GPTDiff
 
-## Command Line Usage
+| Command | What It Does | When to Use |
+|---------|--------------|-------------|
+| `gptdiff "prompt"` | Generates `prompt.txt` only | Preview what will be sent to the LLM |
+| `gptdiff "prompt" --call` | Generates diff, saves to `diff.patch` | Review changes before applying |
+| `gptdiff "prompt" --apply` | Generates and applies diff automatically | When you're ready to make changes |
+
+**Examples:**
+
+```bash
+# Just generate the prompt (no API call)
+gptdiff "Improve error messages"
+# → Creates prompt.txt - useful for manual LLM experimentation
+
+# Generate diff but don't apply it
+gptdiff "Add API documentation" --call
+# → Creates diff.patch - review before applying
+
+# Generate and apply in one step
+gptdiff "Add button animations on press" --apply
+# → Changes applied directly to your files
+```
+
+---
+
+## See It In Action
+
+GPTDiff doesn't just run commands—it transforms your code. Here are real before/after examples:
+
+### Example 1: Add Type Hints
+
+**Command:**
+```bash
+gptdiff "Add type hints to all functions" --apply
+```
+
+**Before:**
+```python
+def calculate_total(items, tax_rate):
+    subtotal = sum(item['price'] * item['quantity'] for item in items)
+    return subtotal * (1 + tax_rate)
+
+def format_currency(amount):
+    return f"${amount:.2f}"
+```
+
+**After:**
+```python
+def calculate_total(items: list[dict], tax_rate: float) -> float:
+    subtotal = sum(item['price'] * item['quantity'] for item in items)
+    return subtotal * (1 + tax_rate)
+
+def format_currency(amount: float) -> str:
+    return f"${amount:.2f}"
+```
+
+### Example 2: Add Error Handling
+
+**Command:**
+```bash
+gptdiff "Add try/except blocks with proper error messages to all file operations" --apply
+```
+
+**Before:**
+```python
+def read_config(path):
+    with open(path) as f:
+        return json.load(f)
+```
+
+**After:**
+```python
+def read_config(path):
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except FileNotFoundError:
+        raise ConfigError(f"Configuration file not found: {path}")
+    except json.JSONDecodeError as e:
+        raise ConfigError(f"Invalid JSON in config file {path}: {e}")
+```
+
+### Example 3: Refactor Across Multiple Files
+
+**Command:**
+```bash
+gptdiff "Rename the User class to Account and update all imports and references" --apply
+```
+
+**Before (models/user.py):**
+```python
+class User:
+    def __init__(self, name: str, email: str):
+        self.name = name
+        self.email = email
+```
+
+**Before (services/auth.py):**
+```python
+from models.user import User
+
+def get_current_user() -> User:
+    return User("John", "john@example.com")
+```
+
+**After (models/account.py):** *(file renamed)*
+```python
+class Account:
+    def __init__(self, name: str, email: str):
+        self.name = name
+        self.email = email
+```
+
+**After (services/auth.py):**
+```python
+from models.account import Account
+
+def get_current_user() -> Account:
+    return Account("John", "john@example.com")
+```
+
+GPTDiff understands your entire codebase—it updates class definitions, imports, type hints, and references across all files in one operation.
+
+---
+
+## Why Choose GPTDiff?
+
+| Feature | Benefit |
+|---------|---------|
+| **Plain English instructions** | No need to learn complex refactoring tools |
+| **Full project context** | AI sees all your files, understands relationships |
+| **Smart conflict resolution** | Handles merge conflicts automatically |
+| **Git-native workflow** | Review changes with `git diff`, undo with `git checkout` |
+| **You control everything** | Preview with `--call`, apply only when ready |
+
+## Choosing a Model
+
+Different AI models have different strengths. **Reasoning models** (like `deepseek-reasoner`) take longer but produce more accurate results for complex refactoring. **Fast models** (like `gemini-2.0-flash`) are better for simple, straightforward changes.
+
+| Model | Best For | Speed | Notes |
+|-------|----------|-------|-------|
+| `deepseek-reasoner` | Complex refactoring, multi-file changes | Slower | Default - uses chain-of-thought reasoning |
+| `gpt-4o` | General code changes | Fast | Reliable for most tasks |
+| `claude-sonnet-4-20250514` | Nuanced code understanding | Medium | Great for context-sensitive changes |
+| `gemini-2.0-flash` | Simple text changes, translations | Very fast | Most cost-effective option |
+
+**Quick rule:** Start with the default (`deepseek-reasoner`). If it's too slow for simple tasks, switch to `gpt-4o` or `gemini-2.0-flash`.
+
+```bash
+# Use a specific model
+gptdiff "Convert callbacks to async/await" --model deepseek-reasoner
+
+# Set a default model for all commands
+export GPTDIFF_MODEL='gpt-4o'
+```
+
+---
+
+## Advanced Configuration
+
+### Environment Variables
+
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `GPTDIFF_LLM_API_KEY` | Your API key (required) | - |
+| `GPTDIFF_MODEL` | Default model for diff generation | `deepseek-reasoner` |
+| `GPTDIFF_LLM_BASE_URL` | API endpoint | `https://nano-gpt.com/api/v1/` |
+
+### Excluding Files
+
+Prevent files from being sent to the LLM by adding them to `.gitignore` or `.gptignore`:
+
+```bash
+# .gptignore example
+*.env
+secrets/
+node_modules/
+```
+
+---
 
 ## gptpatch: Apply Diffs Directly
 
@@ -201,48 +265,30 @@ gptpatch path/to/diff.patch
 
 For more details, see the [gptpatch documentation](https://gptdiff.255labs.xyz) on our docs site.
 
-After installing the package, use the `gptdiff` command in your terminal. Change directory into your codebase and run:
+---
 
+## CLI Options Reference
+
+| Option | Description |
+|--------|-------------|
+| `--apply` | Generate diff and apply it automatically |
+| `--call` | Generate diff and save to `diff.patch` (for review) |
+| `--model <name>` | Specify which LLM to use |
+| `--temperature <0-2>` | Control creativity (default: 0.7) |
+| `--nobeep` | Disable completion notification sound |
+| `--prepend <file>` | Prepend custom instructions to the prompt |
+| `--image <path>` | Include images for visual context |
+
+**Target specific files:**
 ```bash
-gptdiff '<user_prompt>'
+gptdiff "Add logging" src/api/ src/utils/helpers.py
 ```
 
-any files that are included in .gitignore are ignored when generating prompt.txt.
+For the complete CLI reference, see [cli.md](https://gptdiff.255labs.xyz/cli).
 
-#### Specifying Additional Files
+---
 
-You may supply extra files or directories as arguments to the `gptdiff` command. If omitted, the tool defaults to the current working directory, excluding those matching ignore rules.
-
-#### Autopatch Changes
-
-You can also call openai and automatically apply the generated git diff with the `--apply` flag:
-
-```bash
-gptdiff '<user_prompt>' --apply
-```
-
-### Dry-Run Validation
-Preview changes without applying them by omitting the `--apply` flag when using `--call`:
-```bash
-gptdiff "Modernize database queries" --call
-```
-<span style="color: #0066cc;">i️ Diff preview generated - review changes before applying</span>
-
-This often generates incorrect diffs that need to be manually merged.
-
-#### Smart Apply
-
-For robust handling of complex changes, use `smartapply`. It processes each file’s diff individually via the LLM, ensuring nuanced conflict resolution.
-
-## Completion Notification
-
-Use the `--nobeep` option to disable the default completion beep:
-
-```bash
-gptdiff '<user_prompt>' --nobeep
-```
-
-## Local API Documentation
+## Documentation
 
 Preview API docs locally using MkDocs:
 
