@@ -7,7 +7,7 @@
 def generate_diff(
     environment: str,
     goal: str,
-    model: str = os.getenv('GPTDIFF_MODEL', 'deepseek-reasoner'),
+    model: str = os.getenv('GPTDIFF_MODEL', 'gemini-3-pro-preview'),
     temperature: float = 0.7,
     max_tokens: int = 32000,
     prepend: Optional[str] = None,  # Path to file or URL whose content will be prepended to the system prompt
@@ -52,7 +52,7 @@ diff = generate_diff(env, "Translate greeting to Spanish")
 def smartapply(  # AI-powered patch resolver
     diff_text: str,
     files: Dict[str, str],
-    model: str = 'deepseek-reasoner',
+    model: str = 'gpt5-mini',  # Fast and reliable for applying diffs
     api_key: Optional[str] = None,
     base_url: Optional[str] = None
 ) -> Dict[str, str]
@@ -185,8 +185,9 @@ except Exception as e:
    ```
    
 2. **Model Selection**:
-   - `deepseek-reasoner`: Structural code changes (default)
-   - `gemini-2.0-flash`: Faster responses for simple text modifications
+   - `gemini-3-pro-preview`: Recommended default for generating diffs
+   - `gpt5-mini`: Recommended for smartapply (fast and reliable)
+   - `gemini-2.0-flash`: Fastest for simple text modifications
 
 ## Edge Case Handling
 
@@ -269,6 +270,6 @@ save_files(files)  # Your custom saver
 ```
 
 For the smartapply feature, you can set separate variables:
- - `GPTDIFF_SMARTAPPLY_MODEL`: Model for smartapply (recommended: `openai/gpt-4.1-mini`, the fastest model that applies diffs reliably; defaults to `GPTDIFF_MODEL` if not set)
+ - `GPTDIFF_SMARTAPPLY_MODEL`: Model for smartapply (recommended: `gpt5-mini`, fast and reliable for applying diffs; defaults to `GPTDIFF_MODEL` if not set)
  - `GPTDIFF_SMARTAPPLY_API_KEY`: API key for smartapply (defaults to `GPTDIFF_LLM_API_KEY` if not set)
  - `GPTDIFF_SMARTAPPLY_BASE_URL`: Base URL for smartapply (defaults to `GPTDIFF_LLM_BASE_URL` if not set)

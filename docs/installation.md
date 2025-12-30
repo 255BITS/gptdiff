@@ -31,9 +31,9 @@ To use `gptdiff`, you need an API key from [nano-gpt.com/api](https://nano-gpt.c
 #### Linux/MacOS
 ```bash
 export GPTDIFF_LLM_API_KEY='your-api-key'
-# Optional: For switching API providers
-export GPTDIFF_MODEL='deepseek-reasoner'  # Default model
-export GPTDIFF_LLM_BASE_URL='https://nano-gpt.com/api/v1/'
+# Recommended models
+export GPTDIFF_MODEL='gemini-3-pro-preview'  # For generating diffs
+export GPTDIFF_SMARTAPPLY_MODEL='gpt5-mini'  # For applying diffs
 ```
 
 #### Windows

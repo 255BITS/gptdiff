@@ -38,12 +38,12 @@ gptdiff "Add type hints to all functions" --apply
 **Expected output:**
 ```
 Reading project files...
-Generating diff with deepseek-reasoner...
+Generating diff with gemini-3-pro-preview...
 Applying changes...
 ✅ Successfully applied patch to 3 files
 ```
 
-**Tip:** The default model (`deepseek-reasoner`) is best for complex changes. For simple tasks, use a faster model:
+**Tip:** The default model (`gemini-3-pro-preview`) works great for most tasks. For very simple changes, use a faster model:
 ```bash
 gptdiff "Fix typos in comments" --model gemini-2.0-flash --apply
 ```
@@ -94,7 +94,7 @@ gptpatch diff.patch
   ```bash
   gptdiff "Add logging" src/api/ src/utils/
   ```
-- **Expect timing variance**: Complex changes with `deepseek-reasoner` may take 30-60 seconds
+- **Expect timing variance**: Complex changes may take 30-60 seconds depending on the model
 - **Always review**: AI-generated code should be checked, especially for error handling and edge cases
 
 ---

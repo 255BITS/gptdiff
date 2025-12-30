@@ -190,23 +190,25 @@ GPTDiff understands your entire codebase—it updates class definitions, imports
 
 ## Choosing a Model
 
-Different AI models have different strengths. **Reasoning models** (like `deepseek-reasoner`) take longer but produce more accurate results for complex refactoring. **Fast models** (like `gemini-2.0-flash`) are better for simple, straightforward changes.
+Different AI models have different strengths. **Reasoning models** produce more accurate results for complex refactoring but take longer. **Fast models** are better for simple, straightforward changes.
 
 | Model | Best For | Speed | Notes |
 |-------|----------|-------|-------|
-| `deepseek-reasoner` | Complex refactoring, multi-file changes | Slower | Default - uses chain-of-thought reasoning |
-| `gpt-4o` | General code changes | Fast | Reliable for most tasks |
+| `gemini-3-pro-preview` | General code changes, refactoring | Fast | **Recommended default** - great balance |
+| `gpt-4o` | Complex multi-file changes | Medium | Reliable for most tasks |
 | `claude-sonnet-4-20250514` | Nuanced code understanding | Medium | Great for context-sensitive changes |
 | `gemini-2.0-flash` | Simple text changes, translations | Very fast | Most cost-effective option |
+| `gpt5-mini` | Applying diffs (smartapply) | Very fast | Best for `GPTDIFF_SMARTAPPLY_MODEL` |
 
-**Quick rule:** Start with the default (`deepseek-reasoner`). If it's too slow for simple tasks, switch to `gpt-4o` or `gemini-2.0-flash`.
+**Quick rule:** Use `gemini-3-pro-preview` as your default. For applying diffs, set `gpt5-mini` as your smartapply model.
 
 ```bash
-# Use a specific model
-gptdiff "Convert callbacks to async/await" --model deepseek-reasoner
+# Recommended setup
+export GPTDIFF_MODEL='gemini-3-pro-preview'
+export GPTDIFF_SMARTAPPLY_MODEL='gpt5-mini'
 
-# Set a default model for all commands
-export GPTDIFF_MODEL='gpt-4o'
+# Use a specific model for one command
+gptdiff "Convert callbacks to async/await" --model gpt-4o
 ```
 
 ---
@@ -218,7 +220,8 @@ export GPTDIFF_MODEL='gpt-4o'
 | Variable | Purpose | Default |
 |----------|---------|---------|
 | `GPTDIFF_LLM_API_KEY` | Your API key (required) | - |
-| `GPTDIFF_MODEL` | Default model for diff generation | `deepseek-reasoner` |
+| `GPTDIFF_MODEL` | Model for diff generation | `gemini-3-pro-preview` |
+| `GPTDIFF_SMARTAPPLY_MODEL` | Model for applying diffs | `gpt5-mini` |
 | `GPTDIFF_LLM_BASE_URL` | API endpoint | `https://nano-gpt.com/api/v1/` |
 
 ### Excluding Files

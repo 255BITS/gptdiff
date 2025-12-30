@@ -137,7 +137,7 @@ while true; do
 done
 ```
 
-*Works best with reasoning models like `deepseek-reasoner`.*
+*Works best with capable models like `gemini-3-pro-preview` or `gpt-4o`.*
 
 ---
 
