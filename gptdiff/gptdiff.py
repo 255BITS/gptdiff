@@ -23,7 +23,7 @@ import openai
 from openai import OpenAI
 import tiktoken
 import requests
-from ai_agent_toolbox import MarkdownParser, MarkdownPromptFormatter, Toolbox, FlatXMLParser, FlatXMLPromptFormatter
+from ai_agent_toolbox import Toolbox, XMLParser, XMLPromptFormatter
 from .applydiff import apply_diff, parse_diff_per_file
 
 VERBOSE = False
@@ -348,8 +348,8 @@ def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperat
     reset = "\033[0m"
     start_time = time.time()
 
-    parser = MarkdownParser()
-    formatter = MarkdownPromptFormatter()
+    parser = XMLParser()
+    formatter = XMLPromptFormatter()
     toolbox = create_diff_toolbox()
     #tool_prompt = formatter.usage_prompt(toolbox)
     tool_prompt="""Save the calculated diff as used in 'git apply'. Should include the file and line number. For example:
@@ -616,8 +616,8 @@ def colorize_warning_warning(message):
     return f"\033[91m\033[1m{message}\033[0m"
 
 def call_llm_for_apply_with_think_tool_available(file_path, original_content, file_diff, model, api_key=None, base_url=None, extra_prompt=None, max_tokens=30000):
-    parser = FlatXMLParser("think")
-    formatter = FlatXMLPromptFormatter(tag="think")
+    parser = XMLParser("think")
+    formatter = XMLPromptFormatter(tag="think")
     toolbox = create_think_toolbox()
     full_response = call_llm_for_apply(file_path, original_content, file_diff, model, api_key=api_key, base_url=base_url, extra_prompt=extra_prompt, max_tokens=max_tokens)
     full_response, reasoning = swallow_reasoning(full_response)
