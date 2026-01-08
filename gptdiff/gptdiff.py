@@ -23,7 +23,7 @@ import openai
 from openai import OpenAI
 import tiktoken
 import requests
-from ai_agent_toolbox import Toolbox, XMLParser, XMLPromptFormatter
+from ai_agent_toolbox import Toolbox, MarkdownParser, MarkdownPromptFormatter, XMLParser, XMLPromptFormatter
 from .applydiff import apply_diff, parse_diff_per_file
 
 VERBOSE = False
@@ -348,8 +348,8 @@ def call_llm_for_diff(system_prompt, user_prompt, files_content, model, temperat
     reset = "\033[0m"
     start_time = time.time()
 
-    parser = XMLParser()
-    formatter = XMLPromptFormatter()
+    parser = MarkdownParser()
+    formatter = MarkdownPromptFormatter()
     toolbox = create_diff_toolbox()
     #tool_prompt = formatter.usage_prompt(toolbox)
     tool_prompt="""Save the calculated diff as used in 'git apply'. Should include the file and line number. For example:
@@ -439,7 +439,6 @@ You must include the '--- file' and/or '+++ file' part of the diff. File modific
     minutes, seconds = divmod(int(elapsed), 60)
     time_str = f"{minutes}m {seconds}s" if minutes else f"{seconds}s"
     print(f"Diff creation time: {time_str}")
-    print("-" * 40)
 
     # Now, these rates are updated to per million tokens
 
