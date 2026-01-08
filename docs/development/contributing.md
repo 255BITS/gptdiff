@@ -43,3 +43,22 @@
 ## Code Standards
 - Try to get the LLMs to bootstrap the change.
 - Don't hyperfocus on what the LLMs will soon be able to do.
+
+## Agent Loop Compatibility
+
+When adding new features, ensure they work well in continuous improvement scenarios:
+
+1. **Idempotent operations** - Running the same command twice should produce consistent results
+2. **Graceful conflict handling** - Features should integrate with SmartApply's conflict resolution
+3. **Bounded changes** - Each iteration should make targeted, reviewable modifications
+
+Test your changes with a simple loop to verify reliability:
+
+```bash
+while true; do
+  gptdiff "Your test prompt using the new feature" --apply
+  sleep 5
+done
+```
+
+This helps ensure GPTDiff remains production-ready for autonomous code improvement.

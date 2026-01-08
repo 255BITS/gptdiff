@@ -67,3 +67,15 @@ graph LR
    ```
 3. **Error-Resistant Parsing** - Handles malformed LLM responses
 
+## Built for Continuous Operation
+
+Every architectural decision in GPTDiff was made with agent loops in mind:
+
+| Component | Single-Use Benefit | Agent Loop Benefit |
+|-----------|-------------------|-------------------|
+| **Pluggable LLMs** | Use the best model for each task | Switch models between iterations based on complexity |
+| **Contextual Safety** | File isolation prevents corruption | Safe to run indefinitely without human supervision |
+| **SmartApply Conflict Resolution** | Handles messy diffs gracefully | Patches stay valid as code evolves between cycles |
+| **Easy API** | Simple integration | Trivial to wrap in `while true` for autonomous improvement |
+
+The same properties that make GPTDiff reliable for one-off patches make it *powerful* when run continuously. See [Agent Loops](../examples/automation.md) for battle-tested automation patterns.

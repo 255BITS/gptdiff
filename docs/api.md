@@ -269,6 +269,42 @@ for task in ["Add type hints", "Convert to f-strings"]:
 save_files(files)  # Your custom saver
 ```
 
+**Agent Loop Integration:**
+```python
+import time
+from gptdiff import generate_diff, smartapply, build_environment
+
+def improvement_loop(files, goal, cycles=None):
+    """Run GPTDiff continuously until stopped or cycle limit reached."""
+    count = 0
+    while cycles is None or count < cycles:
+        env = build_environment(files)
+        diff = generate_diff(env, goal)
+        if diff.strip():
+            files = smartapply(diff, files)
+            count += 1
+            print(f"Cycle {count}: Applied improvements")
+        time.sleep(5)
+    return files
+
+# Example: Continuously improve test coverage
+files = load_project_files()
+files = improvement_loop(files, "Add missing test cases for edge conditions", cycles=10)
+save_files(files)
+```
+
+**Why Agent Loops Deliver ROI:**
+
+| Metric | Manual Approach | Agent Loop |
+|--------|-----------------|------------|
+| Test coverage expansion | Hours of developer time | Runs overnight, 10+ test cases added |
+| Security vulnerability fixes | Expensive audit + remediation | Continuous scanning and patching |
+| Tech debt reduction | Never prioritized | Measurable complexity reduction per cycle |
+
+Agent loops transform GPTDiff from a productivity tool into an autonomous code improvement system.
+
+See [Agent Loops](examples/automation.md) for battle-tested patterns and bash recipes.
+
 For the smartapply feature, you can set separate variables:
  - `GPTDIFF_SMARTAPPLY_MODEL`: Model for smartapply (recommended: `gpt5-mini`, fast and reliable for applying diffs; defaults to `GPTDIFF_MODEL` if not set)
  - `GPTDIFF_SMARTAPPLY_API_KEY`: API key for smartapply (defaults to `GPTDIFF_LLM_API_KEY` if not set)

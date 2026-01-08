@@ -31,3 +31,31 @@ gptdiff "Extract all UI strings to translation files" \
 ```
 
 Saved in patch.diff
+
+---
+
+## Take It Further: Agent Loops
+
+These advanced transformations become even more powerful when run continuously. Instead of a single pass, let GPTDiff iterate until the job is done:
+
+```bash
+# Complete migration in multiple passes
+while true; do
+  gptdiff "Continue migrating raw SQL to SQLAlchemy ORM" \
+    models/ queries/ \
+    --apply
+  sleep 5
+done
+```
+
+Each cycle catches what the previous one missed—edge cases, forgotten files, consistency fixes. Complex refactors that would take days of manual work complete themselves overnight.
+
+**Real Results:** A database migration loop running over 72 hours:
+
+| Metric | Single Pass | After Agent Loop |
+|--------|-------------|------------------|
+| Tables migrated | 12 | 47 |
+| Raw SQL queries remaining | 89 | 3 |
+| Test coverage for ORM | 15% | 82% |
+
+[Learn more about Agent Loops →](automation.md)

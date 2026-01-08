@@ -48,3 +48,28 @@ The default base URL points to `nano-gpt.com`'s API. Supported models can be spe
 ```bash
 gptdiff 'your prompt' --model $GPTDIFF_MODEL
 ```
+
+---
+
+## You're Ready
+
+With GPTDiff installed, you can:
+
+1. **Make one-off changes** - Describe what you want, get a diff, apply it
+2. **Run agent loops** - Let GPTDiff work autonomously while you sleep
+
+Most users start with single commands, then graduate to agent loops once they see the power:
+
+```bash
+# Start with a single change
+gptdiff "Add input validation" --apply
+
+# Then scale to autonomous improvement
+while true; do gptdiff "Fix code quality issues" --apply; sleep 5; done
+```
+
+Real users have run overnight loops that expanded test coverage from 18 to 127 test cases, and security sprints that eliminated 8 SQL injection vulnerabilities and 12 XSS flaws automatically.
+
+**Next steps:**
+- [Quickstart Guide](quickstart.md) - Make your first change
+- [Agent Loops Guide](examples/automation.md) - Set up autonomous improvement

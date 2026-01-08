@@ -42,3 +42,20 @@ gptdiff "Add Python type hints throughout codebase" \
 ```bash
 gptdiff "Convert string formatting to f-strings" src/ --apply
 ```
+
+---
+
+## Ready for More?
+
+These examples show what GPTDiff can do with a single command. But the real power comes from **running it continuously**.
+
+```bash
+while true; do
+  gptdiff "Improve code quality" --apply
+  sleep 5
+done
+```
+
+Let GPTDiff work on your codebase while you sleep. Each cycle finds the next improvement, applies it, and continues—test coverage expands, tech debt shrinks, security hardens automatically.
+
+**[See Agent Loops Guide →](automation.md)** for ready-to-use automation recipes.

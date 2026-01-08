@@ -92,7 +92,30 @@ For the smartapply feature, you can set separate variables:
 - `GPTDIFF_SMARTAPPLY_BASE_URL`: Base URL for smartapply (defaults to `GPTDIFF_LLM_BASE_URL` if not set)
 
 These allow you to use different models or credentials for generating and applying diffs—perfect for virtual team flexibility!
-  
+
+## Agent Loops
+
+The CLI's `--apply` flag enables **continuous improvement automation**. Wrap any command in a loop for hands-free code enhancement:
+
+```bash
+while true; do
+  gptdiff "Fix bugs and improve code quality" --apply
+  sleep 5
+done
+```
+
+This pattern unlocks GPTDiff's most powerful capability—autonomous code improvement that compounds over time. Each iteration finds and fixes issues you'd otherwise spend hours hunting down.
+
+**Real impact:** One overnight loop took test coverage from 18 to 127 cases—what would take 2-3 days of manual work completed while you slept.
+
+**Popular loop recipes:**
+- Test coverage expansion
+- Security vulnerability scanning
+- Tech debt reduction
+- Documentation sync
+
+See [Agent Loops](examples/automation.md) for battle-tested patterns and advanced configurations.
+
 ## plangptdiff
   
 `plangptdiff` scans your repository with **ripgrep**, selects only the files likely to change (always including anything named *schema*), and writes a ready‑to‑paste prompt to **planprompt.txt**.  

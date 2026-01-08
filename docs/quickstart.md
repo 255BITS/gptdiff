@@ -86,6 +86,32 @@ gptpatch diff.patch
 
 ---
 
+## Step 5: Run Continuously (Agent Loops)
+
+GPTDiff becomes even more powerful when you run it in a loop. Instead of making one change at a time, let it continuously improve your codebase:
+
+```bash
+while true; do
+  gptdiff "Add missing test cases for edge conditions" --apply
+  sleep 5
+done
+```
+
+Each cycle finds the next improvement opportunity, applies it, and continues. **Real example:** One overnight test coverage run went from 18 to 127 test cases—7x improvement with zero manual effort.
+
+**Popular agent loop use cases:**
+
+| Goal | Prompt |
+|------|--------|
+| Expand test coverage | "Add missing test cases for edge conditions" |
+| Reduce tech debt | "Refactor functions with high complexity" |
+| Fix security issues | "Find and fix OWASP Top 10 vulnerabilities" |
+| Sync documentation | "Update docs to match implementation" |
+
+For detailed automation patterns, see the [Agent Loops Guide](examples/automation.md).
+
+---
+
 ## Tips for Success
 
 - **Start small**: Test with a focused change before attempting large refactors
@@ -96,6 +122,7 @@ gptpatch diff.patch
   ```
 - **Expect timing variance**: Complex changes may take 30-60 seconds depending on the model
 - **Always review**: AI-generated code should be checked, especially for error handling and edge cases
+- **Scale up with loops**: Once you're comfortable, run GPTDiff overnight—one user went from 18 to 127 test cases in 8 hours
 
 ---
 

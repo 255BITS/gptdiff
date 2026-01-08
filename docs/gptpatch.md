@@ -36,4 +36,24 @@ gptpatch path/to/diff.patch
 
 By default, gptpatch uses an AI-powered smart apply mechanism to apply the diff directly. If the `--dumb` flag is specified, it first attempts to apply the diff using standard patch logic (similar to git apply). If that fails, it falls back to the smart apply mechanism with AI-powered conflict resolution.
 
+## Agent Loop Integration
+
+`gptpatch` is what makes GPTDiff agent loops production-ready. When running continuous improvement loops:
+
+```bash
+while true; do
+  gptdiff "improve code quality" --apply
+done
+```
+
+The `--apply` flag uses gptpatch internally. Each iteration may encounter:
+
+- **Code drift** - Files changed since the diff was generated
+- **Merge conflicts** - Overlapping changes from previous iterations
+- **Partial matches** - Context lines that shifted
+
+gptpatch's AI-powered smart apply resolves these automatically, keeping your loop running without manual intervention. This is why GPTDiff can run overnight while you sleep—gptpatch handles the edge cases.
+
+For production-ready loop patterns and real metrics (18→127 tests, 8 SQL injections→0), see the [Agent Loops Guide](examples/automation.md).
+
 For further details about GPTDiff and its companion tools, please refer to the [GPTDiff Documentation](https://gptdiff.255labs.xyz).

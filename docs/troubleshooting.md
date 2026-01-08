@@ -89,3 +89,66 @@ The model seems to be generating incorrect or irrelevant diffs.
     gptdiff "your prompt" --temperature 0.3
     ```
 3. Ensure your API key has access to the specified model.
+
+---
+
+## Agent Loop Issues
+
+> **Want to run agent loops like a pro?** See our [Agent Loops guide](examples/automation.md) for battle-tested patterns that achieved 18→127 test coverage and eliminated all SQL injection/XSS vulnerabilities overnight.
+
+### Issue 8: Agent Loop Making No Progress
+**Description:**
+Your agent loop keeps running but isn't making meaningful changes, or the same changes keep being suggested and reverted.
+
+**Solution:**
+1. Check if your prompt is too vague. Be specific about what "done" looks like:
+    ```bash
+    # Too vague - may loop forever
+    while true; do gptdiff "Improve the code" --apply; sleep 5; done
+
+    # Better - has a clear completion state
+    while true; do gptdiff "Add error handling to functions that don't have try/except blocks" --apply; sleep 5; done
+    ```
+2. Add a git commit check to detect when no changes are being made:
+    ```bash
+    while true; do
+      gptdiff "Add missing docstrings" --apply
+      if git diff --quiet; then
+        echo "No more changes needed - exiting"
+        break
+      fi
+      sleep 5
+    done
+    ```
+
+### Issue 9: High API Costs During Agent Loops
+**Description:**
+Running agent loops is consuming more API credits than expected.
+
+**Solution:**
+1. Add longer sleep intervals between iterations:
+    ```bash
+    while true; do gptdiff "Fix linting errors" --apply; sleep 60; done
+    ```
+2. Use a faster, cheaper model for iterative improvements:
+    ```bash
+    export GPTDIFF_MODEL='gemini-2.0-flash'
+    ```
+3. Target specific directories to reduce context size:
+    ```bash
+    while true; do gptdiff "Add tests" src/utils/ --apply; sleep 30; done
+    ```
+
+### Issue 10: Rate Limiting During Agent Loops
+**Description:**
+You receive rate limit errors when running agent loops, especially with fast iteration cycles.
+
+**Solution:**
+1. Increase the sleep interval between iterations (30-60 seconds is usually sufficient)
+2. If you hit rate limits, the loop will naturally pause. Consider adding retry logic:
+    ```bash
+    while true; do
+      gptdiff "Refactor complex functions" --apply || sleep 120
+      sleep 30
+    done
+    ```

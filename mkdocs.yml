@@ -21,6 +21,7 @@ theme:
 nav:
   - Home: index.md
   - Quickstart: quickstart.md
+  - Agent Loops: examples/automation.md
   - CLI Reference: cli.md
   - gptpatch: gptpatch.md
   - API Reference: api.md
@@ -29,7 +30,6 @@ nav:
   - Examples:
       - Basic Usage: examples/basic.md
       - Advanced Refactoring: examples/advanced.md
-      - Automation with While Loops: examples/automation.md
   - Development:
       - Testing Practices: development/testing.md
       - Contributing Guide: development/contributing.md

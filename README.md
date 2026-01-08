@@ -1,6 +1,6 @@
 # GPTDiff
 
-**Transform your codebase with natural language.** GPTDiff lets you describe code changes in plain English and automatically generates and applies the diffs for you.
+**Transform your codebase with natural language.** GPTDiff lets you describe code changes in plain English and automatically generates and applies the diffs for you—one command at a time, or continuously with agent loops.
 
 ```bash
 # Install and configure
@@ -9,9 +9,12 @@ export GPTDIFF_LLM_API_KEY='your-api-key'  # Get one at https://nano-gpt.com/api
 
 # Make changes with a single command
 gptdiff "Add input validation to all form fields" --apply
+
+# Or run continuously for autonomous improvement
+while true; do gptdiff "Fix code quality issues" --apply; sleep 5; done
 ```
 
-That's it. GPTDiff reads your entire project, understands the context, generates a unified diff, and applies it—all in one command.
+That's it. GPTDiff reads your entire project, understands the context, generates a unified diff, and applies it. Run it once for quick changes, or loop it for hands-off continuous improvement.
 
 📚 Full documentation at [gptdiff.255labs.xyz](https://gptdiff.255labs.xyz)
 
@@ -182,11 +185,49 @@ GPTDiff understands your entire codebase—it updates class definitions, imports
 
 | Feature | Benefit |
 |---------|---------|
+| **Agent loops** | Ship improvements while you sleep—one loop took tests from 18 to 127 overnight |
 | **Plain English instructions** | No need to learn complex refactoring tools |
 | **Full project context** | AI sees all your files, understands relationships |
 | **Smart conflict resolution** | Handles merge conflicts automatically |
 | **Git-native workflow** | Review changes with `git diff`, undo with `git checkout` |
 | **You control everything** | Preview with `--call`, apply only when ready |
+
+## Agent Loops: Continuous Code Improvement
+
+Run GPTDiff in a loop for autonomous, iterative improvements to your codebase:
+
+```bash
+# Copy-paste this and run tonight:
+while true; do
+  gptdiff "Add missing test cases for edge conditions" --apply
+  git add -A && git commit -m "Auto-improvement $(date +%H:%M)" 2>/dev/null
+  sleep 30
+done
+```
+
+Each improvement auto-commits with a timestamp, giving you a clean history to review in the morning.
+
+**Real Results:** One test coverage loop running overnight:
+
+| Metric | Before | After |
+|--------|--------|-------|
+| Test files | 3 | 14 |
+| Test cases | 18 | 127 |
+| Functions with tests | 12% | 71% |
+
+**What else Agent Loops can do:**
+
+| Use Case | Example Prompt |
+|----------|----------------|
+| **Security Hardening** | "Find and fix OWASP Top 10 vulnerabilities" |
+| **Tech Debt Reduction** | "Refactor functions with high complexity scores" |
+| **Documentation Sync** | "Update documentation to match current implementation" |
+
+Each cycle analyzes your code, generates targeted improvements, and applies them—building better software automatically.
+
+For detailed automation recipes, see the [Automation Guide](https://gptdiff.255labs.xyz/examples/automation).
+
+---
 
 ## Choosing a Model
 

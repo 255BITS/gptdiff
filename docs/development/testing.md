@@ -57,3 +57,21 @@ pytest tests/test_smartapply.py -k "test_smartapply_file_modification"
 1. **Isolate Scenarios**: One logical case per test
 2. **Mock LLM Responses**: Use `@patch` for deterministic outcomes
 3. **Check Boundaries**: Empty files, invalid paths, encoding issues
+
+## Agent Loop Testing
+
+Agent loops run autonomously, making test reliability critical. Flaky tests or inconsistent behavior will compound across hundreds of iterations.
+
+**Testing for Loop Safety:**
+
+```python
+def test_operation_idempotency():
+    """Verify repeated execution produces consistent results"""
+    result1 = apply_operation(source_code)
+    result2 = apply_operation(result1)  # Second pass
+    assert result1 == result2  # Should be stable
+```
+
+**Why This Matters:** A test that passes sometimes but fails others becomes a major problem at 3 AM when your agent loop has run 47 iterations.
+
+**Pro tip:** Use agent loops to improve your test suite. See [Test Enhancement Recipes](../examples/automation.md#test-enhancement-recipes) for patterns that can expand coverage while you sleep.

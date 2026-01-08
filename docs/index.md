@@ -1,11 +1,16 @@
 # GPTDiff Documentation
 
-**Transform your codebase with natural language.** Describe what you want to change in plain English, and GPTDiff generates and applies the code modifications automatically.
+**Transform your codebase with natural language.** Describe what you want to change in plain English, and GPTDiff generates and applies the code modifications automatically—one command at a time, or continuously with agent loops.
 
 ```bash
 pip install gptdiff
 export GPTDIFF_LLM_API_KEY='your-key'
+
+# Make changes with a single command
 gptdiff "Add input validation to all form fields" --apply
+
+# Or run continuously for autonomous improvement
+while true; do gptdiff "Fix code quality issues" --apply; sleep 5; done
 ```
 
 ---
@@ -111,11 +116,43 @@ git checkout .  # Undo unwanted changes
 
 ---
 
+## Agent Loops: Autonomous Code Improvement
+
+| Without Agent Loops | With Agent Loops |
+|---------------------|------------------|
+| Manual code reviews | Automated 24/7 scanning |
+| Reactive bug fixes | Proactive issue detection |
+| Weekend tech debt sprints | Continuous improvement |
+| One change per prompt | Hundreds of changes overnight |
+
+Run GPTDiff continuously for hands-off, iterative improvements:
+
+```bash
+while true; do
+  gptdiff "Add missing test cases for edge conditions" --apply
+  sleep 5
+done
+```
+
+**Real Results:** One overnight run on a Python project:
+
+| Metric | Before | After |
+|--------|--------|-------|
+| Test cases | 18 | 127 |
+| Functions with tests | 12% | 71% |
+
+**More Use Cases:** Security hardening, tech debt reduction, documentation sync—each loop cycle finds the next issue and fixes it automatically.
+
+For detailed patterns and recipes, see the [Automation Guide](examples/automation.md).
+
+---
+
 ## Documentation
 
 | Guide | Description |
 |-------|-------------|
 | [Quickstart](quickstart.md) | Get running in 2 minutes |
+| [Agent Loops](examples/automation.md) | Ship improvements overnight—one user went 18→127 tests |
 | [Installation](installation.md) | Setup and configuration |
 | [CLI Reference](cli.md) | All command-line options |
 | [Python API](api.md) | Use GPTDiff in your Python code |
@@ -123,21 +160,6 @@ git checkout .  # Undo unwanted changes
 | [Troubleshooting](troubleshooting.md) | Common issues and solutions |
 
 **Model Selection:** Different AI models work better for different tasks. See [Choosing a Model](https://github.com/255BITS/gptdiff#choosing-a-model) in the README for guidance.
-
----
-
-## Agent Loops
-
-Run GPTDiff continuously for iterative improvements:
-
-```bash
-while true; do
-  gptdiff "Add missing test cases" --apply
-  sleep 5
-done
-```
-
-*Works best with capable models like `gemini-3-pro-preview` or `gpt-4o`.*
 
 ---
 
