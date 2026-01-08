@@ -7,7 +7,6 @@ import re
 import time
 import os
 import json
-import subprocess
 import sys
 import fnmatch
 import argparse
@@ -24,17 +23,6 @@ import openai
 from openai import OpenAI
 import tiktoken
 import requests
-import time
-import os
-import json
-import subprocess
-import sys
-import fnmatch
-import argparse
-import pkgutil
-import contextvars
-from pkgutil import get_data
-import threading
 from ai_agent_toolbox import MarkdownParser, MarkdownPromptFormatter, Toolbox, FlatXMLParser, FlatXMLPromptFormatter
 from .applydiff import apply_diff, parse_diff_per_file
 
@@ -1037,12 +1025,12 @@ def main():
         print("\nAttempting apply with the following diff:")
         print(color_code_diff(diff_text))
         print("\033[94m**Attempting to apply patch using basic method...**\033[0m")
-        apply_result = apply_diff(project_dir, diff_text)
-        if apply_result:
-            print(f"\033[1;32mPatch applied successfully with basic apply.\033[0m")
-        else:
-            print("\033[94m**Attempting smart apply with LLM...**\033[0m")
-            smart_apply_patch(project_dir, diff_text, user_prompt, args)
+        smart_apply_patch(project_dir, diff_text, user_prompt, args)
+        #apply_result = apply_diff(project_dir, diff_text)
+        #if apply_result:
+        #    print(f"\033[1;32mPatch applied successfully with basic apply.\033[0m")
+        #else:
+        #    print("\033[94m**Attempting smart apply with LLM...**\033[0m")
 
     if args.beep:
         print("\a")
