@@ -2,15 +2,13 @@
 import pytest
 from gptdiff.gptdiff import strip_bad_output
 
+
 def test_strip_bad_output_removes_wrapping():
     """
-    If the original file content does not start with a code fence,
-    but the LLM output starts with a code block and extra text,
-    then only the content inside the first code block should be returned.
+    LLM wraps the file in a ```diff fence with preamble and postamble.
+    We should extract the file content verbatim, including its trailing newline.
     """
-    # Original file content does not start with a code fence.
     original = "def hello():\n    print('Hello')\n"
-    # Simulated LLM output with extraneous text and a code block.
     updated = (
         "This is the file you requested:\n"
         "```diff\n"
@@ -19,60 +17,38 @@ def test_strip_bad_output_removes_wrapping():
         "```\n"
         "Thank you!"
     )
-    # We expect the function to extract only the content inside the code block.
-    expected = "diff\ndef hello():\n    print('Goodbye')"
+    expected = "def hello():\n    print('Goodbye')\n"
     result = strip_bad_output(updated, original)
-    assert result == expected, f"Expected:\n{expected}\nGot:\n{result}"
+    assert result == expected, f"Expected:\n{expected!r}\nGot:\n{result!r}"
+
 
 def test_strip_bad_output_no_change_when_original_has_code_block():
     """
-    If the original file already starts with a code fence,
-    the function should leave the updated output unchanged.
+    If the original file already starts with a code fence, return updated as-is.
     """
     original = "```diff\ndef hello():\n    print('Hello')\n```"
     updated = "```diff\ndef hello():\n    print('Modified')\n```"
-    expected = updated.strip()
     result = strip_bad_output(updated, original)
-    assert result == expected, "Expected no changes when original already starts with a code fence"
+    assert result == updated
+
 
 def test_strip_bad_output_no_wrapping_detected():
     """
-    If the updated output does not start with a code fence,
-    the function should return the updated output unchanged.
+    If the updated output has no code fence, return it unchanged
+    (preserving the trailing newline).
     """
     original = "def hello():\n    print('Hello')\n"
     updated = "def hello():\n    print('Modified')\n"
-    expected = updated.strip()
     result = strip_bad_output(updated, original)
-    assert result == expected, "Expected output to remain unchanged if no code block is detected"
+    assert result == updated
 
 
 def test_strip_bad_output_prod_case():
     """
-    Test that when the updated output includes extraneous introductory text and
-    a language specifier in the code block, the function extracts only the content
-    within the code block (without the language tag or extra text).
-
-    For example, given an updated output like:
-
-        Here's the entire file after applying the diff:
-
-        ```typescript
-        def foo():
-            print('Modified')
-        ```
-        Some trailing text that should be ignored.
-
-    the expected extracted content is:
-
-        def foo():
-            print('Modified')
+    Updated output has preamble, a typescript language tag, and postamble.
+    Extracted content keeps its trailing newline.
     """
-    # Original file content does not start with a code fence.
     original = "def foo():\n    pass\n"
-
-    # Simulated LLM output with extraneous text, a language specifier ("typescript"),
-    # and trailing text.
     updated = (
         "Here's the entire file after applying the diff:\n\n"
         "```typescript\n"
@@ -81,10 +57,68 @@ def test_strip_bad_output_prod_case():
         "```\n"
         "Some trailing text that should be ignored."
     )
-
-    # We expect the function to extract only the content inside the first code block,
-    # ignoring the language specifier and any text outside the code block.
-    expected = "def foo():\n    print('Modified')"
-
+    expected = "def foo():\n    print('Modified')\n"
     result = strip_bad_output(updated, original)
-    assert result == expected, f"Expected:\n{expected}\nGot:\n{result}"
+    assert result == expected, f"Expected:\n{expected!r}\nGot:\n{result!r}"
+
+
+def test_strip_bad_output_preserves_inner_code_fences():
+    """
+    Regression: a Markdown file containing triple-backtick code blocks must
+    NOT be truncated at the first inner fence when the LLM wraps the whole
+    file in an outer fence. Previously the greedy-but-non-greedy regex
+    `re.search(r"```(.*?)```", ...)` matched the outer opener against the
+    first inner closer, losing everything after.
+    """
+    original = (
+        "# README\n"
+        "\n"
+        "Some code:\n"
+        "\n"
+        "```python\n"
+        "print(\"hi\")\n"
+        "```\n"
+        "\n"
+        "More text at end.\n"
+    )
+    updated = "```markdown\n" + original + "```"
+    result = strip_bad_output(updated, original)
+    assert result == original, (
+        f"Inner code fences truncated content.\n"
+        f"Expected:\n{original!r}\nGot:\n{result!r}"
+    )
+
+
+def test_strip_bad_output_preserves_trailing_newline_plain():
+    """
+    Regression: even for a plain file with no wrapping, the trailing newline
+    must be preserved. Previously `.strip()` ate it on every smartapply.
+    """
+    original = "def hello():\n    print('hi')\n"
+    updated = "def hello():\n    print('bye')\n"
+    result = strip_bad_output(updated, original)
+    assert result.endswith("\n"), f"Trailing newline lost: {result!r}"
+    assert result == updated
+
+
+def test_strip_bad_output_drops_stray_language_after_bare_fence():
+    """
+    If the LLM opens a bare ``` and puts the language on the next line,
+    drop that stray language tag.
+    """
+    original = "def hello():\n    pass\n"
+    updated = "```\npython\ndef hello():\n    print('hi')\n```\n"
+    expected = "def hello():\n    print('hi')\n"
+    result = strip_bad_output(updated, original)
+    assert result == expected, f"Expected:\n{expected!r}\nGot:\n{result!r}"
+
+
+def test_strip_bad_output_unclosed_fence_returns_input():
+    """
+    If we can find an opening fence but no matching closing fence, return
+    the input unchanged rather than guessing.
+    """
+    original = "def hello():\n    pass\n"
+    updated = "```python\ndef hello():\n    print('hi')\n"
+    result = strip_bad_output(updated, original)
+    assert result == updated

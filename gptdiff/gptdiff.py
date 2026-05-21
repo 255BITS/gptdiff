@@ -1074,27 +1074,49 @@ def swallow_reasoning(full_response: str) -> (str, str):
 
 def strip_bad_output(updated: str, original: str) -> str:
     """
-    If the original file content does not start with a code fence but the LLM’s updated output
-    starts with triple backticks (possibly with an introductory message), extract and return only
-    the content within the first code block.
+    If the LLM wrapped the file content in a Markdown code fence, unwrap it.
+
+    Uses line-based fence detection (open on the first ``` line, close on the
+    LAST ``` line) so that inner triple-backticks inside the file content do
+    not truncate the result. File content — including a trailing newline — is
+    preserved verbatim.
     """
-    updated_stripped = updated.strip()
-    # If the original file does not start with a code fence, but the updated output contains a code block,
-    # extract and return only the content inside the first code block.
-    if not original.lstrip().startswith("```"):
-        # Search for the first code block in the updated output.
-        m = re.search(r"```(.*?)```", updated_stripped, re.DOTALL)
-        if m:
-            content = m.group(1).strip()
-            lines = content.splitlines()
-            if len(lines) > 1:
-                first_line = lines[0].strip()
-                # If the first line appears to be a language specifier (i.e., a single word)
-                # and is not "diff", then drop it.
-                if " " not in first_line and first_line.lower() != "diff":
-                    content = "\n".join(lines[1:]).strip()
-            return content
-    return updated_stripped
+    # If the file itself starts with a code fence, don't try to unwrap.
+    if original.lstrip().startswith("```"):
+        return updated
+
+    lines = updated.splitlines(keepends=True)
+
+    # Find the first line that opens a fence (possibly after a preamble).
+    open_idx = None
+    for i, line in enumerate(lines):
+        if line.lstrip().startswith("```"):
+            open_idx = i
+            break
+    if open_idx is None:
+        return updated
+
+    # Find the LAST line that is exactly a closing fence after the opener.
+    close_idx = None
+    for i in range(len(lines) - 1, open_idx, -1):
+        if lines[i].strip() == "```":
+            close_idx = i
+            break
+    if close_idx is None:
+        return updated
+
+    inner = "".join(lines[open_idx + 1:close_idx])
+
+    # If the opener was a bare ``` and the model put the language on the next
+    # line instead (e.g. "```\npython\n..."), drop that stray language tag.
+    if lines[open_idx].strip() == "```":
+        inner_lines = inner.splitlines(keepends=True)
+        if len(inner_lines) > 1:
+            first_inner = inner_lines[0].strip()
+            if first_inner and " " not in first_inner and first_inner.lower() != "diff":
+                inner = "".join(inner_lines[1:])
+
+    return inner
 
 if __name__ == "__main__":
     main()
