@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{#
+  Top announcement bar shown on every page — mirrors the banner on the
+  gptdiff-js example pages. Points at the browser port and its live demos.
+#}
+{% block announce %}
+  <a href="https://github.com/255BITS/gptdiff-js" target="_blank" rel="noopener">gptdiff-js</a>
+  — run gptdiff in the browser, no command line
+  &nbsp;·&nbsp;
+  <a href="https://255bits.github.io/gptdiff-js-examples/" target="_blank" rel="noopener">live demos</a>
+{% endblock %}
