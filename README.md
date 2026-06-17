@@ -18,6 +18,14 @@ That's it. GPTDiff reads your entire project, understands the context, generates
 
 📚 Full documentation at [gptdiff.255labs.xyz](https://gptdiff.255labs.xyz)
 
+Prefer the browser? **[gptdiff-js](https://github.com/255BITS/gptdiff-js)** is a JavaScript port of
+`generateDiff` + `smartapply` — try the **[live demos →](https://255bits.github.io/gptdiff-js-examples/)**.
+
+> **The gptdiff family** —
+> **gptdiff** (you are here) ·
+> [**gptdiff-js**](https://github.com/255BITS/gptdiff-js) (browser-first JS port) ·
+> [**gptdiff-js-examples**](https://github.com/255BITS/gptdiff-js-examples) (live browser demos)
+
 ---
 
 ## Quick Start
